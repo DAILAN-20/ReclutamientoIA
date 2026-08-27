@@ -22,6 +22,12 @@
         Crear usuario
     </a>
 </div>
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Mensaje"]
+    </div>
+}
 
 @if (!Model.Any())
 {
@@ -40,6 +46,7 @@ else
                     <th>Teléfono</th>
                     <th>Rol</th>
                     <th>Estado</th>
+                    <th class="text-center">Acciones</th>
                 </tr>
             </thead>
 
@@ -66,6 +73,19 @@ else
                                     Inactivo
                                 </span>
                             }
+
+                        </td>
+                        <td class="text-center">
+                            <a asp-action="Edit"
+                               asp-route-id="@usuario.Id"
+                               class="btn btn-warning btn-sm">
+                                Editar
+                            </a>
+                            <a asp-action="RestablecerContrasena"
+                               asp-route-id="@usuario.Id"
+                               class="btn btn-danger btn-sm">
+                                Contraseña
+                            </a>
                         </td>
                     </tr>
                 }

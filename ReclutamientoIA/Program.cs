@@ -26,7 +26,15 @@ builder.Services
         options.User.RequireUniqueEmail = true;
     })
     .AddEntityFrameworkStores<ReclutamientoDbContext>()
+
+
     .AddDefaultTokenProviders();
+builder.Services.Configure<SecurityStampValidatorOptions>(
+    options =>
+    {
+        options.ValidationInterval = TimeSpan.Zero;
+    }
+);
 
 // Rutas utilizadas cuando el usuario no ha iniciado sesión
 builder.Services.ConfigureApplicationCookie(options =>
