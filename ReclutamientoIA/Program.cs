@@ -1,15 +1,23 @@
+using Microsoft.EntityFrameworkCore;
+using ReclutamientoIA.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Agregar los controladores y las vistas
 builder.Services.AddControllersWithViews();
+
+// Conectar Entity Framework Core con SQL Server
+builder.Services.AddDbContext<ReclutamientoDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("ConexionSQL")
+    )
+);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -24,6 +32,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
-
 
 app.Run();
