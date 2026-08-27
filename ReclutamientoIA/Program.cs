@@ -37,6 +37,15 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 var app = builder.Build();
 
+// Crear roles y primer administrador
+using (var scope = app.Services.CreateScope())
+{
+    await InicializadorDatos.InicializarAsync(
+        scope.ServiceProvider,
+        builder.Configuration
+    );
+}
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
