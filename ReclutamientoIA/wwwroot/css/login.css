@@ -1,0 +1,31 @@
+﻿.login-contenedor {
+    min-height: 65vh;
+    display: flex;
+    align-items: center;
+}
+
+    .login-contenedor .card {
+        border: 0;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .login-contenedor .card-header {
+        background: linear-gradient(135deg, #123a63, #0d6efd) !important;
+        padding: 25px;
+    }
+
+    .login-contenedor .card-body {
+        padding: 30px !important;
+    }
+
+    .login-contenedor .form-control {
+        min-height: 45px;
+        border-radius: 8px;
+    }
+
+    .login-contenedor .btn {
+        min-height: 45px;
+        border-radius: 8px;
+        font-weight: 600;
+    }

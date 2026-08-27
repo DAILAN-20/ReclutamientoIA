@@ -1,0 +1,75 @@
+﻿@model IEnumerable<ReclutamientoIA.Models.UsuarioListaViewModel>
+
+@{
+    ViewData["Title"] = "Usuarios";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/usuarios.css"
+          asp-append-version="true" />
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1>Usuarios</h1>
+        <p class="text-muted">
+            Administración de accesos y roles del sistema
+        </p>
+    </div>
+
+    <a asp-action="Create" class="btn btn-primary">
+        Crear usuario
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No hay usuarios registrados.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Teléfono</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var usuario in Model)
+                {
+                    <tr>
+                        <td>@usuario.NombreCompleto</td>
+                        <td>@usuario.Correo</td>
+                        <td>@(usuario.Telefono ?? "No registrado")</td>
+                        <td>
+                            <span class="badge bg-primary">
+                                @usuario.Rol
+                            </span>
+                        </td>
+                        <td>
+                            @if (usuario.Activo)
+                            {
+                                <span class="badge bg-success">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    Inactivo
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
