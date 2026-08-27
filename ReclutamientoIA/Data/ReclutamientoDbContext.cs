@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ReclutamientoIA.Models;
 
 namespace ReclutamientoIA.Data
 {
-    public class ReclutamientoDbContext : DbContext
+    public class ReclutamientoDbContext
+        : IdentityDbContext<Usuario>
     {
         public ReclutamientoDbContext(
             DbContextOptions<ReclutamientoDbContext> options)
