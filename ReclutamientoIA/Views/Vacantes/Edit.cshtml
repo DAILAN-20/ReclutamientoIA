@@ -1,54 +1,81 @@
 @model ReclutamientoIA.Models.Vacante
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Editar vacante";
 }
 
-<h1>Edit</h1>
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning">
+                <h4 class="mb-0">Editar vacante</h4>
+            </div>
 
-<h4>Vacante</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="IdVacante" />
-            <div class="form-group">
-                <label asp-for="Titulo" class="control-label"></label>
-                <input asp-for="Titulo" class="form-control" />
-                <span asp-validation-for="Titulo" class="text-danger"></span>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger mb-3"></div>
+
+                    <input type="hidden" asp-for="IdVacante" />
+                    <input type="hidden" asp-for="FechaCreacion" />
+
+                    <div class="mb-3">
+                        <label asp-for="Titulo" class="form-label">
+                            Título de la vacante
+                        </label>
+                        <input asp-for="Titulo" class="form-control" />
+                        <span asp-validation-for="Titulo"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Descripcion" class="form-label">
+                            Descripción
+                        </label>
+                        <textarea asp-for="Descripcion"
+                                  class="form-control"
+                                  rows="4"></textarea>
+                        <span asp-validation-for="Descripcion"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Requisitos" class="form-label">
+                            Requisitos
+                        </label>
+                        <textarea asp-for="Requisitos"
+                                  class="form-control"
+                                  rows="4"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Estado" class="form-label">
+                            Estado
+                        </label>
+                        <select asp-for="Estado" class="form-select">
+                            <option value="Activa">Activa</option>
+                            <option value="Inactiva">Inactiva</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-warning">
+                            Guardar cambios
+                        </button>
+
+                        <a asp-action="Index"
+                           class="btn btn-secondary">
+                            Volver
+                        </a>
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <label asp-for="Descripcion" class="control-label"></label>
-                <input asp-for="Descripcion" class="form-control" />
-                <span asp-validation-for="Descripcion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Requisitos" class="control-label"></label>
-                <input asp-for="Requisitos" class="form-control" />
-                <span asp-validation-for="Requisitos" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Estado" class="control-label"></label>
-                <input asp-for="Estado" class="form-control" />
-                <span asp-validation-for="Estado" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FechaCreacion" class="control-label"></label>
-                <input asp-for="FechaCreacion" class="form-control" />
-                <span asp-validation-for="FechaCreacion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

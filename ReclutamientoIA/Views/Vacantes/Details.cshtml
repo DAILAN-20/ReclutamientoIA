@@ -1,52 +1,60 @@
 @model ReclutamientoIA.Models.Vacante
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalles de la vacante";
 }
 
-<h1>Details</h1>
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-info">
+                <h4 class="mb-0">Detalles de la vacante</h4>
+            </div>
 
-<div>
-    <h4>Vacante</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Titulo)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Titulo)
-        </dd>
-    </dl>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Descripcion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Descripcion)
-        </dd>
-    </dl>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Requisitos)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Requisitos)
-        </dd>
-    </dl>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Estado)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Estado)
-        </dd>
-    </dl>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FechaCreacion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FechaCreacion)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.IdVacante">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Título</dt>
+                    <dd class="col-sm-8">@Model.Titulo</dd>
+
+                    <dt class="col-sm-4">Descripción</dt>
+                    <dd class="col-sm-8">@Model.Descripcion</dd>
+
+                    <dt class="col-sm-4">Requisitos</dt>
+                    <dd class="col-sm-8">@Model.Requisitos</dd>
+
+                    <dt class="col-sm-4">Estado</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.Estado == "Activa")
+                        {
+                            <span class="badge bg-success">Activa</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">
+                                @Model.Estado
+                            </span>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-4">Fecha de creación</dt>
+                    <dd class="col-sm-8">
+                        @Model.FechaCreacion.ToString("dd/MM/yyyy hh:mm tt")
+                    </dd>
+                </dl>
+
+                <div class="d-flex gap-2">
+                    <a asp-action="Edit"
+                       asp-route-idVacante="@Model.IdVacante"
+                       class="btn btn-warning">
+                        Editar
+                    </a>
+
+                    <a asp-action="Index"
+                       class="btn btn-secondary">
+                        Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

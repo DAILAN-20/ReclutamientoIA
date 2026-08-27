@@ -1,59 +1,83 @@
 @model IEnumerable<ReclutamientoIA.Models.Vacante>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Vacantes";
 }
 
-<h1>Index</h1>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1>Vacantes</h1>
+        <p class="text-muted">Administración de puestos disponibles</p>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Titulo)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Descripcion)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Requisitos)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Estado)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FechaCreacion)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(model => item.Titulo)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Descripcion)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Requisitos)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Estado)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.FechaCreacion)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.IdVacante">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.IdVacante">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.IdVacante">Delete</a>
-            </td>
-        </tr>
+    <a asp-action="Create" class="btn btn-primary">
+        Crear vacante
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        Todavía no hay vacantes registradas.
+    </div>
 }
-    </tbody>
-</table>
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Título</th>
+                    <th>Descripción</th>
+                    <th>Requisitos</th>
+                    <th>Estado</th>
+                    <th>Fecha de creación</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var vacante in Model)
+                {
+                    <tr>
+                        <td>@vacante.Titulo</td>
+                        <td>@vacante.Descripcion</td>
+                        <td>@vacante.Requisitos</td>
+                        <td>
+                            @if (vacante.Estado == "Activa")
+                            {
+                                <span class="badge bg-success">Activa</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    @vacante.Estado
+                                </span>
+                            }
+                        </td>
+                        <td>@vacante.FechaCreacion.ToString("dd/MM/yyyy")</td>
+                        <td class="text-center">
+                            <a asp-action="Edit"
+                               asp-route-idVacante="@vacante.IdVacante"
+                               class="btn btn-warning btn-sm">
+                                Editar
+                            </a>
+
+                            <a asp-action="Details"
+                               asp-route-idVacante="@vacante.IdVacante"
+                               class="btn btn-info btn-sm">
+                                Detalles
+                            </a>
+
+                            <a asp-action="Delete"
+                               asp-route-idVacante="@vacante.IdVacante"
+                               class="btn btn-danger btn-sm">
+                                Eliminar
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
