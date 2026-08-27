@@ -14,5 +14,6 @@ namespace ReclutamientoIA.Data
         }
 
         public DbSet<Vacante> Vacantes { get; set; }
+        public DbSet<Candidato> Candidatos { get; set; }
     }
 }

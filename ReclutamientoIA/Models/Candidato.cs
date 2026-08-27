@@ -1,0 +1,47 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ReclutamientoIA.Models
+{
+    public class Candidato
+    {
+        [Key]
+        public int IdCandidato { get; set; }
+
+        [StringLength(150)]
+        public string? NombreCompleto { get; set; }
+
+        [EmailAddress]
+        [StringLength(150)]
+        public string? Correo { get; set; }
+
+        [StringLength(30)]
+        public string? Telefono { get; set; }
+
+        [Required]
+        [StringLength(255)]
+        public string NombreArchivoOriginal { get; set; } =
+            string.Empty;
+
+        [Required]
+        [StringLength(255)]
+        public string NombreArchivoGuardado { get; set; } =
+            string.Empty;
+
+        [Required]
+        [StringLength(100)]
+        public string TipoContenido { get; set; } =
+            "application/pdf";
+
+        public long TamanoArchivo { get; set; }
+
+        [Required]
+        [StringLength(64)]
+        public string HashArchivo { get; set; } =
+            string.Empty;
+
+        public DateTime FechaRegistro { get; set; } =
+            DateTime.Now;
+
+        public bool Activo { get; set; } = true;
+    }
+}
