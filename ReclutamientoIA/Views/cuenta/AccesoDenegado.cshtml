@@ -1,0 +1,21 @@
+﻿@{
+    ViewData["Title"] = "Acceso denegado";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-7">
+        <div class="alert alert-danger text-center shadow-sm">
+            <h2>Acceso denegado</h2>
+
+            <p class="mb-4">
+                No tiene permisos para ingresar a esta sección.
+            </p>
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="btn btn-primary">
+                Volver al inicio
+            </a>
+        </div>
+    </div>
+</div>

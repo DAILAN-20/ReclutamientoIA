@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ReclutamientoIA.Models;
 using ReclutamientoIA.Data;
-
+using Microsoft.AspNetCore.Authorization;
+[Authorize(Roles = "Administrador,Reclutador")]
 public class VacantesController : Controller
 {
     private readonly ReclutamientoDbContext _context;

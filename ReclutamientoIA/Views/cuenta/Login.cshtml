@@ -1,0 +1,68 @@
+﻿@model ReclutamientoIA.Models.LoginViewModel
+
+@{
+    ViewData["Title"] = "Iniciar sesión";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white text-center">
+                <h3 class="mb-0">Reclutamiento IA</h3>
+                <small>Inicio de sesión</small>
+            </div>
+
+            <div class="card-body p-4">
+                <form asp-action="Login"
+                      asp-route-returnUrl="@ViewData["ReturnUrl"]"
+                      method="post">
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Correo" class="form-label">
+                            Correo electrónico
+                        </label>
+                        <input asp-for="Correo"
+                               class="form-control"
+                               autocomplete="username"
+                               placeholder="correo@ejemplo.com" />
+                        <span asp-validation-for="Correo"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Contrasena" class="form-label">
+                            Contraseña
+                        </label>
+                        <input asp-for="Contrasena"
+                               class="form-control"
+                               autocomplete="current-password"
+                               placeholder="Ingrese su contraseña" />
+                        <span asp-validation-for="Contrasena"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input asp-for="Recordarme"
+                               class="form-check-input" />
+                        <label asp-for="Recordarme"
+                               class="form-check-label"></label>
+                    </div>
+
+                    <button type="submit"
+                            class="btn btn-primary w-100">
+                        Iniciar sesión
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
