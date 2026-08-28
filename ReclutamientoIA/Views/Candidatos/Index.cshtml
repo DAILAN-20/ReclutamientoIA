@@ -1,0 +1,99 @@
+﻿@model IEnumerable<ReclutamientoIA.Models.Candidato>
+
+@{
+    ViewData["Title"] = "Candidatos";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/candidatos.css"
+          asp-append-version="true" />
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1>Candidatos</h1>
+        <p class="text-muted">
+            Banco general de currículums
+        </p>
+    </div>
+
+    <a asp-action="Create" class="btn btn-primary">
+        Subir currículum
+    </a>
+</div>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Mensaje"]
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        Todavía no hay candidatos registrados.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Candidato</th>
+                    <th>Correo</th>
+                    <th>Teléfono</th>
+                    <th>Currículum</th>
+                    <th>Tamaño</th>
+                    <th>Registro</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var candidato in Model)
+                {
+                    <tr>
+                        <td>
+                            @(candidato.NombreCompleto
+                                ?? "Pendiente de extracción")
+                        </td>
+
+                        <td>
+                            @(candidato.Correo ?? "No disponible")
+                        </td>
+
+                        <td>
+                            @(candidato.Telefono ?? "No disponible")
+                        </td>
+
+                        <td>@candidato.NombreArchivoOriginal</td>
+
+                        <td>
+                            @((candidato.TamanoArchivo / 1024.0)
+                                .ToString("N1")) KB
+                        </td>
+<td>@candidato.FechaRegistro.ToString("dd/MM/yyyy hh:mm tt")</td>
+
+                        <td>
+                            @if (candidato.Activo)
+                            {
+                                <span class="badge bg-success">
+                                    Activo
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    Inactivo
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

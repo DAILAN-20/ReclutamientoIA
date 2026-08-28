@@ -1,0 +1,137 @@
+﻿@model IEnumerable<ReclutamientoIA.Models.AnalisisIA>
+
+@{
+    ViewData["Title"] = "Ranking de candidatos";
+
+    var vacante =
+        ViewBag.Vacante as ReclutamientoIA.Models.Vacante;
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/vacantes.css"
+          asp-append-version="true" />
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1>Ranking de candidatos</h1>
+
+        <p class="text-muted mb-0">
+            Vacante:
+            <strong>@vacante?.Titulo</strong>
+        </p>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a asp-action="SeleccionarCandidatos"
+           asp-route-idVacante="@vacante?.IdVacante"
+           class="btn btn-primary">
+            Analizar más CV
+        </a>
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+            Volver
+        </a>
+    </div>
+</div>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Mensaje"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-warning">
+        @TempData["Error"]
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        Esta vacante todavía no tiene candidatos analizados.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th class="text-center">Posición</th>
+                    <th>Candidato</th>
+                    <th>Correo</th>
+                    <th>Teléfono</th>
+                    <th class="text-center">Puntuación</th>
+                    <th>Recomendación</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @{
+                    var posicion = 1;
+                }
+
+                @foreach (var analisis in Model)
+                {
+                    var clasePuntuacion =
+                        analisis.Puntuacion >= 80
+                            ? "bg-success"
+                            : analisis.Puntuacion >= 60
+                                ? "bg-warning text-dark"
+                                : "bg-danger";
+
+                    <tr>
+                        <td class="text-center">
+                            <strong>#@posicion</strong>
+                        </td>
+
+                        <td>
+                            @(analisis.Candidato.NombreCompleto
+                                ?? "Nombre no disponible")
+                        </td>
+
+                        <td>
+                            @(analisis.Candidato.Correo
+                                ?? "No disponible")
+                        </td>
+
+                        <td>
+                            @(analisis.Candidato.Telefono
+                                ?? "No disponible")
+                        </td>
+
+                        <td class="text-center">
+                            <span class="badge @clasePuntuacion">
+                                @analisis.Puntuacion / 100
+                            </span>
+                        </td>
+
+                        <td>@analisis.Recomendacion</td>
+
+                        <td>
+                            <span class="badge bg-primary">
+                                @analisis.EstadoProceso
+                            </span>
+                        </td>
+
+                        <td>
+                            @analisis.FechaAnalisis.ToString(
+                                "dd/MM/yyyy hh:mm tt"
+                            )
+                        </td>
+                    </tr>
+
+                    posicion++;
+                }
+            </tbody>
+        </table>
+    </div>
+}

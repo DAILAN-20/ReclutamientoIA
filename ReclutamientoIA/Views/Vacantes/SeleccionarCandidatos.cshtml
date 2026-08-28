@@ -1,0 +1,101 @@
+﻿@model ReclutamientoIA.Models.SeleccionarCandidatosViewModel
+
+@{
+    ViewData["Title"] = "Seleccionar candidatos";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/vacantes.css"
+          asp-append-version="true" />
+}
+
+<div class="mb-4">
+    <h1>Seleccionar candidatos</h1>
+
+    <p class="text-muted">
+        Vacante:
+        <strong>@Model.TituloVacante</strong>
+    </p>
+</div>
+
+@if (!Model.Candidatos.Any())
+{
+    <div class="alert alert-info">
+        No hay currículums disponibles para analizar.
+        Los candidatos existentes posiblemente ya fueron
+        analizados para esta vacante.
+    </div>
+
+    <a asp-action="Index" class="btn btn-secondary">
+        Volver a vacantes
+    </a>
+}
+else
+{
+    <form asp-action="SeleccionarCandidatos"
+          method="post">
+
+        <input type="hidden"
+               asp-for="IdVacante" />
+
+        <input type="hidden"
+               asp-for="TituloVacante" />
+
+        <div asp-validation-summary="ModelOnly"
+             class="alert alert-danger"></div>
+
+        <div class="table-responsive mb-3">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="text-center">Seleccionar</th>
+                        <th>Candidato</th>
+                        <th>Correo</th>
+                        <th>Currículum</th>
+                        <th>Fecha de registro</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var candidato in Model.Candidatos)
+                    {
+                        <tr>
+                            <td class="text-center">
+                                <input type="checkbox"
+                                       class="form-check-input"
+                                       name="CandidatosSeleccionados"
+                                       value="@candidato.IdCandidato" />
+                            </td>
+
+                            <td>@candidato.NombreCompleto</td>
+                            <td>@candidato.Correo</td>
+                            <td>@candidato.NombreArchivo</td>
+
+                            <td>
+                                @candidato.FechaRegistro.ToString(
+                                    "dd/MM/yyyy hh:mm tt"
+                                )
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <span asp-validation-for="CandidatosSeleccionados"
+              class="text-danger d-block mb-3"></span>
+
+        <div class="d-flex gap-2">
+            <button type="submit"
+                    class="btn btn-primary">
+                Analizar candidatos seleccionados
+            </button>
+
+            <a asp-action="Index"
+               class="btn btn-secondary">
+                Cancelar
+            </a>
+        </div>
+    </form>
+}

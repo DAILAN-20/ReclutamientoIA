@@ -155,6 +155,67 @@ namespace ReclutamientoIA.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ReclutamientoIA.Models.AnalisisIA", b =>
+                {
+                    b.Property<int>("IdAnalisis")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdAnalisis"));
+
+                    b.Property<string>("Debilidades")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EstadoProceso")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("FechaAnalisis")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Fortalezas")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("IdCandidato")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdVacante")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ModeloIA")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ProveedorIA")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("Puntuacion")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Recomendacion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Resumen")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("IdAnalisis");
+
+                    b.HasIndex("IdCandidato");
+
+                    b.HasIndex("IdVacante", "IdCandidato")
+                        .IsUnique();
+
+                    b.ToTable("AnalisisIA");
+                });
+
             modelBuilder.Entity("ReclutamientoIA.Models.Candidato", b =>
                 {
                     b.Property<int>("IdCandidato")
@@ -206,7 +267,78 @@ namespace ReclutamientoIA.Migrations
 
                     b.HasKey("IdCandidato");
 
+                    b.HasIndex("HashArchivo")
+                        .IsUnique();
+
                     b.ToTable("Candidatos");
+                });
+
+            modelBuilder.Entity("ReclutamientoIA.Models.ConfiguracionIA", b =>
+                {
+                    b.Property<int>("IdConfiguracion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdConfiguracion"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("FechaActualizacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Modelo")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Proveedor")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<double>("Temperatura")
+                        .HasColumnType("float");
+
+                    b.HasKey("IdConfiguracion");
+
+                    b.ToTable("ConfiguracionesIA");
+                });
+
+            modelBuilder.Entity("ReclutamientoIA.Models.PromptIA", b =>
+                {
+                    b.Property<int>("IdPrompt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdPrompt"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Contenido")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("FechaActualizacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("IdPrompt");
+
+                    b.ToTable("PromptsIA");
                 });
 
             modelBuilder.Entity("ReclutamientoIA.Models.Usuario", b =>
@@ -367,6 +499,25 @@ namespace ReclutamientoIA.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ReclutamientoIA.Models.AnalisisIA", b =>
+                {
+                    b.HasOne("ReclutamientoIA.Models.Candidato", "Candidato")
+                        .WithMany()
+                        .HasForeignKey("IdCandidato")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ReclutamientoIA.Models.Vacante", "Vacante")
+                        .WithMany()
+                        .HasForeignKey("IdVacante")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Candidato");
+
+                    b.Navigation("Vacante");
                 });
 #pragma warning restore 612, 618
         }

@@ -2,10 +2,29 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ReclutamientoIA.Data;
 using ReclutamientoIA.Models;
+using ReclutamientoIA.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<
+    ICurriculumService,
+    CurriculumService
+>();
+builder.Services.AddScoped<
+    IPdfTextoService,
+    PdfTextoService
+>();
+
+
+builder.Services.AddHttpClient();
+
+builder.Services.AddScoped<
+    IInteligenciaArtificialService,
+    OpenAIService
+>();
+
 
 builder.Services.AddDbContext<ReclutamientoDbContext>(options =>
     options.UseSqlServer(

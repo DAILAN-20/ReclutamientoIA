@@ -63,6 +63,12 @@ else
                         </td>
                         <td>@vacante.FechaCreacion.ToString("dd/MM/yyyy")</td>
                         <td class="text-center">
+                            <a asp-action="SeleccionarCandidatos"
+                               asp-route-idVacante="@vacante.IdVacante"
+                               class="btn btn-primary btn-sm">
+                                Analizar CV
+                            </a>
+
                             <a asp-action="Edit"
                                asp-route-idVacante="@vacante.IdVacante"
                                class="btn btn-warning btn-sm">

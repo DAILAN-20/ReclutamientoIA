@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace ReclutamientoIA.Models
 {
+    [Index(nameof(HashArchivo), IsUnique = true)]
     public class Candidato
     {
         [Key]
