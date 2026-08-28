@@ -533,6 +533,66 @@ public class VacantesController : Controller
         return View(resultados);
     }
 
+
+    [HttpGet]
+    public async Task<IActionResult> DetalleAnalisis(
+    int idAnalisis)
+    {
+        var analisis = await _context.AnalisisIA
+            .AsNoTracking()
+            .Include(a => a.Candidato)
+            .Include(a => a.Vacante)
+            .FirstOrDefaultAsync(
+                a => a.IdAnalisis == idAnalisis
+            );
+
+        if (analisis == null)
+        {
+            return NotFound();
+        }
+
+        return View(analisis);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Preseleccionar(
+    int idAnalisis)
+    {
+        var analisis = await _context.AnalisisIA
+            .FirstOrDefaultAsync(
+                a => a.IdAnalisis == idAnalisis
+            );
+
+        if (analisis == null)
+        {
+            return NotFound();
+        }
+
+        if (analisis.EstadoProceso != "Analizado")
+        {
+            TempData["Error"] =
+                "El candidato ya fue procesado anteriormente.";
+
+            return RedirectToAction(
+                nameof(DetalleAnalisis),
+                new { idAnalisis }
+            );
+        }
+
+        analisis.EstadoProceso = "Preseleccionado";
+
+        await _context.SaveChangesAsync();
+
+        TempData["Mensaje"] =
+            "El candidato fue preseleccionado correctamente.";
+
+        return RedirectToAction(
+            nameof(DetalleAnalisis),
+            new { idAnalisis }
+        );
+    }
+
     // =====================================================
     // COMPROBAR EXISTENCIA
     // =====================================================

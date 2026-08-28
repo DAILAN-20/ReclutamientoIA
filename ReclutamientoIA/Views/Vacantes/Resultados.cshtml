@@ -71,6 +71,7 @@ else
                     <th>Recomendación</th>
                     <th>Estado</th>
                     <th>Fecha</th>
+                    <th class="text-center">Acciones</th>
                 </tr>
             </thead>
 
@@ -126,6 +127,13 @@ else
                             @analisis.FechaAnalisis.ToString(
                                 "dd/MM/yyyy hh:mm tt"
                             )
+                        </td>
+                        <td class="text-center">
+                            <a asp-action="DetalleAnalisis"
+                               asp-route-idAnalisis="@analisis.IdAnalisis"
+                               class="btn btn-info btn-sm">
+                                Ver detalle
+                            </a>
                         </td>
                     </tr>
 

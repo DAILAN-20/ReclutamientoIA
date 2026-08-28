@@ -19,5 +19,7 @@ namespace ReclutamientoIA.Data
         public DbSet<ConfiguracionIA> ConfiguracionesIA { get; set; }
 
         public DbSet<PromptIA> PromptsIA { get; set; }
+
+        public DbSet<Entrevista> Entrevistas { get; set; }
     }
 }

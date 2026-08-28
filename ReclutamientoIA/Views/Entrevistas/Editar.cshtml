@@ -1,0 +1,138 @@
+﻿@model ReclutamientoIA.Models.EditarEntrevistaViewModel
+
+@{
+    ViewData["Title"] = "Editar entrevista";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/entrevistas.css"
+          asp-append-version="true" />
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning">
+                <h4 class="mb-0">Editar entrevista</h4>
+            </div>
+
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <strong>Candidato:</strong>
+                    @Model.NombreCandidato
+                    <br />
+
+                    <strong>Vacante:</strong>
+                    @Model.TituloVacante
+                </div>
+
+                <form asp-action="Editar" method="post">
+                    <input type="hidden"
+                           asp-for="IdEntrevista" />
+
+                    <input type="hidden"
+                           asp-for="NombreCandidato" />
+
+                    <input type="hidden"
+                           asp-for="TituloVacante" />
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="FechaEntrevista"
+                                   class="form-label">
+                                Fecha
+                            </label>
+
+                            <input asp-for="FechaEntrevista"
+                                   type="date"
+                                   class="form-control"
+                                   min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+
+                            <span asp-validation-for="FechaEntrevista"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="HoraEntrevista"
+                                   class="form-label">
+                                Hora
+                            </label>
+
+                            <input asp-for="HoraEntrevista"
+                                   type="time"
+                                   class="form-control" />
+
+                            <span asp-validation-for="HoraEntrevista"
+                                  class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Entrevistador"
+                               class="form-label">
+                            Entrevistador
+                        </label>
+
+                        <input asp-for="Entrevistador"
+                               class="form-control"
+                               placeholder="Nombre del entrevistador" />
+
+                        <span asp-validation-for="Entrevistador"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="EnlaceEntrevista"
+                               class="form-label">
+                            Enlace de entrevista virtual
+                        </label>
+
+                        <input asp-for="EnlaceEntrevista"
+                               class="form-control"
+                               placeholder="https://meet.google.com/..." />
+
+                        <span asp-validation-for="EnlaceEntrevista"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="ComentariosIniciales"
+                               class="form-label">
+                            Comentarios iniciales
+                        </label>
+
+                        <textarea asp-for="ComentariosIniciales"
+                                  class="form-control"
+                                  rows="4"
+                                  placeholder="Indicaciones o comentarios previos"></textarea>
+
+                        <span asp-validation-for="ComentariosIniciales"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit"
+                                class="btn btn-warning">
+                            Guardar cambios
+                        </button>
+
+                        <a asp-action="Index"
+                           class="btn btn-secondary">
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,147 @@
+﻿@model IEnumerable<ReclutamientoIA.Models.Entrevista>
+
+@{
+    ViewData["Title"] = "Entrevistas";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/entrevistas.css"
+          asp-append-version="true" />
+}
+
+<div class="mb-4">
+    <h1>Entrevistas</h1>
+
+    <p class="text-muted">
+        Entrevistas programadas para los candidatos
+    </p>
+</div>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Mensaje"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-warning">
+        @TempData["Error"]
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        Todavía no hay entrevistas programadas.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Candidato</th>
+                    <th>Vacante</th>
+                    <th>Entrevistador</th>
+                    <th>Enlace</th>
+                    <th>Estado</th>
+                    <th>Resultado</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var entrevista in Model)
+                {
+                    var claseEstado =
+                        entrevista.EstadoEntrevista == "Pendiente"
+                            ? "bg-warning text-dark"
+                            : entrevista.EstadoEntrevista == "Realizada"
+                                ? "bg-success"
+                                : "bg-secondary";
+
+                    <tr>
+                        <td>
+                            @(entrevista.FechaEntrevista.ToString(
+                                "dd/MM/yyyy"
+                            ))
+                        </td>
+
+                        <td>
+                            @(DateTime.Today
+                                .Add(entrevista.HoraEntrevista)
+                                .ToString("hh:mm tt"))
+                        </td>
+
+                        <td>
+                            @(entrevista.AnalisisIA.Candidato
+                                .NombreCompleto
+                                ?? "No disponible")
+                        </td>
+
+                        <td>
+                            @entrevista.AnalisisIA.Vacante.Titulo
+                        </td>
+
+                        <td>@entrevista.Entrevistador</td>
+
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(
+                                entrevista.EnlaceEntrevista))
+                            {
+                                <a href="@entrevista.EnlaceEntrevista"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="btn btn-outline-primary btn-sm">
+                                    Abrir enlace
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    No disponible
+                                </span>
+                            }
+                        </td>
+
+                        <td>
+                            <span class="badge @claseEstado">
+                                @entrevista.EstadoEntrevista
+                            </span>
+                        </td>
+
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(
+                                entrevista.Resultado))
+                            {
+                                <span>@entrevista.Resultado</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    Pendiente
+                                </span>
+                            }
+                        </td>
+                        <td class="text-center">
+                            @if (entrevista.EstadoEntrevista == "Pendiente")
+                            {
+                                <a asp-action="Editar"
+                                   asp-route-idEntrevista="@entrevista.IdEntrevista"
+                                   class="btn btn-warning btn-sm">
+                                    Editar
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

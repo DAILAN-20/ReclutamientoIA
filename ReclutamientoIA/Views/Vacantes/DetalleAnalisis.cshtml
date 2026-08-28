@@ -1,0 +1,197 @@
+﻿@model ReclutamientoIA.Models.AnalisisIA
+
+@{
+    ViewData["Title"] = "Detalle del análisis";
+
+    var clasePuntuacion =
+        Model.Puntuacion >= 80
+            ? "bg-success"
+            : Model.Puntuacion >= 60
+                ? "bg-warning text-dark"
+                : "bg-danger";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/vacantes.css"
+          asp-append-version="true" />
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1>Detalle del análisis</h1>
+
+        <p class="text-muted mb-0">
+            Vacante:
+            <strong>@Model.Vacante.Titulo</strong>
+        </p>
+    </div>
+
+    <a asp-action="Resultados"
+       asp-route-idVacante="@Model.IdVacante"
+       class="btn btn-secondary">
+        Volver al ranking
+    </a>
+</div>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Mensaje"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-warning">
+        @TempData["Error"]
+    </div>
+}
+
+@if (Model.EstadoProceso == "Analizado")
+{
+    <form asp-action="Preseleccionar"
+          method="post"
+          class="mb-4">
+
+        <input type="hidden"
+               name="idAnalisis"
+               value="@Model.IdAnalisis" />
+
+        <button type="submit"
+                class="btn btn-success">
+            Preseleccionar candidato
+        </button>
+    </form>
+}
+else if (Model.EstadoProceso == "Preseleccionado")
+{
+    <div class="alert alert-success">
+        Este candidato está preseleccionado y puede pasar
+        a programación de entrevista.
+    </div>
+
+    <a asp-controller="Entrevistas"
+       asp-action="Agendar"
+       asp-route-idAnalisis="@Model.IdAnalisis"
+       class="btn btn-primary mb-4">
+        Programar entrevista
+    </a>
+}
+else if (Model.EstadoProceso == "Entrevista Programada")
+{
+    <div class="alert alert-info">
+        Este candidato ya tiene una entrevista programada.
+    </div>
+
+    <a asp-controller="Entrevistas"
+       asp-action="Index"
+       class="btn btn-primary mb-4">
+        Ver entrevistas
+    </a>
+}
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Candidato</h4>
+            </div>
+
+            <div class="card-body">
+                <p>
+                    <strong>Nombre:</strong><br />
+                    @(Model.Candidato.NombreCompleto
+                        ?? "No disponible")
+                </p>
+
+                <p>
+                    <strong>Correo:</strong><br />
+                    @(Model.Candidato.Correo
+                        ?? "No disponible")
+                </p>
+
+                <p>
+                    <strong>Teléfono:</strong><br />
+                    @(Model.Candidato.Telefono
+                        ?? "No disponible")
+                </p>
+
+                <p>
+                    <strong>Estado:</strong><br />
+                    <span class="badge bg-primary">
+                        @Model.EstadoProceso
+                    </span>
+                </p>
+
+                <p>
+                    <strong>Puntuación:</strong><br />
+                    <span class="badge @clasePuntuacion fs-6">
+                        @Model.Puntuacion / 100
+                    </span>
+                </p>
+
+                <p>
+                    <strong>Analizado con:</strong><br />
+                    @Model.ProveedorIA — @Model.ModeloIA
+                </p>
+
+                <p>
+                    <strong>Fecha:</strong><br />
+                    @Model.FechaAnalisis.ToString(
+                        "dd/MM/yyyy hh:mm tt"
+                    )
+                </p>
+
+                <a asp-controller="Candidatos"
+                   asp-action="Descargar"
+                   asp-route-id="@Model.IdCandidato"
+                   class="btn btn-outline-primary w-100">
+                    Descargar currículum
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h4 class="mb-0">Resumen</h4>
+            </div>
+
+            <div class="card-body">
+                <p class="mb-0">@Model.Resumen</p>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Fortalezas</h4>
+            </div>
+
+            <div class="card-body">
+                <p class="mb-0">@Model.Fortalezas</p>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-warning">
+                <h4 class="mb-0">Debilidades</h4>
+            </div>
+
+            <div class="card-body">
+                <p class="mb-0">@Model.Debilidades</p>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-info">
+                <h4 class="mb-0">Recomendación</h4>
+            </div>
+
+            <div class="card-body">
+                <p class="mb-0">@Model.Recomendacion</p>
+            </div>
+        </div>
+    </div>
+</div>/

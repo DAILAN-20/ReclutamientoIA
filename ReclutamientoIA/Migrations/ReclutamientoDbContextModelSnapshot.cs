@@ -305,6 +305,67 @@ namespace ReclutamientoIA.Migrations
                     b.ToTable("ConfiguracionesIA");
                 });
 
+            modelBuilder.Entity("ReclutamientoIA.Models.Entrevista", b =>
+                {
+                    b.Property<int>("IdEntrevista")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdEntrevista"));
+
+                    b.Property<int?>("CalificacionManual")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ComentariosFinales")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("ComentariosIniciales")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("EnlaceEntrevista")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Entrevistador")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("EstadoEntrevista")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaEntrevista")
+                        .HasColumnType("date");
+
+                    b.Property<string>("GoogleEventId")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<TimeSpan>("HoraEntrevista")
+                        .HasColumnType("time");
+
+                    b.Property<int>("IdAnalisis")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Resultado")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("IdEntrevista");
+
+                    b.HasIndex("IdAnalisis")
+                        .IsUnique();
+
+                    b.ToTable("Entrevistas");
+                });
+
             modelBuilder.Entity("ReclutamientoIA.Models.PromptIA", b =>
                 {
                     b.Property<int>("IdPrompt")
@@ -518,6 +579,17 @@ namespace ReclutamientoIA.Migrations
                     b.Navigation("Candidato");
 
                     b.Navigation("Vacante");
+                });
+
+            modelBuilder.Entity("ReclutamientoIA.Models.Entrevista", b =>
+                {
+                    b.HasOne("ReclutamientoIA.Models.AnalisisIA", "AnalisisIA")
+                        .WithMany()
+                        .HasForeignKey("IdAnalisis")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AnalisisIA");
                 });
 #pragma warning restore 612, 618
         }
