@@ -4,6 +4,7 @@ using ReclutamientoIA.Data;
 using ReclutamientoIA.Models;
 using ReclutamientoIA.Services;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
@@ -61,6 +62,14 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Cuenta/Login";
     options.AccessDeniedPath = "/Cuenta/AccesoDenegado";
 });
+// Configuración del correo.
+builder.Services
+    .AddOptions<CorreoOptions>()
+    .Bind(builder.Configuration.GetSection(CorreoOptions.Seccion))
+    .ValidateDataAnnotations();
+
+// Servicio de envío de correos.
+builder.Services.AddScoped<ICorreoService, CorreoService>();
 
 var app = builder.Build();
 

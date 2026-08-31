@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Net;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using ReclutamientoIA.Data;
 using ReclutamientoIA.Models;
+using ReclutamientoIA.Services;
 
 namespace ReclutamientoIA.Controllers;
 
@@ -10,10 +13,24 @@ namespace ReclutamientoIA.Controllers;
 public class EntrevistasController : Controller
 {
     private readonly ReclutamientoDbContext _context;
+    private readonly ICorreoService _correoService;
+    private readonly ILogger<EntrevistasController> _logger;
 
-    public EntrevistasController(ReclutamientoDbContext context)
+    public EntrevistasController(
+        ReclutamientoDbContext context,
+        ICorreoService correoService,
+        ILogger<EntrevistasController> logger)
     {
         _context = context;
+        _correoService = correoService;
+        _logger = logger;
+    }
+
+    private enum TipoNotificacion
+    {
+        Programada,
+        Actualizada,
+        Cancelada
     }
 
     // =====================================================
@@ -28,9 +45,7 @@ public class EntrevistasController : Controller
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest(
-                "Los filtros enviados no son válidos."
-            );
+            return BadRequest("Los filtros enviados no son válidos.");
         }
 
         estado = string.IsNullOrWhiteSpace(estado)
@@ -51,9 +66,7 @@ public class EntrevistasController : Controller
         {
             var existe = await _context.AnalisisIA
                 .AsNoTracking()
-                .AnyAsync(a =>
-                    a.IdAnalisis == idAnalisis.Value
-                );
+                .AnyAsync(a => a.IdAnalisis == idAnalisis.Value);
 
             if (!existe)
             {
@@ -68,18 +81,17 @@ public class EntrevistasController : Controller
             .Include(e => e.AnalisisIA)
                 .ThenInclude(a => a.Vacante);
 
-        // Conservar el filtro del candidato y su vacante.
         if (idAnalisis.HasValue)
         {
-            consulta = consulta.Where(e =>
-                e.IdAnalisis == idAnalisis.Value
+            consulta = consulta.Where(
+                e => e.IdAnalisis == idAnalisis.Value
             );
         }
 
         if (estado != null)
         {
-            consulta = consulta.Where(e =>
-                e.EstadoEntrevista == estado
+            consulta = consulta.Where(
+                e => e.EstadoEntrevista == estado
             );
         }
 
@@ -87,8 +99,8 @@ public class EntrevistasController : Controller
         {
             var fechaSeleccionada = fecha.Value.Date;
 
-            consulta = consulta.Where(e =>
-                e.FechaEntrevista.Date == fechaSeleccionada
+            consulta = consulta.Where(
+                e => e.FechaEntrevista.Date == fechaSeleccionada
             );
         }
 
@@ -98,7 +110,6 @@ public class EntrevistasController : Controller
             .ThenBy(e => e.IdEntrevista)
             .ToListAsync();
 
-        // Mantener los filtros seleccionados en la vista.
         ViewBag.IdAnalisis = idAnalisis;
         ViewBag.Estado = estado;
         ViewBag.Fecha = fecha?.ToString("yyyy-MM-dd");
@@ -117,9 +128,7 @@ public class EntrevistasController : Controller
             .AsNoTracking()
             .Include(a => a.Candidato)
             .Include(a => a.Vacante)
-            .FirstOrDefaultAsync(a =>
-                a.IdAnalisis == idAnalisis
-            );
+            .FirstOrDefaultAsync(a => a.IdAnalisis == idAnalisis);
 
         if (analisis == null)
         {
@@ -133,9 +142,7 @@ public class EntrevistasController : Controller
                 "para candidatos preseleccionados.";
 
             return RedirectToAction(
-                "DetalleAnalisis",
-                "Vacantes",
-                new { idAnalisis }
+                "DetalleAnalisis", "Vacantes", new { idAnalisis }
             );
         }
 
@@ -153,9 +160,7 @@ public class EntrevistasController : Controller
                 "pendiente o realizada.";
 
             return RedirectToAction(
-                "DetalleAnalisis",
-                "Vacantes",
-                new { idAnalisis }
+                "DetalleAnalisis", "Vacantes", new { idAnalisis }
             );
         }
 
@@ -185,8 +190,8 @@ public class EntrevistasController : Controller
         var analisis = await _context.AnalisisIA
             .Include(a => a.Candidato)
             .Include(a => a.Vacante)
-            .FirstOrDefaultAsync(a =>
-                a.IdAnalisis == modelo.IdAnalisis
+            .FirstOrDefaultAsync(
+                a => a.IdAnalisis == modelo.IdAnalisis
             );
 
         if (analisis == null)
@@ -214,8 +219,8 @@ public class EntrevistasController : Controller
         }
 
         var entrevista = await _context.Entrevistas
-            .FirstOrDefaultAsync(e =>
-                e.IdAnalisis == modelo.IdAnalisis
+            .FirstOrDefaultAsync(
+                e => e.IdAnalisis == modelo.IdAnalisis
             );
 
         if (entrevista != null &&
@@ -223,8 +228,7 @@ public class EntrevistasController : Controller
         {
             ModelState.AddModelError(
                 string.Empty,
-                "El candidato ya tiene una entrevista " +
-                "pendiente o realizada."
+                "El candidato ya tiene una entrevista pendiente o realizada."
             );
         }
 
@@ -233,7 +237,6 @@ public class EntrevistasController : Controller
             return View(modelo);
         }
 
-        // Reutilizar el registro si estaba cancelado.
         if (entrevista == null)
         {
             entrevista = new Entrevista
@@ -262,6 +265,12 @@ public class EntrevistasController : Controller
         TempData["Mensaje"] =
             "La entrevista fue programada correctamente.";
 
+        await NotificarEntrevistaAsync(
+            entrevista,
+            analisis,
+            TipoNotificacion.Programada
+        );
+
         return RedirectToAction(nameof(Index));
     }
 
@@ -278,9 +287,7 @@ public class EntrevistasController : Controller
                 .ThenInclude(a => a.Candidato)
             .Include(e => e.AnalisisIA)
                 .ThenInclude(a => a.Vacante)
-            .FirstOrDefaultAsync(e =>
-                e.IdEntrevista == idEntrevista
-            );
+            .FirstOrDefaultAsync(e => e.IdEntrevista == idEntrevista);
 
         if (entrevista == null)
         {
@@ -326,8 +333,8 @@ public class EntrevistasController : Controller
                 .ThenInclude(a => a.Candidato)
             .Include(e => e.AnalisisIA)
                 .ThenInclude(a => a.Vacante)
-            .FirstOrDefaultAsync(e =>
-                e.IdEntrevista == modelo.IdEntrevista
+            .FirstOrDefaultAsync(
+                e => e.IdEntrevista == modelo.IdEntrevista
             );
 
         if (entrevista == null)
@@ -360,16 +367,40 @@ public class EntrevistasController : Controller
             return View(modelo);
         }
 
+        // Solo avisar si cambian datos relevantes para el candidato.
+        var notificar =
+            entrevista.FechaEntrevista.Date != modelo.FechaEntrevista.Date ||
+            entrevista.HoraEntrevista != modelo.HoraEntrevista ||
+            (entrevista.Entrevistador ?? "").Trim() !=
+                (modelo.Entrevistador ?? "").Trim() ||
+            (entrevista.EnlaceEntrevista ?? "").Trim() !=
+                (modelo.EnlaceEntrevista ?? "").Trim();
+
+        // Conservar la fecha anterior para incluirla en el aviso.
+        var fechaHoraAnterior = entrevista.FechaEntrevista.Date
+            .Add(entrevista.HoraEntrevista);
+
         entrevista.FechaEntrevista = modelo.FechaEntrevista.Date;
         entrevista.HoraEntrevista = modelo.HoraEntrevista;
         entrevista.Entrevistador = modelo.Entrevistador;
         entrevista.ComentariosIniciales = modelo.ComentariosIniciales;
         entrevista.EnlaceEntrevista = modelo.EnlaceEntrevista;
 
+        // Guardar antes de intentar el envío.
         await _context.SaveChangesAsync();
 
         TempData["Mensaje"] =
             "La entrevista fue actualizada correctamente.";
+
+        if (notificar)
+        {
+            await NotificarEntrevistaAsync(
+                entrevista,
+                entrevista.AnalisisIA,
+                TipoNotificacion.Actualizada,
+                fechaHoraAnterior
+            );
+        }
 
         return RedirectToAction(nameof(Index));
     }
@@ -384,9 +415,10 @@ public class EntrevistasController : Controller
     {
         var entrevista = await _context.Entrevistas
             .Include(e => e.AnalisisIA)
-            .FirstOrDefaultAsync(e =>
-                e.IdEntrevista == idEntrevista
-            );
+                .ThenInclude(a => a.Candidato)
+            .Include(e => e.AnalisisIA)
+                .ThenInclude(a => a.Vacante)
+            .FirstOrDefaultAsync(e => e.IdEntrevista == idEntrevista);
 
         if (entrevista == null)
         {
@@ -412,6 +444,12 @@ public class EntrevistasController : Controller
             "El candidato quedó preseleccionado y puede " +
             "programarse nuevamente.";
 
+        await NotificarEntrevistaAsync(
+            entrevista,
+            entrevista.AnalisisIA,
+            TipoNotificacion.Cancelada
+        );
+
         return RedirectToAction(nameof(Index));
     }
 
@@ -428,9 +466,7 @@ public class EntrevistasController : Controller
                 .ThenInclude(a => a.Candidato)
             .Include(e => e.AnalisisIA)
                 .ThenInclude(a => a.Vacante)
-            .FirstOrDefaultAsync(e =>
-                e.IdEntrevista == idEntrevista
-            );
+            .FirstOrDefaultAsync(e => e.IdEntrevista == idEntrevista);
 
         if (entrevista == null)
         {
@@ -485,8 +521,8 @@ public class EntrevistasController : Controller
                 .ThenInclude(a => a.Candidato)
             .Include(e => e.AnalisisIA)
                 .ThenInclude(a => a.Vacante)
-            .FirstOrDefaultAsync(e =>
-                e.IdEntrevista == modelo.IdEntrevista
+            .FirstOrDefaultAsync(
+                e => e.IdEntrevista == modelo.IdEntrevista
             );
 
         if (entrevista == null)
@@ -544,7 +580,7 @@ public class EntrevistasController : Controller
     }
 
     // =====================================================
-    // VER EVALUACIÓN DE ENTREVISTA
+    // VER EVALUACIÓN
     // =====================================================
 
     [HttpGet]
@@ -556,9 +592,7 @@ public class EntrevistasController : Controller
                 .ThenInclude(a => a.Candidato)
             .Include(e => e.AnalisisIA)
                 .ThenInclude(a => a.Vacante)
-            .FirstOrDefaultAsync(e =>
-                e.IdEntrevista == idEntrevista
-            );
+            .FirstOrDefaultAsync(e => e.IdEntrevista == idEntrevista);
 
         if (entrevista == null)
         {
@@ -579,6 +613,192 @@ public class EntrevistasController : Controller
         return View(entrevista);
     }
 
+    // =====================================================
+    // NOTIFICACIONES POR CORREO
+    // =====================================================
+
+    private async Task NotificarEntrevistaAsync(
+        Entrevista entrevista,
+        AnalisisIA analisis,
+        TipoNotificacion tipo,
+        DateTime? fechaHoraAnterior = null)
+    {
+        var destinatario = analisis.Candidato.Correo?.Trim();
+
+        if (string.IsNullOrWhiteSpace(destinatario))
+        {
+            TempData["Error"] =
+                "El cambio quedó guardado, pero no se envió el correo " +
+                "porque el candidato no tiene correo registrado.";
+
+            return;
+        }
+
+        try
+        {
+            var titulo = tipo switch
+            {
+                TipoNotificacion.Programada => "Entrevista programada",
+                TipoNotificacion.Actualizada => "Entrevista actualizada",
+                TipoNotificacion.Cancelada => "Entrevista cancelada",
+                _ => throw new InvalidOperationException(
+                    "Tipo de notificación no válido."
+                )
+            };
+
+            var introduccion = tipo switch
+            {
+                TipoNotificacion.Programada =>
+                    "Se ha programado una entrevista para la siguiente vacante.",
+
+                TipoNotificacion.Actualizada =>
+                    "Los datos de su entrevista han cambiado. " +
+                    "Considere la información de este correo como la vigente.",
+
+                TipoNotificacion.Cancelada =>
+                    "La entrevista indicada a continuación ha sido cancelada. " +
+                    "No debe asistir ni conectarse a esa cita.",
+
+                _ => ""
+            };
+
+            var nombre = WebUtility.HtmlEncode(
+                analisis.Candidato.NombreCompleto ?? "Candidato"
+            );
+
+            var vacante = WebUtility.HtmlEncode(
+                analisis.Vacante.Titulo
+            );
+
+            var entrevistador = WebUtility.HtmlEncode(
+                entrevista.Entrevistador
+            );
+
+            var fecha = entrevista.FechaEntrevista
+                .ToString("dd/MM/yyyy");
+
+            var hora = entrevista.FechaEntrevista.Date
+                .Add(entrevista.HoraEntrevista)
+                .ToString("HH:mm");
+
+            var fechaAnteriorHtml = "";
+
+            if (tipo == TipoNotificacion.Actualizada &&
+                fechaHoraAnterior.HasValue)
+            {
+                var fechaHoraActual = entrevista.FechaEntrevista.Date
+                    .Add(entrevista.HoraEntrevista);
+
+                if (fechaHoraAnterior.Value != fechaHoraActual)
+                {
+                    fechaAnteriorHtml =
+                        "<p><strong>Fecha y hora anteriores:</strong> " +
+                        fechaHoraAnterior.Value.ToString("dd/MM/yyyy HH:mm") +
+                        "</p>";
+                }
+            }
+
+            var bloqueEnlace = "";
+
+            // Nunca incluir un enlace para unirse a una cita cancelada.
+            if (tipo != TipoNotificacion.Cancelada)
+            {
+                bloqueEnlace =
+                    "<p>No se ha incluido un enlace virtual. " +
+                    "Consulte con el equipo de reclutamiento " +
+                    "el lugar o medio de la entrevista.</p>";
+
+                if (!string.IsNullOrWhiteSpace(entrevista.EnlaceEntrevista) &&
+                    Uri.TryCreate(
+                        entrevista.EnlaceEntrevista,
+                        UriKind.Absolute,
+                        out var enlace) &&
+                    (enlace.Scheme == Uri.UriSchemeHttps ||
+                     enlace.Scheme == Uri.UriSchemeHttp))
+                {
+                    var enlaceSeguro = WebUtility.HtmlEncode(
+                        enlace.AbsoluteUri
+                    );
+
+                    bloqueEnlace =
+                        $"<p><a href=\"{enlaceSeguro}\">" +
+                        "Abrir entrevista virtual</a></p>";
+                }
+            }
+
+            var aclaracion = tipo == TipoNotificacion.Cancelada
+                ? "<p>Esta cancelación corresponde a la cita indicada " +
+                  "y no comunica un resultado de selección. " +
+                  "Si se programa una nueva entrevista, recibirá otro aviso.</p>"
+                : "";
+
+            // No incluir comentarios internos, puntajes ni evaluaciones.
+            var contenidoHtml = $@"
+                <!DOCTYPE html>
+                <html lang=""es"">
+                <head>
+                    <meta charset=""utf-8"">
+                    <title>{titulo}</title>
+                </head>
+                <body style=""font-family: Arial, sans-serif; color: #243447;"">
+                    <h2>{titulo}</h2>
+
+                    <p>Hola, {nombre}:</p>
+                    <p>{introduccion}</p>
+
+                    {fechaAnteriorHtml}
+
+                    <ul>
+                        <li><strong>Vacante:</strong> {vacante}</li>
+                        <li><strong>Fecha:</strong> {fecha}</li>
+                        <li><strong>Hora:</strong> {hora}</li>
+                        <li><strong>Entrevistador:</strong> {entrevistador}</li>
+                    </ul>
+
+                    {bloqueEnlace}
+                    {aclaracion}
+
+                    <p>Para cualquier consulta, responda a este correo.</p>
+                    <p>Saludos,<br>Equipo de Reclutamiento</p>
+                </body>
+                </html>";
+
+            using var limite = new CancellationTokenSource(
+                TimeSpan.FromSeconds(30)
+            );
+
+            await _correoService.EnviarAsync(
+                destinatario,
+                titulo + " - Reclutamiento IA",
+                contenidoHtml,
+                limite.Token
+            );
+
+            // Conservar el mensaje que confirma el cambio guardado.
+            var mensajeGuardado = TempData.Peek("Mensaje")?.ToString();
+
+            TempData["Mensaje"] =
+                (mensajeGuardado ?? "El cambio quedó guardado.") +
+                " El servidor de correo aceptó la notificación.";
+        }
+        catch (Exception ex)
+        {
+            // No registrar claves, contenido ni datos del candidato.
+            _logger.LogWarning(
+                "No se confirmó la notificación {TipoNotificacion} " +
+                "de la entrevista {IdEntrevista}. Tipo de error: {TipoError}",
+                tipo,
+                entrevista.IdEntrevista,
+                ex.GetType().Name
+            );
+            TempData["Error"] =
+    "El cambio quedó guardado, pero no se pudo confirmar " +
+    "el envío del correo. No repita la operación: " +
+    "revise la configuración y confirme si el candidato " +
+    "recibió el mensaje.";
+        }
+
+    }
     // =====================================================
     // VALIDAR FECHA Y HORA
     // =====================================================
@@ -602,8 +822,7 @@ public class EntrevistasController : Controller
         {
             ModelState.AddModelError(
                 "FechaEntrevista",
-                "La entrevista debe programarse para una " +
-                "fecha y hora futuras."
+                "La entrevista debe programarse para una fecha y hora futuras."
             );
         }
     }
