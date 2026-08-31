@@ -1,0 +1,249 @@
+﻿@model IEnumerable<ReclutamientoIA.Models.AnalisisIA>
+
+@{
+    ViewData["Title"] = "Tablero de candidatos";
+
+    var candidatos = Model.ToList();
+
+    var vacantes = ViewBag.Vacantes
+        as IEnumerable<ReclutamientoIA.Models.Vacante>
+        ?? Enumerable.Empty<ReclutamientoIA.Models.Vacante>();
+
+    int? idVacanteSeleccionada = ViewBag.IdVacante;
+    var entrevistasPendientes = ViewBag.EntrevistasPendientes
+    as Dictionary<int, ReclutamientoIA.Models.Entrevista>
+    ?? new Dictionary<int, ReclutamientoIA.Models.Entrevista>();
+
+    var estados = new[]
+    {
+        "Preseleccionado",
+        "Entrevista Programada",
+        "Aprobado",
+        "Rechazado"
+    };
+}
+
+<div class="d-flex justify-content-between align-items-center
+    flex-wrap gap-2 mb-4">
+    <div>
+        <h1 class="mb-1">Tablero de candidatos</h1>
+        <p class="text-muted mb-0">
+            Seguimiento del proceso de selección
+        </p>
+    </div>
+
+    <a asp-controller="Vacantes"
+       asp-action="Index"
+       class="btn btn-secondary">
+        Volver a vacantes
+    </a>
+</div>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["Mensaje"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-warning" role="alert">
+        @TempData["Error"]
+    </div>
+}
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form asp-controller="Vacantes"
+              asp-action="Tablero"
+              method="get"
+              class="row g-3 align-items-end">
+
+            <div class="col-md-6">
+                <label for="idVacante" class="form-label">
+                    Filtrar por vacante
+                </label>
+
+                <select id="idVacante"
+                        name="idVacante"
+                        class="form-select">
+
+                    <option value="">Todas las vacantes</option>
+
+                    @foreach (var vacante in vacantes)
+                    {
+                        if (idVacanteSeleccionada == vacante.IdVacante)
+                        {
+                            <option value="@vacante.IdVacante"
+                                    selected>
+                                @vacante.Titulo
+                            </option>
+                        }
+                        else
+                        {
+                            <option value="@vacante.IdVacante">
+                                @vacante.Titulo
+                            </option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-6 d-flex gap-2">
+                <button type="submit"
+                        class="btn btn-primary">
+                    Filtrar
+                </button>
+
+                <a asp-controller="Vacantes"
+                   asp-action="Tablero"
+                   class="btn btn-outline-secondary">
+                    Limpiar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between flex-wrap gap-2 mb-3">
+    <span class="text-muted">
+        Los estados cambian al programar, cancelar o calificar
+        una entrevista.
+    </span>
+
+    <strong>Total: @candidatos.Count</strong>
+</div>
+
+<div class="row g-3">
+    @foreach (var estado in estados)
+    {
+        var candidatosEstado = candidatos
+            .Where(a => a.EstadoProceso == estado)
+            .ToList();
+
+        var color = estado switch
+        {
+            "Preseleccionado" => "bg-primary text-white",
+            "Entrevista Programada" => "bg-warning text-dark",
+            "Aprobado" => "bg-success text-white",
+            "Rechazado" => "bg-danger text-white",
+            _ => "bg-secondary text-white"
+        };
+
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header @color border-0 py-3">
+                    <div class="d-flex justify-content-between
+                        align-items-center gap-2">
+                        <h2 class="h6 mb-0">@estado</h2>
+
+                        <span class="badge bg-light text-dark">
+                            @candidatosEstado.Count
+                        </span>
+                    </div>
+                </div>
+
+                <div class="card-body bg-light">
+                    @if (!candidatosEstado.Any())
+                    {
+                        <p class="text-muted text-center small my-4">
+                            No hay candidatos en esta etapa.
+                        </p>
+                    }
+                    else
+                    {
+                        @foreach (var analisis in candidatosEstado)
+                        {
+                            <div class="card border-0 shadow-sm mb-3">
+                                <div class="card-body">
+                                    <h3 class="h6 mb-2 text-break">
+                                        @(analisis.Candidato.NombreCompleto
+                                            ?? "Nombre no disponible")
+                                    </h3>
+
+                                    <p class="small text-muted mb-3 text-break">
+                                        @analisis.Vacante.Titulo
+                                    </p>
+
+                                    <div class="mb-3">
+                                        <span class="badge bg-secondary">
+                                            Puntaje IA:
+                                            @analisis.Puntuacion / 100
+                                        </span>
+                                    </div>
+
+                                    <div class="d-grid gap-2">
+                                        <a asp-controller="Vacantes"
+                                           asp-action="DetalleAnalisis"
+                                           asp-route-idAnalisis="@analisis.IdAnalisis"
+                                           class="btn btn-outline-primary btn-sm">
+                                            Ver detalle
+                                        </a>
+
+                                        @if (estado == "Preseleccionado")
+                                        {
+                                            <a asp-controller="Entrevistas"
+                                               asp-action="Agendar"
+                                               asp-route-idAnalisis="@analisis.IdAnalisis"
+                                               class="btn btn-primary btn-sm">
+                                                Programar entrevista
+                                            </a>
+                                        }
+                                        else if (estado == "Entrevista Programada")
+                                        {
+                                            if (entrevistasPendientes.TryGetValue(
+                                                analisis.IdAnalisis, out var entrevista))
+                                            {
+                                                <div class="small text-muted mb-2">
+                                                    <div>
+                                                        <strong>Fecha:</strong>
+                                                        @entrevista.FechaEntrevista.ToString("dd/MM/yyyy")
+                                                    </div>
+
+                                                    <div>
+                                                        <strong>Hora:</strong>
+                                                        @(DateTime.Today
+                                                            .Add(entrevista.HoraEntrevista)
+                                                            .ToString("hh:mm tt"))
+                                                    </div>
+
+                                                    <div class="text-break">
+                                                        <strong>Entrevistador:</strong>
+                                                        @entrevista.Entrevistador
+                                                    </div>
+                                                </div>
+                                                if (!string.IsNullOrWhiteSpace(entrevista.EnlaceEntrevista) &&
+                                                    Uri.TryCreate(
+                                                        entrevista.EnlaceEntrevista,
+                                                        UriKind.Absolute,
+                                                        out var enlace) &&
+                                                    (enlace.Scheme == Uri.UriSchemeHttps ||
+                                                     enlace.Scheme == Uri.UriSchemeHttp))
+                                                {
+                                                    <a href="@enlace.AbsoluteUri"
+                                                       target="_blank"
+                                                       rel="noopener noreferrer"
+                                                       class="btn btn-success btn-sm">
+                                                        Abrir entrevista virtual
+                                                    </a>
+                                                }
+                                            }
+
+                                            <a asp-controller="Entrevistas"
+                                               asp-action="Index"
+                                               asp-route-idAnalisis="@analisis.IdAnalisis"
+                                               class="btn btn-outline-secondary btn-sm">
+                                                Ver entrevista
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

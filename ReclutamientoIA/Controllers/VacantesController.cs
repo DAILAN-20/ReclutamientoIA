@@ -594,6 +594,74 @@ public class VacantesController : Controller
     }
 
     // =====================================================
+    // TABLERO DE CANDIDATOS
+    // =====================================================
+
+    [HttpGet]
+    public async Task<IActionResult> Tablero(int? idVacante)
+    {
+        if (idVacante.HasValue)
+        {
+            var existe = await _context.Vacantes
+                .AsNoTracking()
+                .AnyAsync(v => v.IdVacante == idVacante.Value);
+
+            if (!existe)
+            {
+                return NotFound();
+            }
+        }
+
+        var consulta = _context.AnalisisIA
+            .AsNoTracking()
+            .Include(a => a.Candidato)
+            .Include(a => a.Vacante)
+            .Where(a =>
+                a.EstadoProceso == "Preseleccionado" ||
+                a.EstadoProceso == "Entrevista Programada" ||
+                a.EstadoProceso == "Aprobado" ||
+                a.EstadoProceso == "Rechazado"
+            );
+
+        if (idVacante.HasValue)
+        {
+            consulta = consulta.Where(a =>
+                a.IdVacante == idVacante.Value
+            );
+        }
+
+        var candidatos = await consulta
+            .OrderBy(a => a.Candidato.NombreCompleto)
+            .ThenBy(a => a.IdAnalisis)
+            .ToListAsync();
+
+        ViewBag.Vacantes = await _context.Vacantes
+            .AsNoTracking()
+            .OrderBy(v => v.Titulo)
+            .ToListAsync();
+
+        ViewBag.IdVacante = idVacante;
+
+        // Consultar únicamente las entrevistas pendientes
+        // de los candidatos incluidos en el tablero.
+        var idsAnalisis = candidatos
+            .Select(a => a.IdAnalisis)
+            .ToList();
+
+        var entrevistasPendientes = await _context.Entrevistas
+            .AsNoTracking()
+            .Where(e =>
+                idsAnalisis.Contains(e.IdAnalisis) &&
+                e.EstadoEntrevista == "Pendiente"
+            )
+            .ToDictionaryAsync(e => e.IdAnalisis);
+
+        ViewBag.EntrevistasPendientes = entrevistasPendientes;
+
+        return View(candidatos);
+    }
+
+    // =====================================================
     // COMPROBAR EXISTENCIA
     // =====================================================
 

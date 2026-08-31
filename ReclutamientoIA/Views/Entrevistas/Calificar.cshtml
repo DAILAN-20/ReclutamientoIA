@@ -1,0 +1,127 @@
+﻿@model ReclutamientoIA.Models.CalificarEntrevistaViewModel
+
+@{
+    ViewData["Title"] = "Calificar entrevista";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/entrevistas.css"
+          asp-append-version="true" />
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Calificar entrevista</h4>
+            </div>
+
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <strong>Candidato:</strong>
+                    @Model.NombreCandidato
+                    <br />
+
+                    <strong>Vacante:</strong>
+                    @Model.TituloVacante
+                </div>
+
+                <form asp-controller="Entrevistas"
+                      asp-action="Calificar"
+                      method="post"
+                      asp-antiforgery="true">
+
+                    <input type="hidden"
+                           asp-for="IdEntrevista" />
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="CalificacionManual"
+                               class="form-label">
+                            Calificación de la entrevista
+                        </label>
+
+                        <input asp-for="CalificacionManual"
+                               type="number"
+                               min="0"
+                               max="100"
+                               step="1"
+                               class="form-control"
+                               placeholder="Ingrese una calificación de 0 a 100" />
+
+                        <span asp-validation-for="CalificacionManual"
+                              class="text-danger"></span>
+
+                        <div class="form-text">
+                            Esta evaluación es manual y no modifica
+                            el puntaje del análisis de IA.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Resultado"
+                               class="form-label">
+                            Resultado
+                        </label>
+
+                        <select asp-for="Resultado"
+                                class="form-select">
+                            <option value="">Seleccione el resultado</option>
+                            <option value="Aprobado">Aprobado</option>
+                            <option value="Rechazado">Rechazado</option>
+                        </select>
+
+                        <span asp-validation-for="Resultado"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="ComentariosFinales"
+                               class="form-label">
+                            Comentarios finales
+                        </label>
+
+                        <textarea asp-for="ComentariosFinales"
+                                  class="form-control"
+                                  rows="5"
+                                  maxlength="1000"
+                                  placeholder="Describa lo observado y justifique el resultado de la entrevista."></textarea>
+
+                        <span asp-validation-for="ComentariosFinales"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        Al guardar, la entrevista quedará como
+                        <strong>Realizada</strong> y el candidato
+                        pasará al resultado seleccionado.
+                        Desde la lista ya no podrá editar ni cancelar
+                        esta entrevista.
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit"
+                                class="btn btn-success">
+                            Guardar evaluación
+                        </button>
+
+                        <a asp-controller="Entrevistas"
+                           asp-action="Index"
+                           class="btn btn-secondary">
+                            Volver
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+ 
+
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+    }

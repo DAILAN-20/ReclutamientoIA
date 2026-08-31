@@ -1,0 +1,146 @@
+﻿@model ReclutamientoIA.Models.Entrevista
+
+@{
+    ViewData["Title"] = "Evaluación de entrevista";
+
+    var colorResultado = Model.Resultado == "Aprobado"
+        ? "bg-success"
+        : Model.Resultado == "Rechazado"
+            ? "bg-danger"
+            : "bg-secondary";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/entrevistas.css"
+          asp-append-version="true" />
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="d-flex justify-content-between align-items-center
+            flex-wrap gap-2 mb-4">
+            <h1 class="h3 mb-0">Evaluación de entrevista</h1>
+
+            <a asp-controller="Entrevistas"
+               asp-action="Index"
+               asp-route-idAnalisis="@Model.IdAnalisis"
+               class="btn btn-secondary">
+                Volver
+            </a>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h5 mb-0">Información del candidato</h2>
+            </div>
+
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Candidato</dt>
+                    <dd class="col-sm-8 text-break">
+                        @(Model.AnalisisIA.Candidato.NombreCompleto
+                            ?? "Nombre no disponible")
+                    </dd>
+
+                    <dt class="col-sm-4">Vacante</dt>
+                    <dd class="col-sm-8 text-break">
+                        @Model.AnalisisIA.Vacante.Titulo
+                    </dd>
+
+                    <dt class="col-sm-4">Fecha programada</dt>
+                    <dd class="col-sm-8">
+                        @Model.FechaEntrevista.ToString("dd/MM/yyyy")
+                    </dd>
+
+                    <dt class="col-sm-4">Hora programada</dt>
+                    <dd class="col-sm-8">
+                        @(DateTime.Today
+                            .Add(Model.HoraEntrevista)
+                            .ToString("hh:mm tt"))
+                    </dd>
+
+                    <dt class="col-sm-4">Entrevistador</dt>
+                    <dd class="col-sm-8 text-break">
+                        @Model.Entrevistador
+                    </dd>
+
+                    <dt class="col-sm-4">Estado</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge bg-success">
+                            @Model.EstadoEntrevista
+                        </span>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-light">
+                <h2 class="h5 mb-0">Resultado de la evaluación</h2>
+            </div>
+
+            <div class="card-body">
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6">
+                        <div class="border rounded p-3 h-100">
+                            <p class="text-muted mb-2">
+                                Calificación manual
+                            </p>
+
+                            <div class="h4 mb-0">
+                                @if (Model.CalificacionManual.HasValue)
+                                {
+                                    <span>
+                                        @(Model.CalificacionManual.Value) / 100
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
+                                        No registrada
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="border rounded p-3 h-100">
+                            <p class="text-muted mb-2">Resultado</p>
+
+                            <span class="badge @colorResultado">
+                                @(string.IsNullOrWhiteSpace(Model.Resultado)
+                                    ? "No registrado"
+                                    : Model.Resultado)
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="h6">Comentarios finales</h3>
+
+                <div class="bg-light rounded p-3 text-break"
+                     style="white-space: pre-wrap;">
+                    @(string.IsNullOrWhiteSpace(Model.ComentariosFinales) ? "No se registraron comentarios finales." : Model.ComentariosFinales)
+                </div>
+
+                <p class="small text-muted mt-3 mb-0">
+                    Esta calificación corresponde a la entrevista
+                    y es independiente del puntaje de IA del currículum.
+                </p>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mt-4">
+            <div class="card-body">
+                <h2 class="h6">Comentarios iniciales</h2>
+
+                <div class="text-break"
+                     style="white-space: pre-wrap;">
+                    @(string.IsNullOrWhiteSpace(Model.ComentariosIniciales) ? "No se registraron comentarios iniciales." : Model.ComentariosIniciales)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
