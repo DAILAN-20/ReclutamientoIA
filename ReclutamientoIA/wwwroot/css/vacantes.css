@@ -17,11 +17,13 @@
     padding: 24px;
 }
 
+/* Permitir desplazamiento horizontal */
 .table-responsive {
     background-color: #ffffff;
     border-radius: 12px;
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
 .table {
@@ -36,6 +38,48 @@
     .table td {
         padding: 14px;
     }
+
+/* Tabla del ranking */
+.tabla-ranking {
+    min-width: 1250px;
+}
+
+/* Limitar el tamaño de la recomendación */
+.recomendacion-ranking {
+    width: 280px;
+    min-width: 280px;
+    max-width: 280px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.recomendacion-texto {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 5;
+    line-clamp: 5;
+}
+
+/* Mantener las acciones visibles */
+.acciones-ranking {
+    position: sticky;
+    right: 0;
+    min-width: 135px;
+    width: 135px;
+    background-color: #ffffff;
+    box-shadow: -5px 0 8px rgba(0, 0, 0, 0.08);
+    z-index: 2;
+}
+
+thead .acciones-ranking {
+    background-color: #212529;
+    z-index: 3;
+}
+
+.table-hover tbody tr:hover .acciones-ranking {
+    background-color: #f2f2f2;
+}
 
 .btn {
     border-radius: 7px;

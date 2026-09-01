@@ -227,9 +227,16 @@ namespace ReclutamientoIA.Migrations
                     b.Property<bool>("Activo")
                         .HasColumnType("bit");
 
+                    b.Property<string>("AsuntoCorreo")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
                     b.Property<string>("Correo")
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
+
+                    b.Property<DateTime?>("FechaCorreo")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("FechaRegistro")
                         .HasColumnType("datetime2");
@@ -252,6 +259,10 @@ namespace ReclutamientoIA.Migrations
                     b.Property<string>("NombreCompleto")
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("OrigenRegistro")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<long>("TamanoArchivo")
                         .HasColumnType("bigint");
@@ -303,6 +314,52 @@ namespace ReclutamientoIA.Migrations
                     b.HasKey("IdConfiguracion");
 
                     b.ToTable("ConfiguracionesIA");
+                });
+
+            modelBuilder.Entity("ReclutamientoIA.Models.CorreoProcesado", b =>
+                {
+                    b.Property<int>("IdCorreoProcesado")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdCorreoProcesado"));
+
+                    b.Property<string>("Asunto")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<int>("CantidadPdf")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Carpeta")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("CuentaCorreo")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<DateTime>("FechaProcesamiento")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MessageId")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<long>("UidCorreo")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("UidValidity")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("IdCorreoProcesado");
+
+                    b.HasIndex("CuentaCorreo", "Carpeta", "UidValidity", "UidCorreo")
+                        .IsUnique();
+
+                    b.ToTable("CorreosProcesados");
                 });
 
             modelBuilder.Entity("ReclutamientoIA.Models.Entrevista", b =>

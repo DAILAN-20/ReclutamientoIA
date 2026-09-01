@@ -17,6 +17,10 @@ builder.Services.AddScoped<
     IGoogleCalendarService,
     GoogleCalendarService
 >();
+builder.Services.AddScoped<
+    ICorreoCurriculumsService,
+    CorreoCurriculumsService
+>();
 
 builder.Services.AddControllersWithViews();
 

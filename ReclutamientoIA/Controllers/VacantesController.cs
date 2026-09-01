@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ReclutamientoIA.Data;
 using ReclutamientoIA.Models;
@@ -213,6 +214,316 @@ public class VacantesController : Controller
         }
 
         return RedirectToAction(nameof(Index));
+    }
+
+    // =====================================================
+    // CARGA MASIVA DE CURRÍCULUMS - GET
+    // =====================================================
+
+    [HttpGet]
+    public async Task<IActionResult> CargaMasiva(
+        int? idVacante)
+    {
+        await CargarVacantesDisponiblesAsync(idVacante);
+
+        var modelo = new CargaMasivaCurriculumsViewModel
+        {
+            IdVacante = idVacante ?? 0
+        };
+
+        return View(modelo);
+    }
+
+    // =====================================================
+    // CARGA MASIVA DE CURRÍCULUMS - POST
+    // =====================================================
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [RequestSizeLimit(210_000_000)]
+    public async Task<IActionResult> CargaMasiva(
+        CargaMasivaCurriculumsViewModel modelo)
+    {
+        if (modelo.Archivos == null ||
+            modelo.Archivos.Count == 0)
+        {
+            ModelState.AddModelError(
+                nameof(modelo.Archivos),
+                "Seleccione al menos un currículum."
+            );
+        }
+
+        if (modelo.Archivos != null &&
+            modelo.Archivos.Count > 20)
+        {
+            ModelState.AddModelError(
+                nameof(modelo.Archivos),
+                "Puede analizar un máximo de 20 currículums por lote."
+            );
+        }
+
+        var vacante = await _context.Vacantes
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                v => v.IdVacante == modelo.IdVacante
+            );
+
+        if (vacante == null)
+        {
+            ModelState.AddModelError(
+                nameof(modelo.IdVacante),
+                "La vacante seleccionada no existe."
+            );
+        }
+
+        if (!ModelState.IsValid)
+        {
+            await CargarVacantesDisponiblesAsync(
+                modelo.IdVacante
+            );
+
+            return View(modelo);
+        }
+
+        var configuracion = await _context.ConfiguracionesIA
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c =>
+                c.Activo &&
+                c.Proveedor == "OpenAI"
+            );
+
+        var prompt = await _context.PromptsIA
+            .AsNoTracking()
+            .FirstOrDefaultAsync(p =>
+                p.Activo &&
+                p.Tipo == "AnalisisCV"
+            );
+
+        if (configuracion == null || prompt == null)
+        {
+            TempData["Error"] =
+                "La configuración de inteligencia artificial " +
+                "no está activa.";
+
+            return RedirectToAction(
+                nameof(CargaMasiva),
+                new { idVacante = modelo.IdVacante }
+            );
+        }
+
+        var procesados = 0;
+        var yaAnalizados = 0;
+        var errores = new List<string>();
+
+        foreach (var archivo in modelo.Archivos)
+        {
+            var nombreArchivo = Path.GetFileName(
+                archivo.FileName
+            );
+
+            if (!_curriculumService.EsPdfValido(archivo))
+            {
+                errores.Add(
+                    $"{nombreArchivo}: debe ser un PDF válido " +
+                    "y no superar 10 MB."
+                );
+
+                continue;
+            }
+
+            try
+            {
+                var hash = await _curriculumService
+                    .CalcularHashAsync(archivo);
+
+                var candidato = await _context.Candidatos
+                    .FirstOrDefaultAsync(c =>
+                        c.HashArchivo == hash
+                    );
+
+                if (candidato == null)
+                {
+                    var nombreGuardado =
+                        await _curriculumService.GuardarAsync(
+                            archivo
+                        );
+
+                    candidato = new Candidato
+                    {
+                        NombreArchivoOriginal = nombreArchivo,
+                        NombreArchivoGuardado = nombreGuardado,
+                        TipoContenido = "application/pdf",
+                        TamanoArchivo = archivo.Length,
+                        HashArchivo = hash,
+                        FechaRegistro = DateTime.Now,
+                        Activo = true
+                    };
+
+                    try
+                    {
+                        _context.Candidatos.Add(candidato);
+                        await _context.SaveChangesAsync();
+                    }
+                    catch
+                    {
+                        _curriculumService.Eliminar(
+                            nombreGuardado
+                        );
+
+                        throw;
+                    }
+                }
+
+                var analisisExistente =
+                    await _context.AnalisisIA
+                        .AsNoTracking()
+                        .AnyAsync(a =>
+                            a.IdVacante == vacante!.IdVacante &&
+                            a.IdCandidato == candidato.IdCandidato
+                        );
+
+                if (analisisExistente)
+                {
+                    yaAnalizados++;
+                    continue;
+                }
+
+                using var lectura =
+                    _curriculumService.AbrirLectura(
+                        candidato.NombreArchivoGuardado
+                    );
+
+                if (lectura == null)
+                {
+                    throw new InvalidOperationException(
+                        "No se encontró el archivo guardado."
+                    );
+                }
+
+                var textoCurriculum =
+                    _pdfTextoService.ExtraerTexto(lectura);
+
+                if (string.IsNullOrWhiteSpace(
+                    textoCurriculum
+                ))
+                {
+                    throw new InvalidOperationException(
+                        "No se pudo extraer texto del PDF."
+                    );
+                }
+
+                var resultado =
+                    await _inteligenciaArtificialService
+                        .AnalizarAsync(
+                            vacante!,
+                            textoCurriculum,
+                            configuracion,
+                            prompt
+                        );
+
+                if (!string.IsNullOrWhiteSpace(
+                    resultado.Nombre
+                ))
+                {
+                    candidato.NombreCompleto =
+                        resultado.Nombre.Trim();
+                }
+
+                if (!string.IsNullOrWhiteSpace(
+                    resultado.Correo
+                ))
+                {
+                    candidato.Correo =
+                        resultado.Correo.Trim();
+                }
+
+                if (!string.IsNullOrWhiteSpace(
+                    resultado.Telefono
+                ))
+                {
+                    candidato.Telefono =
+                        resultado.Telefono.Trim();
+                }
+
+                var analisis = new AnalisisIA
+                {
+                    IdVacante = vacante!.IdVacante,
+                    IdCandidato = candidato.IdCandidato,
+                    Puntuacion = Math.Clamp(
+                        resultado.Puntuacion,
+                        0,
+                        100
+                    ),
+                    Resumen = resultado.Resumen,
+                    Fortalezas = resultado.Fortalezas,
+                    Debilidades = resultado.Debilidades,
+                    Recomendacion = resultado.Recomendacion,
+                    EstadoProceso = "Analizado",
+                    ProveedorIA = configuracion.Proveedor,
+                    ModeloIA = configuracion.Modelo,
+                    FechaAnalisis = DateTime.Now
+                };
+
+                _context.AnalisisIA.Add(analisis);
+                await _context.SaveChangesAsync();
+
+                procesados++;
+            }
+            catch
+            {
+                errores.Add(
+                    $"{nombreArchivo}: no fue posible analizarlo."
+                );
+
+                _context.ChangeTracker.Clear();
+            }
+        }
+
+        var mensajes = new List<string>();
+
+        if (procesados > 0)
+        {
+            mensajes.Add(
+                $"{procesados} currículum(s) fueron " +
+                "analizados correctamente."
+            );
+        }
+
+        if (yaAnalizados > 0)
+        {
+            mensajes.Add(
+                $"{yaAnalizados} currículum(s) ya estaban " +
+                "analizados para esta vacante."
+            );
+        }
+
+        if (mensajes.Any())
+        {
+            TempData["Mensaje"] = string.Join(
+                " ",
+                mensajes
+            );
+        }
+
+        if (errores.Any())
+        {
+            TempData["Error"] = string.Join(
+                " ",
+                errores.Take(5)
+            );
+
+            if (errores.Count > 5)
+            {
+                TempData["Error"] +=
+                    $" Además, {errores.Count - 5} archivo(s) " +
+                    "adicionales presentaron errores.";
+            }
+        }
+
+        return RedirectToAction(
+            nameof(Resultados),
+            new { idVacante = vacante!.IdVacante }
+        );
     }
 
     // =====================================================
@@ -664,6 +975,26 @@ public class VacantesController : Controller
     // =====================================================
     // COMPROBAR EXISTENCIA
     // =====================================================
+
+    private async Task CargarVacantesDisponiblesAsync(
+        int? idVacante)
+    {
+        var vacantes = await _context.Vacantes
+            .AsNoTracking()
+            .Where(v =>
+                v.Estado == "Activa" ||
+                v.Estado == "Activo"
+            )
+            .OrderBy(v => v.Titulo)
+            .ToListAsync();
+
+        ViewBag.Vacantes = new SelectList(
+            vacantes,
+            nameof(Vacante.IdVacante),
+            nameof(Vacante.Titulo),
+            idVacante
+        );
+    }
 
     private bool VacanteExists(int idVacante)
     {

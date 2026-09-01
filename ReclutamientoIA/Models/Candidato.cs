@@ -41,6 +41,15 @@ namespace ReclutamientoIA.Models
         public string HashArchivo { get; set; } =
             string.Empty;
 
+        [StringLength(20)]
+        public string? OrigenRegistro { get; set; } =
+    "Manual";
+
+        [StringLength(250)]
+        public string? AsuntoCorreo { get; set; }
+
+        public DateTime? FechaCorreo { get; set; }
+
         public DateTime FechaRegistro { get; set; } =
             DateTime.Now;
 

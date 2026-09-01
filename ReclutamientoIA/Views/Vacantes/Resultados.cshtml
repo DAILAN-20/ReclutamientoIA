@@ -13,7 +13,9 @@
           asp-append-version="true" />
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between
+    align-items-center flex-wrap gap-3 mb-4">
+
     <div>
         <h1>Ranking de candidatos</h1>
 
@@ -23,8 +25,8 @@
         </p>
     </div>
 
-    <div class="d-flex gap-2">
-        <a asp-action="SeleccionarCandidatos"
+    <div class="d-flex flex-wrap gap-2">
+        <a asp-action="CargaMasiva"
            asp-route-idVacante="@vacante?.IdVacante"
            class="btn btn-primary">
             Analizar más CV
@@ -60,18 +62,30 @@
 else
 {
     <div class="table-responsive">
-        <table class="table table-hover align-middle">
+        <table class="table table-hover
+            align-middle tabla-ranking">
+
             <thead class="table-dark">
                 <tr>
-                    <th class="text-center">Posición</th>
+                    <th class="text-center">
+                        Posición
+                    </th>
+
                     <th>Candidato</th>
                     <th>Correo</th>
                     <th>Teléfono</th>
-                    <th class="text-center">Puntuación</th>
+
+                    <th class="text-center">
+                        Puntuación
+                    </th>
+
                     <th>Recomendación</th>
                     <th>Estado</th>
                     <th>Fecha</th>
-                    <th class="text-center">Acciones</th>
+
+                    <th class="text-center acciones-ranking">
+                        Acciones
+                    </th>
                 </tr>
             </thead>
 
@@ -89,6 +103,19 @@ else
                                 ? "bg-warning text-dark"
                                 : "bg-danger";
 
+                    var claseEstado =
+                        analisis.EstadoProceso == "Aprobado"
+                            ? "bg-success"
+                            : analisis.EstadoProceso == "Rechazado"
+                                ? "bg-danger"
+                                : analisis.EstadoProceso ==
+                                  "Preseleccionado"
+                                    ? "bg-info text-dark"
+                                    : analisis.EstadoProceso ==
+                                      "Entrevista Programada"
+                                        ? "bg-warning text-dark"
+                                        : "bg-primary";
+
                     <tr>
                         <td class="text-center">
                             <strong>#@posicion</strong>
@@ -99,7 +126,7 @@ else
                                 ?? "Nombre no disponible")
                         </td>
 
-                        <td>
+                        <td class="text-break">
                             @(analisis.Candidato.Correo
                                 ?? "No disponible")
                         </td>
@@ -115,20 +142,26 @@ else
                             </span>
                         </td>
 
-                        <td>@analisis.Recomendacion</td>
+                        <td class="recomendacion-ranking">
+                            <div class="recomendacion-texto"
+                                 title="@analisis.Recomendacion">
+                                @analisis.Recomendacion
+                            </div>
+                        </td>
 
                         <td>
-                            <span class="badge bg-primary">
+                            <span class="badge @claseEstado">
                                 @analisis.EstadoProceso
                             </span>
                         </td>
 
                         <td>
                             @analisis.FechaAnalisis.ToString(
-                                "dd/MM/yyyy hh:mm tt"
+                                "dd/MM/yyyy HH:mm"
                             )
                         </td>
-                        <td class="text-center">
+
+                        <td class="text-center acciones-ranking">
                             <a asp-action="DetalleAnalisis"
                                asp-route-idAnalisis="@analisis.IdAnalisis"
                                class="btn btn-info btn-sm">

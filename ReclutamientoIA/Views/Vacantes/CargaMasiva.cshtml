@@ -1,0 +1,183 @@
+﻿@model ReclutamientoIA.Models.CargaMasivaCurriculumsViewModel
+
+@{
+    ViewData["Title"] = "Analizar currículums";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 p-md-5">
+                <div class="mb-4">
+                    <h1 class="h2 fw-bold">
+                        Seleccionar vacante para análisis IA
+                    </h1>
+
+                    <p class="text-muted mb-0">
+                        Seleccione una vacante y cargue hasta
+                        20 currículums en formato PDF.
+                    </p>
+                </div>
+
+                <form asp-action="CargaMasiva"
+                      method="post"
+                      enctype="multipart/form-data"
+                      id="formCargaMasiva">
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger"></div>
+
+                    <div class="mb-4">
+                        <label asp-for="IdVacante"
+                               class="form-label fw-semibold">
+                            Vacante disponible
+                        </label>
+
+                        <select asp-for="IdVacante"
+                                asp-items="ViewBag.Vacantes"
+                                class="form-select form-select-lg">
+                            <option value="">
+                                Seleccione una vacante
+                            </option>
+                        </select>
+
+                        <span asp-validation-for="IdVacante"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Archivos"
+                               class="form-label fw-semibold">
+                            Currículums
+                        </label>
+
+                        <div class="border rounded-3 p-4 bg-light">
+                            <input asp-for="Archivos"
+                                   type="file"
+                                   accept=".pdf,application/pdf"
+                                   multiple
+                                   class="form-control form-control-lg"
+                                   id="archivosCv" />
+
+                            <div class="form-text mt-2">
+                                Puede seleccionar hasta 20 archivos.
+                                Cada PDF puede pesar un máximo de 10 MB.
+                            </div>
+
+                            <span asp-validation-for="Archivos"
+                                  class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div id="resumenArchivos"
+                         class="alert alert-info d-none">
+                        <strong id="cantidadArchivos"></strong>
+
+                        <ul id="listaArchivos"
+                            class="mb-0 mt-2"></ul>
+                    </div>
+
+                    <div id="avisoProcesando"
+                         class="alert alert-warning d-none">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="spinner-border spinner-border-sm"
+                                 role="status"></div>
+
+                            <div>
+                                <strong>
+                                    Analizando currículums…
+                                </strong>
+
+                                <div>
+                                    No cierre ni actualice esta página.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="submit"
+                                class="btn btn-primary btn-lg"
+                                id="botonAnalizar">
+                            Analizar currículums
+                        </button>
+
+                        <a asp-action="Index"
+                           class="btn btn-secondary btn-lg">
+                            Volver a vacantes
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync(
+            "_ValidationScriptsPartial"
+        );
+    }
+
+    <script>
+        (() => {
+            const input = document.getElementById("archivosCv");
+            const resumen = document.getElementById(
+                "resumenArchivos"
+            );
+            const cantidad = document.getElementById(
+                "cantidadArchivos"
+            );
+            const lista = document.getElementById(
+                "listaArchivos"
+            );
+            const formulario = document.getElementById(
+                "formCargaMasiva"
+            );
+            const boton = document.getElementById(
+                "botonAnalizar"
+            );
+            const aviso = document.getElementById(
+                "avisoProcesando"
+            );
+
+            input.addEventListener("change", () => {
+                lista.innerHTML = "";
+
+                const archivos = Array.from(input.files);
+
+                if (archivos.length === 0) {
+                    resumen.classList.add("d-none");
+                    return;
+                }
+
+                resumen.classList.remove("d-none");
+
+                cantidad.textContent =
+                    archivos.length === 1
+                        ? "1 currículum seleccionado"
+                        : archivos.length +
+                          " currículums seleccionados";
+
+                archivos.forEach((archivo) => {
+                    const elemento =
+                        document.createElement("li");
+
+                    elemento.textContent = archivo.name;
+                    lista.appendChild(elemento);
+                });
+            });
+
+            formulario.addEventListener("submit", () => {
+                if (!formulario.checkValidity()) {
+                    return;
+                }
+
+                boton.disabled = true;
+                boton.textContent = "Analizando…";
+                aviso.classList.remove("d-none");
+            });
+        })();
+    </script>
+}
