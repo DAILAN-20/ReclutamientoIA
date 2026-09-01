@@ -7,6 +7,17 @@ using ReclutamientoIA.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.Configure<GoogleCalendarOptions>(
+    builder.Configuration.GetSection(
+        GoogleCalendarOptions.Seccion
+    )
+);
+
+builder.Services.AddScoped<
+    IGoogleCalendarService,
+    GoogleCalendarService
+>();
+
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<

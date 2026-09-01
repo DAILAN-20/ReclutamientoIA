@@ -14,15 +14,18 @@ public class EntrevistasController : Controller
 {
     private readonly ReclutamientoDbContext _context;
     private readonly ICorreoService _correoService;
+    private readonly IGoogleCalendarService _googleCalendarService;
     private readonly ILogger<EntrevistasController> _logger;
 
     public EntrevistasController(
         ReclutamientoDbContext context,
         ICorreoService correoService,
+        IGoogleCalendarService googleCalendarService,
         ILogger<EntrevistasController> logger)
     {
         _context = context;
         _correoService = correoService;
+        _googleCalendarService = googleCalendarService;
         _logger = logger;
     }
 
@@ -265,6 +268,12 @@ public class EntrevistasController : Controller
         TempData["Mensaje"] =
             "La entrevista fue programada correctamente.";
 
+        await SincronizarGoogleCalendarAsync(
+            entrevista,
+            analisis,
+            TipoSincronizacionCalendar.Guardar
+        );
+
         await NotificarEntrevistaAsync(
             entrevista,
             analisis,
@@ -392,6 +401,12 @@ public class EntrevistasController : Controller
         TempData["Mensaje"] =
             "La entrevista fue actualizada correctamente.";
 
+        await SincronizarGoogleCalendarAsync(
+            entrevista,
+            entrevista.AnalisisIA,
+            TipoSincronizacionCalendar.Guardar
+        );
+
         if (notificar)
         {
             await NotificarEntrevistaAsync(
@@ -443,6 +458,12 @@ public class EntrevistasController : Controller
             "La entrevista fue cancelada. " +
             "El candidato quedó preseleccionado y puede " +
             "programarse nuevamente.";
+
+        await SincronizarGoogleCalendarAsync(
+            entrevista,
+            entrevista.AnalisisIA,
+            TipoSincronizacionCalendar.Eliminar
+        );
 
         await NotificarEntrevistaAsync(
             entrevista,
@@ -614,6 +635,91 @@ public class EntrevistasController : Controller
     }
 
     // =====================================================
+    // SINCRONIZACIÓN CON GOOGLE CALENDAR
+    // =====================================================
+
+    private enum TipoSincronizacionCalendar
+    {
+        Guardar,
+        Eliminar
+    }
+
+    private async Task SincronizarGoogleCalendarAsync(
+        Entrevista entrevista,
+        AnalisisIA analisis,
+        TipoSincronizacionCalendar tipo)
+    {
+        try
+        {
+            if (tipo == TipoSincronizacionCalendar.Eliminar)
+            {
+                if (string.IsNullOrWhiteSpace(
+                    entrevista.GoogleEventId
+                ))
+                {
+                    return;
+                }
+
+                await _googleCalendarService.EliminarEventoAsync(
+                    entrevista.GoogleEventId
+                );
+
+                entrevista.GoogleEventId = null;
+                await _context.SaveChangesAsync();
+
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(
+                entrevista.GoogleEventId
+            ))
+            {
+                entrevista.GoogleEventId =
+                    await _googleCalendarService.CrearEventoAsync(
+                        entrevista,
+                        analisis
+                    );
+
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                await _googleCalendarService.ActualizarEventoAsync(
+                    entrevista.GoogleEventId,
+                    entrevista,
+                    analisis
+                );
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                "Falló la sincronización de Calendar para la " +
+                "entrevista {IdEntrevista}. Tipo de error: {TipoError}",
+                entrevista.IdEntrevista,
+                ex.GetType().Name
+            );
+
+            AgregarAdvertencia(
+                "El cambio quedó guardado, pero no se pudo " +
+                "sincronizar con Google Calendar."
+            );
+        }
+    }
+
+    private void AgregarAdvertencia(string mensaje)
+    {
+        var advertenciaAnterior =
+            TempData.Peek("Error")?.ToString();
+
+        TempData["Error"] = string.IsNullOrWhiteSpace(
+            advertenciaAnterior
+        )
+            ? mensaje
+            : advertenciaAnterior + " " + mensaje;
+    }
+
+    // =====================================================
     // NOTIFICACIONES POR CORREO
     // =====================================================
 
@@ -627,9 +733,10 @@ public class EntrevistasController : Controller
 
         if (string.IsNullOrWhiteSpace(destinatario))
         {
-            TempData["Error"] =
+            AgregarAdvertencia(
                 "El cambio quedó guardado, pero no se envió el correo " +
-                "porque el candidato no tiene correo registrado.";
+                "porque el candidato no tiene correo registrado."
+            );
 
             return;
         }
@@ -791,11 +898,12 @@ public class EntrevistasController : Controller
                 entrevista.IdEntrevista,
                 ex.GetType().Name
             );
-            TempData["Error"] =
-    "El cambio quedó guardado, pero no se pudo confirmar " +
-    "el envío del correo. No repita la operación: " +
-    "revise la configuración y confirme si el candidato " +
-    "recibió el mensaje.";
+            AgregarAdvertencia(
+                "El cambio quedó guardado, pero no se pudo confirmar " +
+                "el envío del correo. No repita la operación: " +
+                "revise la configuración y confirme si el candidato " +
+                "recibió el mensaje."
+            );
         }
 
     }
