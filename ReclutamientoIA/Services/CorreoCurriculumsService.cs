@@ -2,7 +2,6 @@
 using MailKit.Net.Imap;
 using MailKit.Search;
 using MailKit.Security;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MimeKit;
