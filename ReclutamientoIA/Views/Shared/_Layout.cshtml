@@ -1,38 +1,93 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ReclutamientoIA</title>
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>
+        @ViewData["Title"] - ReclutamientoIA
+    </title>
+
     <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/ReclutamientoIA.styles.css" asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/ReclutamientoIA.styles.css"
+          asp-append-version="true" />
+
     <link rel="stylesheet"
           href="~/css/layout.css"
           asp-append-version="true" />
 
-    @await RenderSectionAsync("Styles", required: false)
+    @await RenderSectionAsync(
+        "Styles",
+        required: false
+    )
 </head>
+
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-xl
+                    navbar-light bg-white
+                    border-bottom box-shadow mb-3">
+
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ReclutamientoIA</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <a class="navbar-brand"
+                   asp-area=""
+                   asp-controller="Home"
+                   asp-action="Index">
+                    ReclutamientoIA
+                </a>
+
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target=".navbar-collapse"
+                        aria-controls="navbarSupportedContent"
+                        aria-expanded="false"
+                        aria-label="Mostrar navegación">
+
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+
+                <div class="navbar-collapse collapse
+                            d-xl-inline-flex
+                            justify-content-between">
+
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
+                            <a class="nav-link text-dark"
+                               asp-area=""
+                               asp-controller="Home"
+                               asp-action="Index">
+                                Inicio
+                            </a>
                         </li>
+
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Vacantes" asp-action="Index">
+                            <a class="nav-link text-dark"
+                               asp-controller="Vacantes"
+                               asp-action="Index">
                                 Vacantes
                             </a>
                         </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark"
+                               asp-controller="Vacantes"
+                               asp-action="CargaMasiva">
+                                Análisis IA
+                            </a>
+                        </li>
+
                         <li class="nav-item">
                             <a class="nav-link text-dark"
                                asp-controller="Candidatos"
@@ -40,33 +95,26 @@
                                 Candidatos
                             </a>
                         </li>
+
                         <li class="nav-item">
                             <a class="nav-link text-dark"
                                asp-controller="CorreoCurriculums"
                                asp-action="Index">
-                                CV recibidos por correo
+                                CV por correo
                             </a>
                         </li>
-                        @if (User.IsInRole("Administrador"))
+
+                        @if (User.IsInRole("Administrador") ||
+                             User.IsInRole("Reclutador"))
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark"
-                                   asp-controller="Usuarios"
-                                   asp-action="Index">
-                                    Usuarios
+                                   asp-controller="Vacantes"
+                                   asp-action="Tablero">
+                                    Tablero
                                 </a>
                             </li>
-                            @if (User.IsInRole("Administrador") ||
-                             User.IsInRole("Reclutador"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark"
-                                       asp-controller="Vacantes"
-                                       asp-action="Tablero">
-                                        Tablero
-                                    </a>
-                                </li>
-                            }
+
                             <li class="nav-item">
                                 <a class="nav-link text-dark"
                                    asp-controller="Entrevistas"
@@ -76,6 +124,62 @@
                             </li>
                         }
 
+                        @if (User.IsInRole("Administrador"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle
+                                          text-dark"
+                                   href="#"
+                                   id="configuracionDropdown"
+                                   role="button"
+                                   data-bs-toggle="dropdown"
+                                   aria-expanded="false">
+                                    Configuración
+                                </a>
+
+                                <ul class="dropdown-menu"
+                                    aria-labelledby="configuracionDropdown">
+
+                                    <li>
+                                        <h6 class="dropdown-header">
+                                            Configuración del sistema
+                                        </h6>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-controller="ConfiguracionSistema"
+                                           asp-action="Prompt">
+                                            Editar prompt
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-controller="ConfiguracionSistema"
+                                           asp-action="InteligenciaArtificial">
+                                            Proveedor de IA
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-controller="ConfiguracionSistema"
+                                           asp-action="Correo">
+                                            Configuración del correo
+                                        </a>
+                                    </li>
+                                    
+                                     <li class="nav-item">
+                                          <a class="nav-link text-dark"
+                                              asp-controller="Usuarios"
+                                               asp-action="Index">
+                                                 Usuarios
+                                </a>
+                            </li>
+                                </ul>
+                            </li>
+                        }
                     </ul>
 
                     <ul class="navbar-nav">
@@ -91,8 +195,10 @@
                                 <form asp-controller="Cuenta"
                                       asp-action="CerrarSesion"
                                       method="post">
+
                                     <button type="submit"
-                                            class="btn btn-link nav-link text-dark">
+                                            class="btn btn-link
+                                                   nav-link text-dark">
                                         Cerrar sesión
                                     </button>
                                 </form>
@@ -113,20 +219,30 @@
             </div>
         </nav>
     </header>
+
     <div class="container">
-        <main role="main" class="pb-3">
+        <main role="main"
+              class="pb-3">
             @RenderBody()
         </main>
     </div>
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2026 - ReclutamientoIA - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2026 - ReclutamientoIA
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+
+    <script src="~/js/site.js"
+            asp-append-version="true"></script>
+
+    @await RenderSectionAsync(
+        "Scripts",
+        required: false
+    )
 </body>
 </html>
