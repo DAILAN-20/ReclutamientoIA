@@ -1,0 +1,212 @@
+﻿@model ReclutamientoIA.Models.ConfiguracionIAViewModel
+
+@{
+    ViewData["Title"] = "Configuración de IA";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-7">
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-1">
+                        Configuración de Inteligencia Artificial
+                    </h4>
+
+                    <p class="mb-0 small">
+                        Configure el proveedor, modelo y clave API.
+                    </p>
+                </div>
+
+                <div class="card-body p-4">
+
+                    @if (TempData["Exito"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show">
+                            @TempData["Exito"]
+
+                            <button type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="alert">
+                            </button>
+                        </div>
+                    }
+
+                    <form asp-action="InteligenciaArtificial"
+                          asp-controller="ConfiguracionSistema"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input asp-for="IdConfiguracion"
+                               type="hidden" />
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="alert alert-danger">
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Proveedor"
+                                   class="form-label fw-semibold">
+                            </label>
+
+                            <select asp-for="Proveedor"
+                                    id="proveedor"
+                                    class="form-select">
+                                <option value="OpenAI">
+                                    OpenAI
+                                </option>
+
+                                <option value="Gemini">
+                                    Google Gemini
+                                </option>
+                            </select>
+
+                            <span asp-validation-for="Proveedor"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Modelo"
+                                   class="form-label fw-semibold">
+                            </label>
+
+                            <input asp-for="Modelo"
+                                   id="modelo"
+                                   class="form-control"
+                                   list="listaModelos"
+                                   placeholder="Escriba o seleccione un modelo" />
+
+                            <datalist id="listaModelos">
+                            </datalist>
+
+                            <span asp-validation-for="Modelo"
+                                  class="text-danger">
+                            </span>
+
+                            <div class="form-text">
+                                Puede seleccionar un modelo sugerido o escribirlo manualmente.
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="ClaveApi"
+                                   class="form-label fw-semibold">
+                            </label>
+
+                            <div class="input-group">
+                                <input asp-for="ClaveApi"
+                                       id="claveApi"
+                                       class="form-control"
+                                       autocomplete="new-password"
+                                       placeholder="Ingrese la clave API" />
+
+                                <button type="button"
+                                        id="botonMostrarClave"
+                                        class="btn btn-outline-secondary">
+                                    Mostrar
+                                </button>
+                            </div>
+
+                            <span asp-validation-for="ClaveApi"
+                                  class="text-danger">
+                            </span>
+
+                            @if (Model.TieneClaveGuardada)
+                            {
+                                <div class="form-text text-success">
+                                    Ya existe una clave guardada.
+                                    Déjela vacía para conservarla.
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="form-text">
+                                    Todavía no existe una clave API guardada.
+                                </div>
+                            }
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a asp-controller="Home"
+                               asp-action="Index"
+                               class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                Guardar configuración
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const proveedor = document.getElementById("proveedor");
+        const modelo = document.getElementById("modelo");
+        const listaModelos = document.getElementById("listaModelos");
+        const claveApi = document.getElementById("claveApi");
+        const botonMostrarClave =
+            document.getElementById("botonMostrarClave");
+
+        const modelos = {
+            OpenAI: [
+                "gpt-5-mini",
+                "gpt-5",
+                "gpt-4.1-mini"
+            ],
+            Gemini: [
+                "gemini-2.5-flash",
+                "gemini-2.5-pro"
+            ]
+        };
+
+        function actualizarModelos() {
+            listaModelos.innerHTML = "";
+
+            const opciones =
+                modelos[proveedor.value] || [];
+
+            opciones.forEach(nombreModelo => {
+                const opcion =
+                    document.createElement("option");
+
+                opcion.value = nombreModelo;
+                listaModelos.appendChild(opcion);
+            });
+        }
+
+        proveedor.addEventListener(
+            "change",
+            actualizarModelos
+        );
+
+        botonMostrarClave.addEventListener(
+            "click",
+            function() {
+                const estaOculta =
+                    claveApi.type === "password";
+
+                claveApi.type =
+                    estaOculta ? "text" : "password";
+
+                botonMostrarClave.textContent =
+                    estaOculta ? "Ocultar" : "Mostrar";
+            }
+        );
+
+        actualizarModelos();
+    </script>
+}

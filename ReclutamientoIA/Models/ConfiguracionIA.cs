@@ -13,14 +13,20 @@ namespace ReclutamientoIA.Models
 
         [Required]
         [StringLength(100)]
-        public string Modelo { get; set; } = string.Empty;
+        public string Modelo { get; set; } = "gpt-4.1-mini";
 
+        // La clave API se guardará cifrada.
+        [StringLength(4000)]
+        public string? ClaveApiProtegida { get; set; }
+
+        // Se conservan porque el sistema actual las utiliza,
+        // pero no aparecerán en el formulario.
         [Range(0, 2)]
         public double Temperatura { get; set; } = 0.2;
 
         public bool Activo { get; set; } = true;
 
-        public DateTime FechaActualizacion { get; set; } =
-            DateTime.Now;
+        public DateTime FechaActualizacion { get; set; }
+            = DateTime.Now;
     }
 }

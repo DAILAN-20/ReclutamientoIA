@@ -295,6 +295,10 @@ namespace ReclutamientoIA.Migrations
                     b.Property<bool>("Activo")
                         .HasColumnType("bit");
 
+                    b.Property<string>("ClaveApiProtegida")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
                     b.Property<DateTime>("FechaActualizacion")
                         .HasColumnType("datetime2");
 
