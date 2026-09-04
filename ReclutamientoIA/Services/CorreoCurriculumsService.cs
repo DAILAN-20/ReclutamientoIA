@@ -2,8 +2,8 @@
 using MailKit.Net.Imap;
 using MailKit.Search;
 using MailKit.Security;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using MimeKit;
 using ReclutamientoIA.Data;
 using ReclutamientoIA.Models;
@@ -15,16 +15,20 @@ public class CorreoCurriculumsService :
 {
     private readonly ReclutamientoDbContext _context;
     private readonly ICurriculumService _curriculumService;
-    private readonly CorreoOptions _options;
+    private readonly IDataProtector _protectorCorreo;
 
     public CorreoCurriculumsService(
         ReclutamientoDbContext context,
         ICurriculumService curriculumService,
-        IOptions<CorreoOptions> options)
+        IDataProtectionProvider dataProtectionProvider)
     {
         _context = context;
         _curriculumService = curriculumService;
-        _options = options.Value;
+
+        _protectorCorreo =
+            dataProtectionProvider.CreateProtector(
+                "ReclutamientoIA.ClaveCorreo"
+            );
     }
 
     public async Task<ResultadoImportacionCorreo> ImportarAsync(
@@ -33,20 +37,58 @@ public class CorreoCurriculumsService :
         var resultado =
             new ResultadoImportacionCorreo();
 
+        var configuracion = await _context
+            .ConfiguracionesCorreo
+            .AsNoTracking()
+            .Where(c => c.Activo)
+            .OrderBy(c => c.IdConfiguracionCorreo)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (configuracion == null)
+        {
+            throw new InvalidOperationException(
+                "No existe una configuración de correo activa."
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(
+                configuracion.ClaveProtegida))
+        {
+            throw new InvalidOperationException(
+                "No existe una contraseña de aplicación configurada."
+            );
+        }
+
+        string clave;
+
+        try
+        {
+            clave = _protectorCorreo.Unprotect(
+                configuracion.ClaveProtegida
+            );
+        }
+        catch
+        {
+            throw new InvalidOperationException(
+                "No fue posible descifrar la contraseña del correo. " +
+                "Guárdela nuevamente desde Configuración del correo."
+            );
+        }
+
         using var cliente = new ImapClient();
 
         try
         {
             await cliente.ConnectAsync(
-                _options.ServidorImap,
-                _options.PuertoImap,
+                configuracion.ServidorImap,
+                configuracion.PuertoImap,
                 SecureSocketOptions.SslOnConnect,
                 cancellationToken
             );
 
             await cliente.AuthenticateAsync(
-                _options.Usuario,
-                _options.Clave,
+                configuracion.Usuario,
+                clave,
                 cancellationToken
             );
 
@@ -57,7 +99,7 @@ public class CorreoCurriculumsService :
                 cancellationToken
             );
 
-            var cuentaCorreo = _options.Usuario
+            var cuentaCorreo = configuracion.Usuario
                 .Trim()
                 .ToLowerInvariant();
 

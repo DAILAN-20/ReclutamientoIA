@@ -284,6 +284,60 @@ namespace ReclutamientoIA.Migrations
                     b.ToTable("Candidatos");
                 });
 
+            modelBuilder.Entity("ReclutamientoIA.Models.ConfiguracionCorreo", b =>
+                {
+                    b.Property<int>("IdConfiguracionCorreo")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdConfiguracionCorreo"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ClaveProtegida")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("CorreoRemitente")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTime>("FechaActualizacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("NombreRemitente")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<int>("PuertoImap")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PuertoSmtp")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ServidorImap")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ServidorSmtp")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Usuario")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("IdConfiguracionCorreo");
+
+                    b.ToTable("ConfiguracionesCorreo");
+                });
+
             modelBuilder.Entity("ReclutamientoIA.Models.ConfiguracionIA", b =>
                 {
                     b.Property<int>("IdConfiguracion")

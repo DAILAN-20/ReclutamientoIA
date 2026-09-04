@@ -1,0 +1,109 @@
+﻿@model ReclutamientoIA.Models.PromptIA
+
+@{
+    ViewData["Title"] = "Editar prompt";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-xl-10">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-1">
+                        Prompt de análisis
+                    </h4>
+
+                    <p class="mb-0 small">
+                        Edite las instrucciones utilizadas para analizar los currículums.
+                    </p>
+                </div>
+
+                <div class="card-body p-4">
+
+                    @if (TempData["Exito"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show">
+                            @TempData["Exito"]
+
+                            <button type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="alert"
+                                    aria-label="Cerrar">
+                            </button>
+                        </div>
+                    }
+
+                    <form asp-controller="ConfiguracionSistema"
+                          asp-action="Prompt"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="idPrompt"
+                               value="@Model.IdPrompt" />
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="alert alert-danger">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="contenido"
+                                   class="form-label fw-semibold">
+                                Contenido completo del prompt
+                            </label>
+
+                            <textarea id="contenido"
+                                      name="contenido"
+                                      class="form-control font-monospace"
+                                      rows="22"
+                                      required
+                                      spellcheck="true"
+                                      placeholder="Escriba las instrucciones para analizar los currículums...">@Model.Contenido</textarea>
+
+                            @if (ViewData.ModelState["contenido"]?.Errors.Count > 0)
+                            {
+                                <span class="text-danger">
+                                    @ViewData.ModelState["contenido"]!
+                                    .Errors[0].ErrorMessage
+                                </span>
+                            }
+
+                            <div class="form-text">
+                                Los cambios se aplicarán a los próximos currículums analizados.
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+
+                            <small class="text-muted">
+                                Última actualización:
+                                @Model.FechaActualizacion.ToString(
+                                    "dd/MM/yyyy hh:mm tt"
+                                )
+                            </small>
+
+                            <div class="d-flex gap-2">
+                                <a asp-controller="Home"
+                                   asp-action="Index"
+                                   class="btn btn-outline-secondary">
+                                    Cancelar
+                                </a>
+
+                                <button type="submit"
+                                        class="btn btn-primary">
+                                    Guardar prompt
+                                </button>
+                            </div>
+
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -1,82 +1,179 @@
 ﻿using MailKit.Net.Smtp;
 using MailKit.Security;
-using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.EntityFrameworkCore;
 using MimeKit;
+using ReclutamientoIA.Data;
 using ReclutamientoIA.Models;
 
-namespace ReclutamientoIA.Services;
-
-public class CorreoService : ICorreoService
+namespace ReclutamientoIA.Services
 {
-    private readonly CorreoOptions _opciones;
-
-    public CorreoService(IOptions<CorreoOptions> opciones)
+    public class CorreoService : ICorreoService
     {
-        _opciones = opciones.Value;
-    }
+        private readonly ReclutamientoDbContext
+            _context;
 
-    public async Task EnviarAsync(
-        string destinatario,
-        string asunto,
-        string contenidoHtml,
-        CancellationToken cancellationToken = default)
-    {
-        if (!MailboxAddress.TryParse(
-            destinatario, out var direccionDestino))
+        private readonly IDataProtector
+            _protectorCorreo;
+
+        public CorreoService(
+            ReclutamientoDbContext context,
+            IDataProtectionProvider dataProtectionProvider)
         {
-            throw new ArgumentException(
-                "El correo del destinatario no es válido.",
-                nameof(destinatario)
-            );
+            _context = context;
+
+            _protectorCorreo =
+                dataProtectionProvider.CreateProtector(
+                    "ReclutamientoIA.ClaveCorreo"
+                );
         }
 
-        var mensaje = new MimeMessage();
-
-        mensaje.From.Add(new MailboxAddress(
-            _opciones.NombreRemitente,
-            _opciones.CorreoRemitente
-        ));
-
-        mensaje.To.Add(direccionDestino);
-
-        mensaje.Subject = asunto;
-
-        mensaje.Body = new TextPart("html")
+        public async Task EnviarAsync(
+            string destinatario,
+            string asunto,
+            string contenidoHtml,
+            CancellationToken cancellationToken = default)
         {
-            Text = contenidoHtml
-        };
+            if (!MailboxAddress.TryParse(
+                    destinatario,
+                    out var direccionDestino))
+            {
+                throw new ArgumentException(
+                    "El correo del destinatario no es válido.",
+                    nameof(destinatario)
+                );
+            }
 
-        using var cliente = new SmtpClient();
+            var configuracion = await _context
+                .ConfiguracionesCorreo
+                .AsNoTracking()
+                .Where(c => c.Activo)
+                .OrderBy(c =>
+                    c.IdConfiguracionCorreo
+                )
+                .FirstOrDefaultAsync(
+                    cancellationToken
+                );
 
-        cliente.Timeout = 30000;
+            if (configuracion == null)
+            {
+                throw new InvalidOperationException(
+                    "No existe una configuración de correo activa."
+                );
+            }
 
-        // Puerto 465: cifrado desde el inicio.
-        // Otros puertos: exigir STARTTLS.
-        var seguridad = _opciones.Puerto == 465
-            ? SecureSocketOptions.SslOnConnect
-            : SecureSocketOptions.StartTls;
+            if (string.IsNullOrWhiteSpace(
+                    configuracion.ClaveProtegida))
+            {
+                throw new InvalidOperationException(
+                    "No existe una contraseña de aplicación configurada."
+                );
+            }
 
-        await cliente.ConnectAsync(
-            _opciones.Servidor,
-            _opciones.Puerto,
-            seguridad,
-            cancellationToken
-        );
+            string clave;
 
-        await cliente.AuthenticateAsync(
-            _opciones.Usuario,
-            _opciones.Clave,
-            cancellationToken
-        );
+            try
+            {
+                clave =
+                    _protectorCorreo.Unprotect(
+                        configuracion.ClaveProtegida
+                    );
+            }
+            catch
+            {
+                throw new InvalidOperationException(
+                    "No fue posible descifrar la contraseña " +
+                    "del correo. Guárdela nuevamente desde " +
+                    "Configuración del correo."
+                );
+            }
 
-        await cliente.SendAsync(
-            mensaje,
-            cancellationToken
-        );
+            if (!MailboxAddress.TryParse(
+                    configuracion.CorreoRemitente,
+                    out var direccionRemitente))
+            {
+                throw new InvalidOperationException(
+                    "El correo remitente configurado no es válido."
+                );
+            }
 
-        await cliente.DisconnectAsync(
-            true,
-            cancellationToken
-        );
+            var mensaje =
+                new MimeMessage();
+
+            mensaje.From.Add(
+                new MailboxAddress(
+                    configuracion.NombreRemitente,
+                    direccionRemitente.Address
+                )
+            );
+
+            mensaje.To.Add(
+                direccionDestino
+            );
+
+            mensaje.Subject =
+                asunto;
+
+            mensaje.Body =
+                new TextPart("html")
+                {
+                    Text = contenidoHtml
+                };
+
+            using var cliente =
+                new SmtpClient();
+
+            cliente.Timeout =
+                30000;
+
+            var seguridad =
+                configuracion.PuertoSmtp == 465
+                    ? SecureSocketOptions.SslOnConnect
+                    : SecureSocketOptions.StartTls;
+
+            try
+            {
+                await cliente.ConnectAsync(
+                    configuracion.ServidorSmtp,
+                    configuracion.PuertoSmtp,
+                    seguridad,
+                    cancellationToken
+                );
+
+                await cliente.AuthenticateAsync(
+                    configuracion.Usuario,
+                    clave,
+                    cancellationToken
+                );
+
+                await cliente.SendAsync(
+                    mensaje,
+                    cancellationToken
+                );
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException(
+                    "No fue posible enviar el correo. " +
+                    "Compruebe el servidor SMTP, el puerto, " +
+                    "el usuario y la contraseña de aplicación.",
+                    ex
+                );
+            }
+            finally
+            {
+                if (cliente.IsConnected)
+                {
+                    await cliente.DisconnectAsync(
+                        true,
+                        CancellationToken.None
+                    );
+                }
+            }
+        }
     }
 }

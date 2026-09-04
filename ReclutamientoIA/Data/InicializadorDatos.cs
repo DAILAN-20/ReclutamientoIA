@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using ReclutamientoIA.Models;
 using Microsoft.EntityFrameworkCore;
+using ReclutamientoIA.Models;
 
 namespace ReclutamientoIA.Data
 {
@@ -11,78 +11,160 @@ namespace ReclutamientoIA.Data
             IConfiguration configuracion)
         {
             var roleManager =
-                servicios.GetRequiredService<RoleManager<IdentityRole>>();
+                servicios.GetRequiredService<
+                    RoleManager<IdentityRole>
+                >();
 
             var userManager =
-                servicios.GetRequiredService<UserManager<Usuario>>();
+                servicios.GetRequiredService<
+                    UserManager<Usuario>
+                >();
 
-            string[] roles = { "Administrador", "Reclutador" };
+            var contexto =
+                servicios.GetRequiredService<
+                    ReclutamientoDbContext
+                >();
+
+            // =================================================
+            // CREAR ROLES
+            // =================================================
+
+            string[] roles =
+            {
+                "Administrador",
+                "Reclutador"
+            };
 
             foreach (var nombreRol in roles)
             {
-                if (!await roleManager.RoleExistsAsync(nombreRol))
+                var existeRol =
+                    await roleManager.RoleExistsAsync(
+                        nombreRol
+                    );
+
+                if (!existeRol)
                 {
                     await roleManager.CreateAsync(
                         new IdentityRole(nombreRol)
                     );
                 }
             }
-            var contexto =
-    servicios.GetRequiredService<ReclutamientoDbContext>();
 
-            if (!await contexto.ConfiguracionesIA.AnyAsync())
+            // =================================================
+            // CREAR CONFIGURACIÓN INICIAL DE IA
+            // =================================================
+
+            var existeConfiguracionIA =
+                await contexto.ConfiguracionesIA.AnyAsync();
+
+            if (!existeConfiguracionIA)
             {
                 contexto.ConfiguracionesIA.Add(
                     new ConfiguracionIA
                     {
                         Proveedor = "OpenAI",
-                        Modelo = "gpt-5.6-luna",
+                        Modelo = "gpt-5-mini",
+
+                        // Se configurará desde la pantalla
+                        // Configuración de IA.
+                        ClaveApiProtegida = null,
+
+                        // Estos campos se mantienen para
+                        // conservar compatibilidad con el sistema.
                         Temperatura = 0.2,
-                        Activo = true
+                        Activo = true,
+
+                        FechaActualizacion = DateTime.Now
                     }
                 );
             }
 
-            if (!await contexto.PromptsIA.AnyAsync(
-                    p => p.Tipo == "AnalisisCV"))
+            // =================================================
+            // CREAR PROMPT INICIAL
+            // =================================================
+
+            var existePromptAnalisis =
+                await contexto.PromptsIA.AnyAsync(
+                    prompt =>
+                        prompt.Tipo == "AnalisisCV"
+                );
+
+            if (!existePromptAnalisis)
             {
                 contexto.PromptsIA.Add(
                     new PromptIA
                     {
-                        Nombre = "Análisis de currículum",
-                        Tipo = "AnalisisCV",
+                        Nombre =
+                            "Análisis de currículum",
+
+                        Tipo =
+                            "AnalisisCV",
+
                         Activo = true,
+
                         Contenido = """
-                Actúa como especialista en reclutamiento.
+                        Actúa como especialista en reclutamiento.
 
-                Analiza el currículum comparándolo únicamente
-                con la vacante y sus requisitos.
+                        Analiza el currículum comparándolo únicamente
+                        con la vacante y sus requisitos.
 
-                No inventes información que no aparezca en el CV.
+                        No inventes información que no aparezca
+                        expresamente en el currículum.
 
-                Devuelve:
-                - nombre
-                - correo
-                - telefono
-                - puntuacion de 0 a 100
-                - resumen
-                - fortalezas
-                - debilidades
-                - recomendacion
+                        Devuelve obligatoriamente:
 
-                La puntuación debe representar el nivel de
-                compatibilidad real con la vacante.
-                """
+                        - nombre
+                        - correo
+                        - telefono
+                        - puntuacion de 0 a 100
+                        - resumen
+                        - fortalezas
+                        - debilidades
+                        - recomendacion
+
+                        La puntuación debe representar el nivel de
+                        compatibilidad real entre el candidato y
+                        la vacante.
+
+                        Si algún dato personal no aparece en el
+                        currículum, devuelve una cadena vacía.
+
+                        La recomendación debe indicar claramente
+                        si el candidato debe continuar o no en
+                        el proceso de selección.
+                        """,
+
+                        FechaCreacion =
+                            DateTime.Now,
+
+                        FechaActualizacion =
+                            DateTime.Now
                     }
                 );
             }
 
+            // Guardar la configuración y el prompt antes
+            // de continuar con el administrador inicial.
             await contexto.SaveChangesAsync();
 
-            var nombre = configuracion["AdministradorInicial:Nombre"];
-            var correo = configuracion["AdministradorInicial:Correo"];
+            // =================================================
+            // CREAR ADMINISTRADOR INICIAL
+            // =================================================
+
+            var nombre =
+                configuracion[
+                    "AdministradorInicial:Nombre"
+                ];
+
+            var correo =
+                configuracion[
+                    "AdministradorInicial:Correo"
+                ];
+
             var contrasena =
-                configuracion["AdministradorInicial:Contrasena"];
+                configuracion[
+                    "AdministradorInicial:Contrasena"
+                ];
 
             if (string.IsNullOrWhiteSpace(correo) ||
                 string.IsNullOrWhiteSpace(contrasena))
@@ -91,13 +173,17 @@ namespace ReclutamientoIA.Data
             }
 
             var administrador =
-                await userManager.FindByEmailAsync(correo);
+                await userManager.FindByEmailAsync(
+                    correo
+                );
 
             if (administrador == null)
             {
                 administrador = new Usuario
                 {
-                    NombreCompleto = nombre ?? "Administrador",
+                    NombreCompleto =
+                        nombre ?? "Administrador",
+
                     UserName = correo,
                     Email = correo,
                     EmailConfirmed = true,
@@ -111,6 +197,24 @@ namespace ReclutamientoIA.Data
                     );
 
                 if (resultado.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(
+                        administrador,
+                        "Administrador"
+                    );
+                }
+            }
+            else
+            {
+                // Asegurar que el usuario existente
+                // tenga el rol de administrador.
+                var esAdministrador =
+                    await userManager.IsInRoleAsync(
+                        administrador,
+                        "Administrador"
+                    );
+
+                if (!esAdministrador)
                 {
                     await userManager.AddToRoleAsync(
                         administrador,

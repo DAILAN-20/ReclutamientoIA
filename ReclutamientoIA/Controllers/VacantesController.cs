@@ -287,10 +287,9 @@ public class VacantesController : Controller
 
         var configuracion = await _context.ConfiguracionesIA
             .AsNoTracking()
-            .FirstOrDefaultAsync(c =>
-                c.Activo &&
-                c.Proveedor == "OpenAI"
-            );
+            .Where(c => c.Activo)
+            .OrderBy(c => c.IdConfiguracion)
+            .FirstOrDefaultAsync();
 
         var prompt = await _context.PromptsIA
             .AsNoTracking()
@@ -299,11 +298,36 @@ public class VacantesController : Controller
                 p.Tipo == "AnalisisCV"
             );
 
-        if (configuracion == null || prompt == null)
+        if (configuracion == null)
         {
             TempData["Error"] =
-                "La configuración de inteligencia artificial " +
-                "no está activa.";
+                "No existe una configuración de inteligencia " +
+                "artificial activa.";
+
+            return RedirectToAction(
+                nameof(CargaMasiva),
+                new { idVacante = modelo.IdVacante }
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(
+                configuracion.ClaveApiProtegida))
+        {
+            TempData["Error"] =
+                "Primero debe guardar una clave API desde " +
+                "Configuración de IA.";
+
+            return RedirectToAction(
+                nameof(CargaMasiva),
+                new { idVacante = modelo.IdVacante }
+            );
+        }
+
+        if (prompt == null ||
+            string.IsNullOrWhiteSpace(prompt.Contenido))
+        {
+            TempData["Error"] =
+                "No existe un prompt de análisis activo.";
 
             return RedirectToAction(
                 nameof(CargaMasiva),
@@ -634,10 +658,9 @@ public class VacantesController : Controller
         var configuracion =
             await _context.ConfiguracionesIA
                 .AsNoTracking()
-                .FirstOrDefaultAsync(
-                    c => c.Activo &&
-                         c.Proveedor == "OpenAI"
-                );
+                .Where(c => c.Activo)
+                .OrderBy(c => c.IdConfiguracion)
+                .FirstOrDefaultAsync();
 
         var prompt = await _context.PromptsIA
             .AsNoTracking()
@@ -646,11 +669,36 @@ public class VacantesController : Controller
                      p.Tipo == "AnalisisCV"
             );
 
-        if (configuracion == null || prompt == null)
+        if (configuracion == null)
         {
             TempData["Error"] =
-                "La configuración de inteligencia artificial " +
-                "no está activa.";
+                "No existe una configuración de inteligencia " +
+                "artificial activa.";
+
+            return RedirectToAction(
+                nameof(SeleccionarCandidatos),
+                new { idVacante = modelo.IdVacante }
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(
+                configuracion.ClaveApiProtegida))
+        {
+            TempData["Error"] =
+                "Primero debe guardar una clave API desde " +
+                "Configuración de IA.";
+
+            return RedirectToAction(
+                nameof(SeleccionarCandidatos),
+                new { idVacante = modelo.IdVacante }
+            );
+        }
+
+        if (prompt == null ||
+            string.IsNullOrWhiteSpace(prompt.Contenido))
+        {
+            TempData["Error"] =
+                "No existe un prompt de análisis activo.";
 
             return RedirectToAction(
                 nameof(SeleccionarCandidatos),

@@ -1,0 +1,291 @@
+﻿@model ReclutamientoIA.Models.ConfiguracionCorreoViewModel
+
+@{
+    ViewData["Title"] = "Configuración del correo";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-9 col-xl-8">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-1">
+                        Configuración del correo
+                    </h4>
+
+                    <p class="mb-0 small">
+                        Configure el envío de notificaciones y la recepción de currículums.
+                    </p>
+                </div>
+
+                <div class="card-body p-4">
+
+                    @if (TempData["Exito"] != null)
+                    {
+                        <div class="alert alert-success
+                            alert-dismissible fade show">
+
+                            @TempData["Exito"]
+
+                            <button type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="alert"
+                                    aria-label="Cerrar">
+                            </button>
+                        </div>
+                    }
+
+                    <form asp-controller="ConfiguracionSistema"
+                          asp-action="Correo"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input asp-for="IdConfiguracionCorreo"
+                               type="hidden" />
+
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div asp-validation-summary="ModelOnly"
+                                 class="alert alert-danger">
+                            </div>
+                        }
+
+                        <h5 class="mb-3">
+                            Envío de correos — SMTP
+                        </h5>
+
+                        <div class="row">
+
+                            <div class="col-md-8 mb-3">
+                                <label asp-for="ServidorSmtp"
+                                       class="form-label fw-semibold">
+                                </label>
+
+                                <input asp-for="ServidorSmtp"
+                                       class="form-control"
+                                       placeholder="smtp.gmail.com" />
+
+                                <span asp-validation-for="ServidorSmtp"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="PuertoSmtp"
+                                       class="form-label fw-semibold">
+                                </label>
+
+                                <input asp-for="PuertoSmtp"
+                                       type="number"
+                                       class="form-control"
+                                       min="1"
+                                       max="65535" />
+
+                                <span asp-validation-for="PuertoSmtp"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <h5 class="mb-3">
+                            Recepción de currículums — IMAP
+                        </h5>
+
+                        <div class="row">
+
+                            <div class="col-md-8 mb-3">
+                                <label asp-for="ServidorImap"
+                                       class="form-label fw-semibold">
+                                </label>
+
+                                <input asp-for="ServidorImap"
+                                       class="form-control"
+                                       placeholder="imap.gmail.com" />
+
+                                <span asp-validation-for="ServidorImap"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="PuertoImap"
+                                       class="form-label fw-semibold">
+                                </label>
+
+                                <input asp-for="PuertoImap"
+                                       type="number"
+                                       class="form-control"
+                                       min="1"
+                                       max="65535" />
+
+                                <span asp-validation-for="PuertoImap"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <h5 class="mb-3">
+                            Cuenta y credenciales
+                        </h5>
+
+                        <div class="mb-3">
+                            <label asp-for="Usuario"
+                                   class="form-label fw-semibold">
+                            </label>
+
+                            <input asp-for="Usuario"
+                                   type="email"
+                                   class="form-control"
+                                   autocomplete="off"
+                                   placeholder="correo@gmail.com" />
+
+                            <span asp-validation-for="Usuario"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Clave"
+                                   class="form-label fw-semibold">
+                                Contraseña de aplicación
+                            </label>
+
+                            <div class="input-group">
+
+                                <input id="Clave"
+                                       name="Clave"
+                                       type="password"
+                                       class="form-control"
+                                       autocomplete="new-password"
+                                       placeholder="Ingrese la contraseña de aplicación" />
+
+                                <button type="button"
+                                        id="botonMostrarClave"
+                                        class="btn btn-outline-secondary">
+                                    Mostrar
+                                </button>
+
+                            </div>
+
+                            <span asp-validation-for="Clave"
+                                  class="text-danger">
+                            </span>
+
+                            @if (Model.TieneClaveGuardada)
+                            {
+                                <div class="form-text text-success">
+                                    Ya existe una contraseña guardada.
+                                    Déjela vacía para conservarla.
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="form-text">
+                                    Para Gmail debe utilizar una contraseña de aplicación, no la contraseña normal.
+                                </div>
+                            }
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <h5 class="mb-3">
+                            Remitente
+                        </h5>
+
+                        <div class="row">
+
+                            <div class="col-md-7 mb-3">
+                                <label asp-for="CorreoRemitente"
+                                       class="form-label fw-semibold">
+                                </label>
+
+                                <input asp-for="CorreoRemitente"
+                                       type="email"
+                                       class="form-control"
+                                       placeholder="correo@gmail.com" />
+
+                                <span asp-validation-for="CorreoRemitente"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                            <div class="col-md-5 mb-3">
+                                <label asp-for="NombreRemitente"
+                                       class="form-label fw-semibold">
+                                </label>
+
+                                <input asp-for="NombreRemitente"
+                                       class="form-control"
+                                       placeholder="Reclutamiento IA" />
+
+                                <span asp-validation-for="NombreRemitente"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-3">
+
+                            <a asp-controller="Home"
+                               asp-action="Index"
+                               class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                Guardar configuración
+                            </button>
+
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const clave =
+            document.getElementById("Clave");
+
+        const botonMostrarClave =
+            document.getElementById(
+                "botonMostrarClave"
+            );
+
+        botonMostrarClave.addEventListener(
+            "click",
+            function() {
+                const estaOculta =
+                    clave.type === "password";
+
+                clave.type =
+                    estaOculta
+                        ? "text"
+                        : "password";
+
+                botonMostrarClave.textContent =
+                    estaOculta
+                        ? "Ocultar"
+                        : "Mostrar";
+            }
+        );
+    </script>
+}
