@@ -240,7 +240,7 @@ public class VacantesController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [RequestSizeLimit(210_000_000)]
+    [RequestSizeLimit(525_000_000)]
     public async Task<IActionResult> CargaMasiva(
         CargaMasivaCurriculumsViewModel modelo)
     {
@@ -253,12 +253,15 @@ public class VacantesController : Controller
             );
         }
 
+        const int limiteCurriculums = 50;
+
         if (modelo.Archivos != null &&
-            modelo.Archivos.Count > 20)
+            modelo.Archivos.Count > limiteCurriculums)
         {
             ModelState.AddModelError(
                 nameof(modelo.Archivos),
-                "Puede analizar un máximo de 20 currículums por lote."
+                $"Puede analizar un máximo de {limiteCurriculums} " +
+                "currículums por lote."
             );
         }
 
