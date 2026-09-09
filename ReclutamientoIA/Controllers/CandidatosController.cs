@@ -117,6 +117,35 @@ namespace ReclutamientoIA.Controllers
                 return View(modelo);
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> VerCurriculum(int id)
+        {
+            var candidato = await _context.Candidatos
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.IdCandidato == id);
+
+            if (candidato == null)
+            {
+                return NotFound();
+            }
+
+            var archivo = _curriculumService.AbrirLectura(
+                candidato.NombreArchivoGuardado
+            );
+
+            if (archivo == null)
+            {
+                return NotFound();
+            }
+
+            return File(
+                archivo,
+                candidato.TipoContenido ?? "application/pdf"
+            );
+        }
+
+
         [HttpGet]
         public async Task<IActionResult> Descargar(int id)
         {

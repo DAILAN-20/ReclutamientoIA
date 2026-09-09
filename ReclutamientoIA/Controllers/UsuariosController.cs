@@ -311,7 +311,7 @@ namespace ReclutamientoIA.Controllers
                 ModelState.AddModelError(
                     string.Empty,
                     error.Description
-                );
+                );                 
             }
 
             modelo.NombreCompleto = usuario.NombreCompleto;

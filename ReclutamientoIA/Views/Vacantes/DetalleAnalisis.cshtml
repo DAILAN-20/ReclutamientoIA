@@ -143,12 +143,22 @@ else if (Model.EstadoProceso == "Entrevista Programada")
                     )
                 </p>
 
-                <a asp-controller="Candidatos"
-                   asp-action="Descargar"
-                   asp-route-id="@Model.IdCandidato"
-                   class="btn btn-outline-primary w-100">
-                    Descargar currículum
-                </a>
+                <div class="d-flex gap-2">
+                    <a asp-controller="Candidatos"
+                       asp-action="VerCurriculum"
+                       asp-route-id="@Model.IdCandidato"
+                       target="_blank"
+                       class="btn btn-outline-success flex-fill">
+                        Ver CV
+                    </a>
+
+                    <a asp-controller="Candidatos"
+                       asp-action="Descargar"
+                       asp-route-id="@Model.IdCandidato"
+                       class="btn btn-outline-primary flex-fill">
+                        Descargar CV
+                    </a>
+                </div>
             </div>
         </div>
     </div>
