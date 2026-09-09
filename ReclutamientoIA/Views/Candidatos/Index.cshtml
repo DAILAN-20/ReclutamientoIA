@@ -10,15 +10,18 @@
           asp-append-version="true" />
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between
+    align-items-center flex-wrap gap-3 mb-4">
     <div>
         <h1>Candidatos</h1>
-        <p class="text-muted">
+
+        <p class="text-muted mb-0">
             Banco general de currículums
         </p>
     </div>
 
-    <a asp-action="Create" class="btn btn-primary">
+    <a asp-action="Create"
+       class="btn btn-primary">
         Subir currículum
     </a>
 </div>
@@ -27,6 +30,13 @@
 {
     <div class="alert alert-success">
         @TempData["Mensaje"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-warning">
+        @TempData["Error"]
     </div>
 }
 
@@ -49,6 +59,7 @@ else
                     <th>Tamaño</th>
                     <th>Registro</th>
                     <th>Estado</th>
+                    <th class="text-center">Acciones</th>
                 </tr>
             </thead>
 
@@ -61,21 +72,30 @@ else
                                 ?? "Pendiente de extracción")
                         </td>
 
-                        <td>
-                            @(candidato.Correo ?? "No disponible")
+                        <td class="text-break">
+                            @(candidato.Correo
+                                ?? "No disponible")
                         </td>
 
                         <td>
-                            @(candidato.Telefono ?? "No disponible")
+                            @(candidato.Telefono
+                                ?? "No disponible")
                         </td>
 
-                        <td>@candidato.NombreArchivoOriginal</td>
+                        <td>
+                            @candidato.NombreArchivoOriginal
+                        </td>
 
                         <td>
                             @((candidato.TamanoArchivo / 1024.0)
                                 .ToString("N1")) KB
                         </td>
-<td>@candidato.FechaRegistro.ToString("dd/MM/yyyy hh:mm tt")</td>
+
+                        <td>
+                            @candidato.FechaRegistro.ToString(
+                                "dd/MM/yyyy hh:mm tt"
+                            )
+                        </td>
 
                         <td>
                             @if (candidato.Activo)
@@ -90,6 +110,27 @@ else
                                     Inactivo
                                 </span>
                             }
+                        </td>
+
+                        <td>
+                            <div class="d-flex justify-content-center
+                                flex-wrap gap-2">
+
+                                <a asp-controller="Candidatos"
+                                   asp-action="VerCurriculum"
+                                   asp-route-id="@candidato.IdCandidato"
+                                   target="_blank"
+                                   class="btn btn-outline-success btn-sm">
+                                    Ver CV
+                                </a>
+
+                                <a asp-controller="Candidatos"
+                                   asp-action="Descargar"
+                                   asp-route-id="@candidato.IdCandidato"
+                                   class="btn btn-outline-primary btn-sm">
+                                    Descargar
+                                </a>
+                            </div>
                         </td>
                     </tr>
                 }
