@@ -2,247 +2,336 @@
 <html lang="es">
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ReclutamientoIA</title>
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0" />
+    <!-- Bootstrap 5 -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 
-    <title>
-        @ViewData["Title"] - ReclutamientoIA
-    </title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-    <script type="importmap"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:400,500,600,700,800&display=swap" rel="stylesheet" />
 
-    <link rel="stylesheet"
-          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ReclutamientoIA.styles.css" asp-append-version="true" />
 
-    <link rel="stylesheet"
-          href="~/css/site.css"
-          asp-append-version="true" />
-
-    <link rel="stylesheet"
-          href="~/ReclutamientoIA.styles.css"
-          asp-append-version="true" />
-
-    <link rel="stylesheet"
-          href="~/css/layout.css"
-          asp-append-version="true" />
-
-    @await RenderSectionAsync(
-        "Styles",
-        required: false
-    )
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 
 <body>
-    <header>
-        <nav class="navbar navbar-expand-xl
-                    navbar-light bg-white
-                    border-bottom box-shadow mb-3">
+    <!-- ============================================
+         SIDEBAR
+         ============================================ -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon">
+                <i class="fas fa-brain"></i>
+            </div>
+            <div>
+                <h2>ReclutamientoIA</h2>
+                <span>Inteligencia Artificial</span>
+            </div>
+        </div>
 
-            <div class="container-fluid">
-                <a class="navbar-brand"
-                   asp-area=""
-                   asp-controller="Home"
-                   asp-action="Index">
-                    ReclutamientoIA
-                </a>
+        <div class="sidebar-user">
+            <div class="user-avatar">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <span>@User.Identity.Name?.Substring(0, 1).ToUpper()</span>
+                }
+                else
+                {
+                    <span>👤</span>
+                }
+            </div>
+            <div class="user-info">
+                <strong>@(User.Identity?.Name ?? "Invitado")</strong>
+                <span>@(User.IsInRole("Administrador") ? "Administrador" : User.IsInRole("Reclutador") ? "Reclutador" : "Usuario")</span>
+            </div>
+        </div>
 
-                <button class="navbar-toggler"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target=".navbar-collapse"
-                        aria-controls="navbarSupportedContent"
-                        aria-expanded="false"
-                        aria-label="Mostrar navegación">
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="nav-section">PRINCIPAL</li>
 
-                    <span class="navbar-toggler-icon"></span>
+                <li class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
+                    <a asp-controller="Home" asp-action="Index">
+                        <i class="fas fa-th-large"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+
+                <li class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Vacantes" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
+                    <a asp-controller="Vacantes" asp-action="Index">
+                        <i class="fas fa-briefcase"></i>
+                        <span>Vacantes</span>
+                        <span class="badge ms-auto">@ViewBag.VacantesCount</span>
+                    </a>
+                </li>
+
+                <li class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Vacantes" && ViewContext.RouteData.Values["action"]?.ToString() == "CargaMasiva" ? "active" : "")">
+                    <a asp-controller="Vacantes" asp-action="CargaMasiva">
+                        <i class="fas fa-robot"></i>
+                        <span>Análisis IA</span>
+                    </a>
+                </li>
+
+                <li class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Candidatos" ? "active" : "")">
+                    <a asp-controller="Candidatos" asp-action="Index">
+                        <i class="fas fa-users"></i>
+                        <span>Candidatos</span>
+                        <span class="badge ms-auto">@ViewBag.CandidatosCount</span>
+                    </a>
+                </li>
+
+                <li class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "CorreoCurriculums" ? "active" : "")">
+                    <a asp-controller="CorreoCurriculums" asp-action="Index">
+                        <i class="fas fa-envelope"></i>
+                        <span>CV por correo</span>
+                    </a>
+                </li>
+
+                @if (User.IsInRole("Administrador") || User.IsInRole("Reclutador"))
+                {
+                    <li class="nav-section">GESTIÓN</li>
+
+                    <li class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Vacantes" && ViewContext.RouteData.Values["action"]?.ToString() == "Tablero" ? "active" : "")">
+                        <a asp-controller="Vacantes" asp-action="Tablero">
+                            <i class="fas fa-chart-pie"></i>
+                            <span>Tablero</span>
+                        </a>
+                    </li>
+
+                    <li class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Entrevistas" ? "active" : "")">
+                        <a asp-controller="Entrevistas" asp-action="Index">
+                            <i class="fas fa-microphone"></i>
+                            <span>Entrevistas</span>
+                        </a>
+                    </li>
+                }
+
+                @if (User.IsInRole("Administrador"))
+                {
+                    <li class="nav-section">ADMINISTRACIÓN</li>
+
+                    <li class="has-submenu @(ViewContext.RouteData.Values["controller"]?.ToString() == "ConfiguracionSistema" ? "active" : "")">
+                        <a href="#" class="submenu-toggle">
+                            <i class="fas fa-cog"></i>
+                            <span>Configuración</span>
+                            <i class="fas fa-chevron-down ms-auto submenu-arrow"></i>
+                        </a>
+                        <ul class="submenu">
+                            <li>
+                                <a asp-controller="ConfiguracionSistema" asp-action="Prompt">
+                                    <i class="fas fa-pen"></i> Editar prompt
+                                </a>
+                            </li>
+                            <li>
+                                <a asp-controller="ConfiguracionSistema" asp-action="InteligenciaArtificial">
+                                    <i class="fas fa-microchip"></i> Proveedor IA
+                                </a>
+                            </li>
+                            <li>
+                                <a asp-controller="ConfiguracionSistema" asp-action="Correo">
+                                    <i class="fas fa-envelope"></i> Configuración correo
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Usuarios" ? "active" : "")">
+                        <a asp-controller="Usuarios" asp-action="Index">
+                            <i class="fas fa-user-shield"></i>
+                            <span>Usuarios</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+            <form asp-controller="Cuenta" asp-action="CerrarSesion" method="post">
+                <button type="submit" class="btn btn-logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Cerrar sesión</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- ============================================
+         CONTENIDO PRINCIPAL
+         ============================================ -->
+    <div class="main-content">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="btn-toggle-sidebar" id="toggleSidebar">
+                    <i class="fas fa-bars"></i>
                 </button>
 
-                <div class="navbar-collapse collapse
-                            d-xl-inline-flex
-                            justify-content-between">
+                <div class="breadcrumb-nav">
+                    @RenderSection("Breadcrumb", required: false)
+                </div>
+            </div>
 
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark"
-                               asp-area=""
-                               asp-controller="Home"
-                               asp-action="Index">
-                                Inicio
-                            </a>
-                        </li>
+            <div class="topbar-right">
+                <div class="topbar-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Buscar..." id="globalSearch" />
+                </div>
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark"
-                               asp-controller="Vacantes"
-                               asp-action="Index">
-                                Vacantes
-                            </a>
-                        </li>
+                <div class="topbar-notifications">
+                    <button class="btn-notification" title="Notificaciones">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge-notification">3</span>
+                    </button>
+                </div>
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark"
-                               asp-controller="Vacantes"
-                               asp-action="CargaMasiva">
-                                Análisis IA
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link text-dark"
-                               asp-controller="Candidatos"
-                               asp-action="Index">
-                                Candidatos
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link text-dark"
-                               asp-controller="CorreoCurriculums"
-                               asp-action="Index">
-                                CV por correo
-                            </a>
-                        </li>
-
-                        @if (User.IsInRole("Administrador") ||
-                             User.IsInRole("Reclutador"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-controller="Vacantes"
-                                   asp-action="Tablero">
-                                    Tablero
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-controller="Entrevistas"
-                                   asp-action="Index">
-                                    Entrevistas
-                                </a>
-                            </li>
-                        }
-
-                        @if (User.IsInRole("Administrador"))
-                        {
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle
-                                          text-dark"
-                                   href="#"
-                                   id="configuracionDropdown"
-                                   role="button"
-                                   data-bs-toggle="dropdown"
-                                   aria-expanded="false">
-                                    Configuración
-                                </a>
-
-                                <ul class="dropdown-menu"
-                                    aria-labelledby="configuracionDropdown">
-
-                                    <li>
-                                        <h6 class="dropdown-header">
-                                            Configuración del sistema
-                                        </h6>
-                                    </li>
-
-                                    <li>
-                                        <a class="dropdown-item"
-                                           asp-controller="ConfiguracionSistema"
-                                           asp-action="Prompt">
-                                            Editar prompt
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a class="dropdown-item"
-                                           asp-controller="ConfiguracionSistema"
-                                           asp-action="InteligenciaArtificial">
-                                            Proveedor de IA
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a class="dropdown-item"
-                                           asp-controller="ConfiguracionSistema"
-                                           asp-action="Correo">
-                                            Configuración del correo
-                                        </a>
-                                    </li>
-                                    
-                                     <li class="nav-item">
-                                          <a class="nav-link text-dark"
-                                              asp-controller="Usuarios"
-                                               asp-action="Index">
-                                                 Usuarios
-                                </a>
-                            </li>
-                                </ul>
-                            </li>
-                        }
-                    </ul>
-
-                    <ul class="navbar-nav">
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item">
-                                <span class="nav-link text-dark">
-                                    @User.Identity.Name
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="dropdown topbar-user">
+                        <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="user-avatar-sm">
+                                @User.Identity.Name?.Substring(0, 1).ToUpper()
+                            </div>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <span class="dropdown-header">
+                                    <strong>@User.Identity.Name</strong>
+                                    <br />
+                                    <small>@(User.IsInRole("Administrador") ? "Administrador" : "Usuario")</small>
                                 </span>
                             </li>
-
-                            <li class="nav-item">
-                                <form asp-controller="Cuenta"
-                                      asp-action="CerrarSesion"
-                                      method="post">
-
-                                    <button type="submit"
-                                            class="btn btn-link
-                                                   nav-link text-dark">
-                                        Cerrar sesión
+                            <li><hr class="dropdown-divider" /></li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <i class="fas fa-user me-2"></i> Mi perfil
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <i class="fas fa-cog me-2"></i> Preferencias
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li>
+                                <form asp-controller="Cuenta" asp-action="CerrarSesion" method="post">
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="fas fa-sign-out-alt me-2"></i> Cerrar sesión
                                     </button>
                                 </form>
                             </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a asp-controller="Cuenta"
-                                   asp-action="Login"
-                                   class="nav-link text-dark">
-                                    Iniciar sesión
-                                </a>
-                            </li>
-                        }
-                    </ul>
-                </div>
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <a asp-controller="Cuenta" asp-action="Login" class="btn btn-login">
+                        <i class="fas fa-sign-in-alt"></i> Iniciar sesión
+                    </a>
+                }
             </div>
-        </nav>
-    </header>
+        </header>
 
-    <div class="container">
-        <main role="main"
-              class="pb-3">
+        <!-- CONTENIDO -->
+        <main class="main-body">
             @RenderBody()
         </main>
+
+        <!-- FOOTER -->
+        <footer class="main-footer">
+            <div class="container-fluid">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <span>
+                            &copy; @DateTime.Now.Year - ReclutamientoIA
+                            <span class="text-muted">v1.0.0</span>
+                        </span>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <span class="text-muted">
+                            <i class="fas fa-heart text-danger"></i>
+                            Hecho con <span class="d-none d-sm-inline">inteligencia artificial</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </footer>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - ReclutamientoIA
-        </div>
-    </footer>
-
+    <!-- ============================================
+         SCRIPTS
+         ============================================ -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
 
-    <script src="~/js/site.js"
-            asp-append-version="true"></script>
+    <script>
+            // ============================================
+            // TOGGLE SIDEBAR
+            // ============================================
+            document.getElementById('toggleSidebar')?.addEventListener('click', function() {
+                document.querySelector('.sidebar').classList.toggle('collapsed');
+                document.querySelector('.main-content').classList.toggle('expanded');
+            });
 
-    @await RenderSectionAsync(
-        "Scripts",
-        required: false
-    )
+            // ============================================
+            // SUBMENU TOGGLE
+            // ============================================
+            document.querySelectorAll('.submenu-toggle').forEach(function(toggle) {
+                toggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.closest('.has-submenu');
+                    parent.classList.toggle('open');
+                });
+            });
+
+            // ============================================
+            // SIDEBAR RESPONSIVE
+            // ============================================
+            function handleSidebarResponsive() {
+                if (window.innerWidth < 992) {
+                    document.querySelector('.sidebar').classList.add('collapsed');
+                    document.querySelector('.main-content').classList.add('expanded');
+                } else {
+                    document.querySelector('.sidebar').classList.remove('collapsed');
+                    document.querySelector('.main-content').classList.remove('expanded');
+                }
+            }
+
+            window.addEventListener('resize', handleSidebarResponsive);
+            handleSidebarResponsive();
+
+            // ============================================
+            // SEARCH GLOBAL
+            // ============================================
+            document.getElementById('globalSearch')?.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const searchTerm = this.value.trim();
+                    if (searchTerm) {
+                        window.location.href = `/Buscar?q=${encodeURIComponent(searchTerm)}`;
+                    }
+                }
+            });
+
+            // ============================================
+            // NOTIFICACIONES
+            // ============================================
+            document.querySelector('.btn-notification')?.addEventListener('click', function() {
+                // Aquí puedes mostrar un dropdown de notificaciones
+                alert('Notificaciones próximamente...');
+            });
+
+            console.log('🚀 ReclutamientoIA - Layout mejorado cargado');
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

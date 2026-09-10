@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using ReclutamientoIA.Data;
 using ReclutamientoIA.Models;
 using ReclutamientoIA.Services;
+using ClosedXML.Excel; // <-- AGREGAR ESTE USING
+using System.Text; //
 
 namespace ReclutamientoIA.Controllers;
 
@@ -1052,5 +1054,259 @@ public class VacantesController : Controller
         return _context.Vacantes.Any(
             v => v.IdVacante == idVacante
         );
+    }
+    // =====================================================
+    // EXPORTAR RESULTADOS A EXCEL
+    // =====================================================
+
+    [HttpGet]
+    public async Task<IActionResult> ExportarResultados(int idVacante)
+    {
+        try
+        {
+            var vacante = await _context.Vacantes
+                .AsNoTracking()
+                .FirstOrDefaultAsync(v => v.IdVacante == idVacante);
+
+            if (vacante == null)
+            {
+                TempData["Error"] = "La vacante no existe.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var resultados = await _context.AnalisisIA
+                .AsNoTracking()
+                .Include(a => a.Candidato)
+                .Where(a => a.IdVacante == idVacante)
+                .OrderByDescending(a => a.Puntuacion)
+                .ToListAsync();
+
+            if (!resultados.Any())
+            {
+                TempData["Error"] = "No hay resultados para exportar.";
+                return RedirectToAction(nameof(Resultados), new { idVacante });
+            }
+
+            // Construir el archivo Excel
+            using (var workbook = new ClosedXML.Excel.XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("Resultados");
+
+                // ESTILOS
+                var headerStyle = workbook.Style;
+                headerStyle.Font.Bold = true;
+                headerStyle.Font.FontColor = XLColor.White;
+                headerStyle.Fill.BackgroundColor = XLColor.FromArgb(52, 73, 94);
+                headerStyle.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                headerStyle.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                headerStyle.Border.InsideBorder = XLBorderStyleValues.Thin;
+
+                // ENCABEZADOS
+                string[] headers = {
+                "Puesto",
+                "Candidato",
+                "Correo",
+                "Teléfono",
+                "Puntuación",
+                "Resumen",
+                "Fortalezas",
+                "Debilidades",
+                "Recomendación",
+                "Estado",
+                "Fecha Análisis",
+                "Proveedor IA",
+                "Modelo IA"
+            };
+
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    worksheet.Cell(1, i + 1).Value = headers[i];
+                    worksheet.Cell(1, i + 1).Style = headerStyle;
+                }
+
+                // DATOS
+                int row = 2;
+                foreach (var item in resultados)
+                {
+                    worksheet.Cell(row, 1).Value = vacante.Titulo;
+                    worksheet.Cell(row, 2).Value = item.Candidato?.NombreCompleto ?? "No disponible";
+                    worksheet.Cell(row, 3).Value = item.Candidato?.Correo ?? "No disponible";
+                    worksheet.Cell(row, 4).Value = item.Candidato?.Telefono ?? "No disponible";
+                    worksheet.Cell(row, 5).Value = item.Puntuacion;
+
+                    // Formato de puntuación con color
+                    var puntuacionCell = worksheet.Cell(row, 5);
+                    if (item.Puntuacion >= 80)
+                        puntuacionCell.Style.Fill.BackgroundColor = XLColor.FromArgb(46, 204, 113);
+                    else if (item.Puntuacion >= 60)
+                        puntuacionCell.Style.Fill.BackgroundColor = XLColor.FromArgb(241, 196, 15);
+                    else if (item.Puntuacion >= 40)
+                        puntuacionCell.Style.Fill.BackgroundColor = XLColor.FromArgb(243, 156, 18);
+                    else
+                        puntuacionCell.Style.Fill.BackgroundColor = XLColor.FromArgb(231, 76, 60);
+
+                    puntuacionCell.Style.Font.FontColor = XLColor.White;
+                    puntuacionCell.Style.Font.Bold = true;
+                    puntuacionCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                    worksheet.Cell(row, 6).Value = TruncarTexto(item.Resumen, 200);
+                    worksheet.Cell(row, 7).Value = TruncarTexto(item.Fortalezas, 200);
+                    worksheet.Cell(row, 8).Value = TruncarTexto(item.Debilidades, 200);
+                    worksheet.Cell(row, 9).Value = TruncarTexto(item.Recomendacion, 200);
+
+                    // Estado con color
+                    var estadoCell = worksheet.Cell(row, 10);
+                    estadoCell.Value = item.EstadoProceso ?? "Analizado";
+
+                    if (item.EstadoProceso == "Preseleccionado")
+                        estadoCell.Style.Fill.BackgroundColor = XLColor.FromArgb(52, 152, 219);
+                    else if (item.EstadoProceso == "Aprobado")
+                        estadoCell.Style.Fill.BackgroundColor = XLColor.FromArgb(46, 204, 113);
+                    else if (item.EstadoProceso == "Rechazado")
+                        estadoCell.Style.Fill.BackgroundColor = XLColor.FromArgb(231, 76, 60);
+                    else if (item.EstadoProceso == "Entrevista Programada")
+                        estadoCell.Style.Fill.BackgroundColor = XLColor.FromArgb(155, 89, 182);
+                    else
+                        estadoCell.Style.Fill.BackgroundColor = XLColor.FromArgb(149, 165, 166);
+
+                    estadoCell.Style.Font.FontColor = XLColor.White;
+                    estadoCell.Style.Font.Bold = true;
+                    estadoCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                    worksheet.Cell(row, 11).Value = item.FechaAnalisis.ToString("dd/MM/yyyy HH:mm");
+                    worksheet.Cell(row, 12).Value = item.ProveedorIA ?? "No especificado";
+                    worksheet.Cell(row, 13).Value = item.ModeloIA ?? "No especificado";
+
+                    row++;
+                }
+
+                // AJUSTAR ANCHO DE COLUMNAS
+                worksheet.Columns().AdjustToContents();
+
+                // CONGELAR PANEL
+                worksheet.SheetView.FreezeRows(1);
+
+                // FILTRO AUTOMÁTICO
+                worksheet.RangeUsed()?.SetAutoFilter();
+
+                // BORDES PARA TODOS LOS DATOS
+                var dataRange = worksheet.Range(1, 1, row - 1, headers.Length);
+                dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+
+                // GENERAR ARCHIVO
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var fileName = $"Resultados_{vacante.Titulo.Replace(" ", "_")}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+                    return File(
+                        stream.ToArray(),
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        fileName
+                    );
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            //_logger?.LogError(ex, "Error al exportar resultados");
+            TempData["Error"] = "Error al generar el archivo de exportación.";
+            return RedirectToAction(nameof(Resultados), new { idVacante });
+        }
+    }
+
+    // =====================================================
+    // EXPORTAR A CSV (ALTERNATIVA SIMPLE)
+    // =====================================================
+
+    [HttpGet]
+    public async Task<IActionResult> ExportarCsv(int idVacante)
+    {
+        try
+        {
+            var vacante = await _context.Vacantes
+                .AsNoTracking()
+                .FirstOrDefaultAsync(v => v.IdVacante == idVacante);
+
+            if (vacante == null)
+            {
+                TempData["Error"] = "La vacante no existe.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var resultados = await _context.AnalisisIA
+                .AsNoTracking()
+                .Include(a => a.Candidato)
+                .Where(a => a.IdVacante == idVacante)
+                .OrderByDescending(a => a.Puntuacion)
+                .ToListAsync();
+
+            if (!resultados.Any())
+            {
+                TempData["Error"] = "No hay resultados para exportar.";
+                return RedirectToAction(nameof(Resultados), new { idVacante });
+            }
+
+            var sb = new System.Text.StringBuilder();
+
+            // Encabezados
+            sb.AppendLine("\"Puesto\",\"Candidato\",\"Correo\",\"Teléfono\",\"Puntuación\",\"Resumen\",\"Fortalezas\",\"Debilidades\",\"Recomendación\",\"Estado\",\"Fecha Análisis\",\"Proveedor IA\",\"Modelo IA\"");
+
+            // Datos
+            foreach (var item in resultados)
+            {
+                sb.AppendLine($"\"{EscapeCsv(vacante.Titulo)}\"," +
+                             $"\"{EscapeCsv(item.Candidato?.NombreCompleto ?? "No disponible")}\"," +
+                             $"\"{EscapeCsv(item.Candidato?.Correo ?? "No disponible")}\"," +
+                             $"\"{EscapeCsv(item.Candidato?.Telefono ?? "No disponible")}\"," +
+                             $"{item.Puntuacion}," +
+                             $"\"{EscapeCsv(item.Resumen ?? "", 200)}\"," +
+                             $"\"{EscapeCsv(item.Fortalezas ?? "", 200)}\"," +
+                             $"\"{EscapeCsv(item.Debilidades ?? "", 200)}\"," +
+                             $"\"{EscapeCsv(item.Recomendacion ?? "", 200)}\"," +
+                             $"\"{item.EstadoProceso ?? "Analizado"}\"," +
+                             $"\"{item.FechaAnalisis:dd/MM/yyyy HH:mm}\"," +
+                             $"\"{EscapeCsv(item.ProveedorIA ?? "No especificado")}\"," +
+                             $"\"{EscapeCsv(item.ModeloIA ?? "No especificado")}\"");
+            }
+
+            var fileName = $"Resultados_{vacante.Titulo.Replace(" ", "_")}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+
+            return File(
+                System.Text.Encoding.UTF8.GetPreamble().Concat(System.Text.Encoding.UTF8.GetBytes(sb.ToString())).ToArray(),
+                "text/csv; charset=utf-8",
+                fileName
+            );
+        }
+        catch (Exception ex)
+        {
+           // _logger?.LogError(ex, "Error al exportar a CSV");
+            TempData["Error"] = "Error al generar el archivo CSV.";
+            return RedirectToAction(nameof(Resultados), new { idVacante });
+        }
+    }
+
+    // =====================================================
+    // MÉTODOS AUXILIARES
+    // =====================================================
+
+    private string TruncarTexto(string texto, int maxLength)
+    {
+        if (string.IsNullOrEmpty(texto))
+            return string.Empty;
+
+        return texto.Length > maxLength ? texto.Substring(0, maxLength) + "..." : texto;
+    }
+
+    private string EscapeCsv(string texto, int maxLength = 0)
+    {
+        if (string.IsNullOrEmpty(texto))
+            return string.Empty;
+
+        if (maxLength > 0 && texto.Length > maxLength)
+            texto = texto.Substring(0, maxLength) + "...";
+
+        return texto.Replace("\"", "\"\"");
     }
 }

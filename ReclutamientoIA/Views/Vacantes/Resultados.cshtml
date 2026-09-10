@@ -1,178 +1,935 @@
 ﻿@model IEnumerable<ReclutamientoIA.Models.AnalisisIA>
 
 @{
-    ViewData["Title"] = "Ranking de candidatos";
-
-    var vacante =
-        ViewBag.Vacante as ReclutamientoIA.Models.Vacante;
+    ViewData["Title"] = "Ranking de Candidatos";
+    var vacante = ViewBag.Vacante as ReclutamientoIA.Models.Vacante;
+    var totalAnalizados = Model.Count();
+    var puntuacionPromedio = totalAnalizados > 0 ? Math.Round(Model.Average(a => a.Puntuacion), 1) : 0;
+    var mejorPuntuacion = totalAnalizados > 0 ? Model.Max(a => a.Puntuacion) : 0;
+    var peorPuntuacion = totalAnalizados > 0 ? Model.Min(a => a.Puntuacion) : 0;
+    var preseleccionados = Model.Count(a => a.EstadoProceso == "Preseleccionado");
+    var aprobados = Model.Count(a => a.EstadoProceso == "Aprobado");
+    var rechazados = Model.Count(a => a.EstadoProceso == "Rechazado");
 }
 
 @section Styles {
-    <link rel="stylesheet"
-          href="~/css/vacantes.css"
-          asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/vacantes.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        /* ============================================
+                   ESTILOS PROFESIONALES PARA RESULTADOS
+                   ============================================ */
+
+        .page-header-resultados {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            border-radius: 20px;
+            padding: 30px 35px;
+            margin-bottom: 30px;
+            color: white;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .page-header-resultados::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -10%;
+                width: 400px;
+                height: 400px;
+                background: radial-gradient(circle, rgba(59, 130, 246, 0.1), transparent 70%);
+                border-radius: 50%;
+            }
+
+            .page-header-resultados::after {
+                content: '🏆';
+                position: absolute;
+                bottom: 10px;
+                right: 30px;
+                font-size: 80px;
+                opacity: 0.1;
+            }
+
+            .page-header-resultados h1 {
+                font-size: 28px;
+                font-weight: 700;
+                margin: 0 0 5px;
+                position: relative;
+                z-index: 1;
+            }
+
+                .page-header-resultados h1 i {
+                    margin-right: 12px;
+                    color: #fbbf24;
+                }
+
+            .page-header-resultados .subtitle {
+                opacity: 0.8;
+                font-size: 15px;
+                margin: 0;
+                position: relative;
+                z-index: 1;
+            }
+
+                .page-header-resultados .subtitle strong {
+                    color: #fbbf24;
+                }
+
+        .header-actions-resultados {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .btn-header-resultados {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 22px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+            .btn-header-resultados:hover {
+                background: rgba(255, 255, 255, 0.2);
+                color: white;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            }
+
+        .btn-header-resultados-primary {
+            background: white;
+            color: #1a1a2e;
+            border-color: white;
+        }
+
+            .btn-header-resultados-primary:hover {
+                background: white;
+                color: #1a1a2e;
+                transform: translateY(-2px) scale(1.02);
+            }
+
+        .btn-header-resultados-success {
+            background: #22c55e;
+            color: white;
+            border-color: #22c55e;
+        }
+
+            .btn-header-resultados-success:hover {
+                background: #16a34a;
+                color: white;
+            }
+
+        /* ====== MÉTRICAS ====== */
+        .metrics-resultados {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .metric-resultado {
+            background: white;
+            border-radius: 16px;
+            padding: 18px 22px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+            .metric-resultado:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+            }
+
+            .metric-resultado .icon {
+                font-size: 28px;
+                display: block;
+                margin-bottom: 8px;
+            }
+
+            .metric-resultado .value {
+                font-size: 28px;
+                font-weight: 700;
+                color: #1e293b;
+                line-height: 1.2;
+            }
+
+            .metric-resultado .label {
+                font-size: 13px;
+                color: #94a3b8;
+                font-weight: 500;
+                margin-top: 4px;
+            }
+
+            .metric-resultado.promedio .value {
+                color: #3b82f6;
+            }
+
+            .metric-resultado.mejor .value {
+                color: #22c55e;
+            }
+
+            .metric-resultado.peor .value {
+                color: #ef4444;
+            }
+
+            .metric-resultado.preseleccionados .value {
+                color: #8b5cf6;
+            }
+
+            .metric-resultado.aprobados .value {
+                color: #22c55e;
+            }
+
+            .metric-resultado.rechazados .value {
+                color: #ef4444;
+            }
+
+        /* ====== ALERTAS ====== */
+        .custom-alert-resultado {
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: none;
+            font-weight: 500;
+        }
+
+            .custom-alert-resultado i {
+                font-size: 20px;
+            }
+
+            .custom-alert-resultado.success {
+                background: #e8f5e9;
+                color: #2e7d32;
+                border-left: 4px solid #43a047;
+            }
+
+            .custom-alert-resultado.warning {
+                background: #fff3e0;
+                color: #e65100;
+                border-left: 4px solid #fb8c00;
+            }
+
+            .custom-alert-resultado.info {
+                background: #e3f2fd;
+                color: #1565c0;
+                border-left: 4px solid #1e88e5;
+            }
+
+            .custom-alert-resultado.empty {
+                background: #f5f5f5;
+                color: #616161;
+                border-left: 4px solid #9e9e9e;
+                text-align: center;
+                padding: 40px 20px;
+                flex-direction: column;
+            }
+
+                .custom-alert-resultado.empty i {
+                    font-size: 48px;
+                    color: #bdbdbd;
+                    margin-bottom: 10px;
+                }
+
+        /* ====== TABLA ====== */
+        .table-container-resultados {
+            background: white;
+            border-radius: 16px;
+            padding: 0;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+        }
+
+        .table-resultados {
+            margin: 0;
+            font-size: 14px;
+        }
+
+            .table-resultados thead th {
+                background: #f8fafc;
+                color: #546e7a;
+                font-weight: 600;
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                padding: 16px 20px;
+                border-bottom: 2px solid #e8edf2;
+                white-space: nowrap;
+            }
+
+            .table-resultados tbody td {
+                padding: 14px 20px;
+                vertical-align: middle;
+                border-bottom: 1px solid #f0f2f5;
+                color: #37474f;
+            }
+
+            .table-resultados tbody tr {
+                transition: all 0.2s ease;
+            }
+
+                .table-resultados tbody tr:hover {
+                    background: #f8faff;
+                }
+
+                .table-resultados tbody tr:last-child td {
+                    border-bottom: none;
+                }
+
+                .table-resultados tbody tr.top-1 {
+                    background: linear-gradient(to right, rgba(255, 215, 0, 0.08), transparent);
+                }
+
+                    .table-resultados tbody tr.top-1 td:first-child {
+                        position: relative;
+                    }
+
+                        .table-resultados tbody tr.top-1 td:first-child::before {
+                            content: '👑';
+                            position: absolute;
+                            left: -5px;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            font-size: 18px;
+                        }
+
+        .posicion-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 14px;
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+            .posicion-badge.top1 {
+                background: linear-gradient(135deg, #fbbf24, #f59e0b);
+                color: white;
+            }
+
+            .posicion-badge.top2 {
+                background: linear-gradient(135deg, #e2e8f0, #94a3b8);
+                color: white;
+            }
+
+            .posicion-badge.top3 {
+                background: linear-gradient(135deg, #fca5a5, #f97316);
+                color: white;
+            }
+
+        .badge-puntuacion {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+            .badge-puntuacion.excelente {
+                background: #e8f5e9;
+                color: #2e7d32;
+            }
+
+            .badge-puntuacion.bueno {
+                background: #e3f2fd;
+                color: #1565c0;
+            }
+
+            .badge-puntuacion.regular {
+                background: #fff3e0;
+                color: #e65100;
+            }
+
+            .badge-puntuacion.malo {
+                background: #ffebee;
+                color: #c62828;
+            }
+
+        .badge-estado {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 12px;
+            letter-spacing: 0.3px;
+        }
+
+            .badge-estado.aprobado {
+                background: #e8f5e9;
+                color: #2e7d32;
+            }
+
+            .badge-estado.preseleccionado {
+                background: #e3f2fd;
+                color: #1565c0;
+            }
+
+            .badge-estado.entrevista {
+                background: #fff3e0;
+                color: #e65100;
+            }
+
+            .badge-estado.rechazado {
+                background: #ffebee;
+                color: #c62828;
+            }
+
+            .badge-estado.analizado {
+                background: #f5f5f5;
+                color: #616161;
+            }
+
+        .recomendacion-texto {
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-accion {
+            padding: 6px 14px;
+            font-size: 12px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+            .btn-accion:hover {
+                transform: translateY(-2px);
+            }
+
+        .btn-accion-ver {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+            .btn-accion-ver:hover {
+                background: #1e88e5;
+                color: white;
+                box-shadow: 0 4px 12px rgba(30, 136, 229, 0.3);
+            }
+
+        .btn-accion-preseleccionar {
+            background: #e8eaf6;
+            color: #3f51b5;
+        }
+
+            .btn-accion-preseleccionar:hover {
+                background: #3f51b5;
+                color: white;
+                box-shadow: 0 4px 12px rgba(63, 81, 181, 0.3);
+            }
+
+        /* ====== FOOTER RESULTADOS ====== */
+        .footer-resultados {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding: 16px 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+            .footer-resultados .info {
+                color: #94a3b8;
+                font-size: 14px;
+            }
+
+                .footer-resultados .info strong {
+                    color: #1e293b;
+                }
+
+            .footer-resultados .pagination-info {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+        /* ====== RESPONSIVE ====== */
+        @@media (max-width: 768px) {
+            .page-header-resultados {
+                padding: 20px;
+            }
+
+                .page-header-resultados h1 {
+                    font-size: 22px;
+                }
+
+                .page-header-resultados::after {
+                    font-size: 50px;
+                    right: 15px;
+                }
+
+            .metrics-resultados {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+
+            .metric-resultado {
+                padding: 12px 14px;
+            }
+
+                .metric-resultado .value {
+                    font-size: 20px;
+                }
+
+                .metric-resultado .label {
+                    font-size: 11px;
+                }
+
+            .table-resultados thead th {
+                font-size: 10px;
+                padding: 10px 12px;
+            }
+
+            .table-resultados tbody td {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+
+            .header-actions-resultados {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn-header-resultados {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .footer-resultados {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .metrics-resultados {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .table-resultados tbody td.acciones-col {
+                min-width: 100px;
+            }
+        }
+
+        /* ====== ANIMACIONES ====== */
+        @@keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .table-container-resultados tbody tr {
+            animation: slideUp 0.4s ease forwards;
+            opacity: 0;
+        }
+
+            .table-container-resultados tbody tr:nth-child(1) {
+                animation-delay: 0.05s;
+            }
+
+            .table-container-resultados tbody tr:nth-child(2) {
+                animation-delay: 0.10s;
+            }
+
+            .table-container-resultados tbody tr:nth-child(3) {
+                animation-delay: 0.15s;
+            }
+
+            .table-container-resultados tbody tr:nth-child(4) {
+                animation-delay: 0.20s;
+            }
+
+            .table-container-resultados tbody tr:nth-child(5) {
+                animation-delay: 0.25s;
+            }
+
+            .table-container-resultados tbody tr:nth-child(6) {
+                animation-delay: 0.30s;
+            }
+
+            .table-container-resultados tbody tr:nth-child(7) {
+                animation-delay: 0.35s;
+            }
+
+            .table-container-resultados tbody tr:nth-child(8) {
+                animation-delay: 0.40s;
+            }
+
+            .table-container-resultados tbody tr:nth-child(9) {
+                animation-delay: 0.45s;
+            }
+
+            .table-container-resultados tbody tr:nth-child(10) {
+                animation-delay: 0.50s;
+            }
+
+            .table-container-resultados tbody tr:nth-child(11) {
+                animation-delay: 0.55s;
+            }
+
+            .table-container-resultados tbody tr:nth-child(12) {
+                animation-delay: 0.60s;
+            }
+
+            .table-container-resultados tbody tr:nth-child(13) {
+                animation-delay: 0.65s;
+            }
+
+            .table-container-resultados tbody tr:nth-child(14) {
+                animation-delay: 0.70s;
+            }
+
+            .table-container-resultados tbody tr:nth-child(15) {
+                animation-delay: 0.75s;
+            }
+    </style>
 }
 
-<div class="d-flex justify-content-between
-    align-items-center flex-wrap gap-3 mb-4">
+<div class="container-fluid px-0">
 
-    <div>
-        <h1>Ranking de candidatos</h1>
-
-        <p class="text-muted mb-0">
-            Vacante:
-            <strong>@vacante?.Titulo</strong>
+    <!-- ====== HEADER ====== -->
+    <div class="page-header-resultados">
+        <h1>
+            <i class="fas fa-trophy"></i> Ranking de Candidatos
+        </h1>
+        <p class="subtitle">
+            <i class="fas fa-briefcase me-1"></i>
+            Vacante: <strong>@vacante?.Titulo</strong>
+            <span class="mx-2">•</span>
+            <i class="fas fa-users me-1"></i>
+            @totalAnalizados candidatos analizados
+            <span class="mx-2">•</span>
+            <i class="fas fa-calendar me-1"></i>
+            @DateTime.Now.ToString("dd/MM/yyyy")
         </p>
+        <div class="header-actions-resultados">
+            <a asp-action="CargaMasiva"
+               asp-route-idVacante="@vacante?.IdVacante"
+               class="btn-header-resultados btn-header-resultados-primary">
+                <i class="fas fa-plus-circle"></i> Analizar más CV
+            </a>
+            <a asp-action="ExportarResultados"
+               asp-route-idVacante="@vacante?.IdVacante"
+               class="btn-header-resultados btn-header-resultados-success">
+                <i class="fas fa-file-excel"></i> Exportar Excel
+            </a>
+            <a asp-action="ExportarCsv"
+               asp-route-idVacante="@vacante?.IdVacante"
+               class="btn-header-resultados">
+                <i class="fas fa-file-csv"></i> Exportar CSV
+            </a>
+            <a asp-action="Index"
+               class="btn-header-resultados">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+        </div>
     </div>
 
-    <div class="d-flex flex-wrap gap-2">
-        <a asp-action="CargaMasiva"
-           asp-route-idVacante="@vacante?.IdVacante"
-           class="btn btn-primary">
-            Analizar más CV
-        </a>
+    <!-- ====== ALERTAS ====== -->
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="custom-alert-resultado success">
+            <i class="fas fa-check-circle"></i>
+            @TempData["Mensaje"]
+        </div>
+    }
 
-        <a asp-action="Index"
-           class="btn btn-secondary">
-            Volver
-        </a>
-    </div>
+    @if (TempData["Error"] != null)
+    {
+        <div class="custom-alert-resultado warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            @TempData["Error"]
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="custom-alert-resultado empty">
+            <i class="fas fa-inbox"></i>
+            <div>
+                <strong>No hay candidatos analizados</strong>
+                <p class="mb-0 mt-2">Esta vacante todavía no tiene candidatos analizados.</p>
+                <a asp-action="CargaMasiva"
+                   asp-route-idVacante="@vacante?.IdVacante"
+                   class="btn btn-primary mt-3">
+                    <i class="fas fa-plus-circle me-2"></i> Analizar CV
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- ====== MÉTRICAS ====== -->
+        <div class="metrics-resultados">
+            <div class="metric-resultado promedio">
+                <span class="icon">📊</span>
+                <div class="value">@puntuacionPromedio</div>
+                <div class="label">Puntuación Promedio</div>
+            </div>
+            <div class="metric-resultado mejor">
+                <span class="icon">🏆</span>
+                <div class="value">@mejorPuntuacion</div>
+                <div class="label">Mejor Puntuación</div>
+            </div>
+            <div class="metric-resultado peor">
+                <span class="icon">📉</span>
+                <div class="value">@peorPuntuacion</div>
+                <div class="label">Peor Puntuación</div>
+            </div>
+            <div class="metric-resultado preseleccionados">
+                <span class="icon">⭐</span>
+                <div class="value">@preseleccionados</div>
+                <div class="label">Preseleccionados</div>
+            </div>
+            <div class="metric-resultado aprobados">
+                <span class="icon">✅</span>
+                <div class="value">@aprobados</div>
+                <div class="label">Aprobados</div>
+            </div>
+            <div class="metric-resultado rechazados">
+                <span class="icon">❌</span>
+                <div class="value">@rechazados</div>
+                <div class="label">Rechazados</div>
+            </div>
+        </div>
+
+        <!-- ====== TABLA ====== -->
+        <div class="table-container-resultados">
+            <div class="table-responsive">
+                <table class="table table-resultados" id="rankingTable">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 60px;">#</th>
+                            <th style="min-width: 160px;">Candidato</th>
+                            <th style="min-width: 160px;">Correo</th>
+                            <th style="min-width: 120px;">Teléfono</th>
+                            <th class="text-center" style="width: 110px;">Puntuación</th>
+                            <th style="min-width: 140px;">Recomendación</th>
+                            <th style="width: 120px;">Estado</th>
+                            <th style="width: 150px;">Fecha</th>
+                            <th class="text-center acciones-col" style="width: 130px;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            var posicion = 1;
+                        }
+
+                        @foreach (var analisis in Model)
+                        {
+                            // Clases de puntuación
+                            var clasePuntuacion = analisis.Puntuacion >= 80 ? "excelente" :
+                                                  analisis.Puntuacion >= 60 ? "bueno" :
+                                                  analisis.Puntuacion >= 40 ? "regular" : "malo";
+
+                            // Icono de puntuación
+                            var iconoPuntuacion = analisis.Puntuacion >= 80 ? "🏅" :
+                                                  analisis.Puntuacion >= 60 ? "⭐" :
+                                                  analisis.Puntuacion >= 40 ? "📌" : "⚠️";
+
+                            // Clases de estado
+                            var claseEstado = analisis.EstadoProceso == "Aprobado" ? "aprobado" :
+                                              analisis.EstadoProceso == "Preseleccionado" ? "preseleccionado" :
+                                              analisis.EstadoProceso == "Entrevista Programada" ? "entrevista" :
+                                              analisis.EstadoProceso == "Rechazado" ? "rechazado" : "analizado";
+
+                            var esTop3 = posicion <= 3;
+                            var clasePosicion = posicion == 1 ? "top1" :
+                                                posicion == 2 ? "top2" :
+                                                posicion == 3 ? "top3" : "";
+
+                            var filaTop = posicion == 1 ? "top-1" : "";
+
+                            <tr class="@filaTop">
+                                <td class="text-center">
+                                    <span class="posicion-badge @clasePosicion">
+                                        @posicion
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar-mini">
+                                            @(analisis.Candidato?.NombreCompleto?.Substring(0, 1).ToUpper() ?? "?")
+                                        </div>
+                                        <div>
+                                            <strong>
+                                                @(analisis.Candidato?.NombreCompleto ?? "Nombre no disponible")
+                                            </strong>
+                                            @if (posicion == 1)
+                                            {
+                                                <span class="badge bg-warning text-dark ms-1">👑 Top</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-break">
+                                    <a href="mailto:@(analisis.Candidato?.Correo ?? "")" class="text-decoration-none">
+                                        @(analisis.Candidato?.Correo ?? "No disponible")
+                                    </a>
+                                </td>
+                                <td>
+                                    @(analisis.Candidato?.Telefono ?? "No disponible")
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge-puntuacion @clasePuntuacion">
+                                        @iconoPuntuacion @analisis.Puntuacion/100
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="recomendacion-texto" title="@analisis.Recomendacion">
+                                        @analisis.Recomendacion
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge-estado @claseEstado">
+                                        @analisis.EstadoProceso
+                                    </span>
+                                </td>
+                                <td>
+                                    <div>
+                                        @analisis.FechaAnalisis.ToString("dd/MM/yyyy")
+                                        <br />
+                                        <small class="text-muted">@analisis.FechaAnalisis.ToString("HH:mm")</small>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex gap-1 justify-content-center flex-wrap">
+                                        <a asp-action="DetalleAnalisis"
+                                           asp-route-idAnalisis="@analisis.IdAnalisis"
+                                           class="btn-accion btn-accion-ver"
+                                           title="Ver detalle completo">
+                                            <i class="fas fa-eye"></i>
+                                            <span class="d-none d-md-inline">Ver</span>
+                                        </a>
+                                        @if (analisis.EstadoProceso == "Analizado")
+                                        {
+                                            <form asp-action="Preseleccionar"
+                                                  asp-route-idAnalisis="@analisis.IdAnalisis"
+                                                  method="post"
+                                                  style="display:inline;">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit"
+                                                        class="btn-accion btn-accion-preseleccionar"
+                                                        title="Preseleccionar candidato"
+                                                        onclick="(function(n){ return confirm('¿Preseleccionar a ' + n + '?'); })('@(analisis.Candidato?.NombreCompleto?.Replace("'", "\\'") ?? "este candidato")')">
+                                                    <i class="fas fa-star"></i>
+                                                    <span class="d-none d-md-inline">Presel.</span>
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+
+                            posicion++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ====== FOOTER ====== -->
+        <div class="footer-resultados">
+            <div class="info">
+                <i class="fas fa-database me-1"></i>
+                Mostrando <strong>@totalAnalizados</strong> candidatos
+                <span class="mx-2">•</span>
+                <i class="fas fa-robot me-1"></i>
+                Analizados con IA
+            </div>
+            <div class="pagination-info">
+                <span class="text-muted">
+                    @totalAnalizados candidato(s) en total
+                </span>
+                <span class="badge bg-primary rounded-pill">
+                    <i class="fas fa-arrow-up me-1"></i>
+                    Mejor: @mejorPuntuacion
+                </span>
+            </div>
+        </div>
+    }
 </div>
 
-@if (TempData["Mensaje"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["Mensaje"]
-    </div>
-}
+@section Scripts {
+    <script>
+        // ============================================
+        // BÚSQUEDA EN TIEMPO REAL EN LA TABLA
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const table = document.getElementById('rankingTable');
+            if (!table) return;
 
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-warning">
-        @TempData["Error"]
-    </div>
-}
-
-@if (!Model.Any())
-{
-    <div class="alert alert-info">
-        Esta vacante todavía no tiene candidatos analizados.
-    </div>
-}
-else
-{
-    <div class="table-responsive">
-        <table class="table table-hover
-            align-middle tabla-ranking">
-
-            <thead class="table-dark">
-                <tr>
-                    <th class="text-center">
-                        Posición
-                    </th>
-
-                    <th>Candidato</th>
-                    <th>Correo</th>
-                    <th>Teléfono</th>
-
-                    <th class="text-center">
-                        Puntuación
-                    </th>
-
-                    <th>Recomendación</th>
-                    <th>Estado</th>
-                    <th>Fecha</th>
-
-                    <th class="text-center acciones-ranking">
-                        Acciones
-                    </th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @{
-                    var posicion = 1;
-                }
-
-                @foreach (var analisis in Model)
-                {
-                    var clasePuntuacion =
-                        analisis.Puntuacion >= 80
-                            ? "bg-success"
-                            : analisis.Puntuacion >= 60
-                                ? "bg-warning text-dark"
-                                : "bg-danger";
-
-                    var claseEstado =
-                        analisis.EstadoProceso == "Aprobado"
-                            ? "bg-success"
-                            : analisis.EstadoProceso == "Rechazado"
-                                ? "bg-danger"
-                                : analisis.EstadoProceso ==
-                                  "Preseleccionado"
-                                    ? "bg-info text-dark"
-                                    : analisis.EstadoProceso ==
-                                      "Entrevista Programada"
-                                        ? "bg-warning text-dark"
-                                        : "bg-primary";
-
-                    <tr>
-                        <td class="text-center">
-                            <strong>#@posicion</strong>
-                        </td>
-
-                        <td>
-                            @(analisis.Candidato.NombreCompleto
-                                ?? "Nombre no disponible")
-                        </td>
-
-                        <td class="text-break">
-                            @(analisis.Candidato.Correo
-                                ?? "No disponible")
-                        </td>
-
-                        <td>
-                            @(analisis.Candidato.Telefono
-                                ?? "No disponible")
-                        </td>
-
-                        <td class="text-center">
-                            <span class="badge @clasePuntuacion">
-                                @analisis.Puntuacion / 100
-                            </span>
-                        </td>
-
-                        <td class="recomendacion-ranking">
-                            <div class="recomendacion-texto"
-                                 title="@analisis.Recomendacion">
-                                @analisis.Recomendacion
+            // Crear input de búsqueda en el header
+            const header = document.querySelector('.page-header-resultados .header-actions-resultados');
+            if (header) {
+                const searchDiv = document.createElement('div');
+                searchDiv.className = 'ms-auto';
+                searchDiv.innerHTML = `
+                            <div class="input-group" style="max-width: 250px;">
+                                <span class="input-group-text bg-transparent border-end-0">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                <input type="text"
+                                       id="searchRanking"
+                                       class="form-control border-start-0"
+                                       placeholder="Buscar candidato..."
+                                       style="border-radius: 0 10px 10px 0;">
                             </div>
-                        </td>
+                        `;
+                header.appendChild(searchDiv);
+            }
 
-                        <td>
-                            <span class="badge @claseEstado">
-                                @analisis.EstadoProceso
-                            </span>
-                        </td>
+            const searchInput = document.getElementById('searchRanking');
+            if (searchInput) {
+                searchInput.addEventListener('keyup', function() {
+                    const filter = this.value.toLowerCase().trim();
+                    const rows = table.querySelectorAll('tbody tr');
 
-                        <td>
-                            @analisis.FechaAnalisis.ToString(
-                                "dd/MM/yyyy HH:mm"
-                            )
-                        </td>
-
-                        <td class="text-center acciones-ranking">
-                            <a asp-action="DetalleAnalisis"
-                               asp-route-idAnalisis="@analisis.IdAnalisis"
-                               class="btn btn-info btn-sm">
-                                Ver detalle
-                            </a>
-                        </td>
-                    </tr>
-
-                    posicion++;
-                }
-            </tbody>
-        </table>
-    </div>
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(filter) ? '' : 'none';
+                    });
+                });
+            }
+        });
+    </script>
 }
