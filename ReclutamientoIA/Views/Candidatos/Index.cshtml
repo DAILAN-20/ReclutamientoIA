@@ -2,139 +2,289 @@
 
 @{
     ViewData["Title"] = "Candidatos";
+    var totalCandidatos = Model.Count();
+    var candidatosActivos = Model.Count(c => c.Activo);
+    var candidatosInactivos = totalCandidatos - candidatosActivos;
 }
 
 @section Styles {
-    <link rel="stylesheet"
-          href="~/css/candidatos.css"
-          asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/candidatos.css" asp-append-version="true" />
 }
 
-<div class="d-flex justify-content-between
-    align-items-center flex-wrap gap-3 mb-4">
-    <div>
-        <h1>Candidatos</h1>
+<div class="candidatos-page">
 
-        <p class="text-muted mb-0">
-            Banco general de currículums
-        </p>
+    <!-- ============================================
+         HEADER
+         ============================================ -->
+    <div class="candidatos-header">
+        <div class="candidatos-header-info">
+            <h1 class="candidatos-title">
+                <i class="fas fa-users"></i>
+                Candidatos
+            </h1>
+            <p class="candidatos-subtitle">
+                Banco general de currículums y perfiles de candidatos
+            </p>
+        </div>
+
+        <div class="candidatos-header-actions">
+            <a asp-action="Create" class="btn-candidato-primary">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Subir currículum</span>
+            </a>
+        </div>
     </div>
 
-    <a asp-action="Create"
-       class="btn btn-primary">
-        Subir currículum
-    </a>
+    <!-- ============================================
+         MÉTRICAS
+         ============================================ -->
+    <div class="candidatos-metrics">
+        <div class="metric-card">
+            <div class="metric-icon metric-icon-total">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="metric-info">
+                <span class="metric-label">Total Candidatos</span>
+                <span class="metric-value">@totalCandidatos</span>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon metric-icon-active">
+                <i class="fas fa-user-check"></i>
+            </div>
+            <div class="metric-info">
+                <span class="metric-label">Activos</span>
+                <span class="metric-value">@candidatosActivos</span>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon metric-icon-inactive">
+                <i class="fas fa-user-slash"></i>
+            </div>
+            <div class="metric-info">
+                <span class="metric-label">Inactivos</span>
+                <span class="metric-value">@candidatosInactivos</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         ALERTAS
+         ============================================ -->
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert-custom alert-custom-success">
+            <i class="fas fa-check-circle"></i>
+            <span>@TempData["Mensaje"]</span>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert-custom alert-custom-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>@TempData["Error"]</span>
+        </div>
+    }
+
+    <!-- ============================================
+         CONTENIDO PRINCIPAL
+         ============================================ -->
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h3 class="empty-title">No hay candidatos registrados</h3>
+            <p class="empty-text">
+                Comienza subiendo el primer currículum para construir tu banco de candidatos.
+            </p>
+            <a asp-action="Create" class="btn-candidato-primary">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Subir primer currículum</span>
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="candidatos-table-wrapper">
+            <div class="table-responsive">
+                <table class="candidatos-table">
+                    <thead>
+                        <tr>
+                            <th class="col-candidato">Candidato</th>
+                            <th class="col-correo">Correo</th>
+                            <th class="col-telefono">Teléfono</th>
+                            <th class="col-archivo">Currículum</th>
+                            <th class="col-tamano">Tamaño</th>
+                            <th class="col-registro">Registro</th>
+                            <th class="col-estado">Estado</th>
+                            <th class="col-acciones text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var candidato in Model)
+                        {
+                            <tr>
+                                <!-- CANDIDATO -->
+                                <td class="col-candidato">
+                                    <div class="candidato-info">
+                                        <div class="candidato-avatar">
+                                            @{
+                                                var nombre = candidato.NombreCompleto ?? "P";
+                                                var inicial = nombre.Substring(0, 1).ToUpper();
+                                            }
+                                            @inicial
+                                        </div>
+                                        <div class="candidato-detalle">
+                                            <strong class="candidato-nombre">
+                                                @(candidato.NombreCompleto ?? "Pendiente de extracción")
+                                            </strong>
+                                            @if (string.IsNullOrEmpty(candidato.NombreCompleto))
+                                            {
+                                                <span class="candidato-tag">Sin analizar</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- CORREO -->
+                                <td class="col-correo">
+                                    @if (!string.IsNullOrEmpty(candidato.Correo))
+                                    {
+                                        <a href="mailto:@candidato.Correo" class="candidato-contacto">
+                                            <i class="fas fa-envelope"></i>
+                                            <span>@candidato.Correo</span>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="candidato-vacio">
+                                            <i class="fas fa-minus"></i>
+                                            No disponible
+                                        </span>
+                                    }
+                                </td>
+
+                                <!-- TELÉFONO -->
+                                <td class="col-telefono">
+                                    @if (!string.IsNullOrEmpty(candidato.Telefono))
+                                    {
+                                        <a href="tel:@candidato.Telefono" class="candidato-contacto">
+                                            <i class="fas fa-phone"></i>
+                                            <span>@candidato.Telefono</span>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="candidato-vacio">
+                                            <i class="fas fa-minus"></i>
+                                            No disponible
+                                        </span>
+                                    }
+                                </td>
+
+                                <!-- ARCHIVO -->
+                                <td class="col-archivo">
+                                    <div class="archivo-info">
+                                        <div class="archivo-icon">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </div>
+                                        <span class="archivo-nombre" title="@candidato.NombreArchivoOriginal">
+                                            @candidato.NombreArchivoOriginal
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <!-- TAMAÑO -->
+                                <td class="col-tamano">
+                                    <span class="archivo-tamano">
+                                        <i class="fas fa-weight-hanging"></i>
+                                        @((candidato.TamanoArchivo / 1024.0).ToString("N1")) KB
+                                    </span>
+                                </td>
+
+                                <!-- REGISTRO -->
+                                <td class="col-registro">
+                                    <div class="fecha-info">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <div class="fecha-detalle">
+                                            <span class="fecha-dia">
+                                                @candidato.FechaRegistro.ToString("dd/MM/yyyy")
+                                            </span>
+                                            <span class="fecha-hora">
+                                                @candidato.FechaRegistro.ToString("hh:mm tt")
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- ESTADO -->
+                                <td class="col-estado">
+                                    @if (candidato.Activo)
+                                    {
+                                        <span class="badge-estado badge-estado-activo">
+                                            <span class="badge-dot"></span>
+                                            Activo
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-estado badge-estado-inactivo">
+                                            <span class="badge-dot"></span>
+                                            Inactivo
+                                        </span>
+                                    }
+                                </td>
+
+                                <!-- ACCIONES -->
+                                <td class="col-acciones">
+                                    <div class="acciones-group">
+                                        <a asp-controller="Candidatos"
+                                           asp-action="VerCurriculum"
+                                           asp-route-id="@candidato.IdCandidato"
+                                           target="_blank"
+                                           class="btn-accion btn-accion-ver"
+                                           title="Ver currículum">
+                                            <i class="fas fa-eye"></i>
+                                            <span>Ver CV</span>
+                                        </a>
+
+                                        <a asp-controller="Candidatos"
+                                           asp-action="Descargar"
+                                           asp-route-id="@candidato.IdCandidato"
+                                           class="btn-accion btn-accion-descargar"
+                                           title="Descargar currículum">
+                                            <i class="fas fa-download"></i>
+                                            <span>Descargar</span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer de la tabla -->
+        <div class="candidatos-footer">
+            <div class="footer-info">
+                <i class="fas fa-database"></i>
+                <span>Mostrando <strong>@totalCandidatos</strong> candidato(s)</span>
+            </div>
+            <div class="footer-legend">
+                <span class="legend-item">
+                    <span class="legend-dot legend-dot-activo"></span> Activo
+                </span>
+                <span class="legend-item">
+                    <span class="legend-dot legend-dot-inactivo"></span> Inactivo
+                </span>
+            </div>
+        </div>
+    }
+
 </div>
-
-@if (TempData["Mensaje"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["Mensaje"]
-    </div>
-}
-
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-warning">
-        @TempData["Error"]
-    </div>
-}
-
-@if (!Model.Any())
-{
-    <div class="alert alert-info">
-        Todavía no hay candidatos registrados.
-    </div>
-}
-else
-{
-    <div class="table-responsive">
-        <table class="table table-hover align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Candidato</th>
-                    <th>Correo</th>
-                    <th>Teléfono</th>
-                    <th>Currículum</th>
-                    <th>Tamaño</th>
-                    <th>Registro</th>
-                    <th>Estado</th>
-                    <th class="text-center">Acciones</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @foreach (var candidato in Model)
-                {
-                    <tr>
-                        <td>
-                            @(candidato.NombreCompleto
-                                ?? "Pendiente de extracción")
-                        </td>
-
-                        <td class="text-break">
-                            @(candidato.Correo
-                                ?? "No disponible")
-                        </td>
-
-                        <td>
-                            @(candidato.Telefono
-                                ?? "No disponible")
-                        </td>
-
-                        <td>
-                            @candidato.NombreArchivoOriginal
-                        </td>
-
-                        <td>
-                            @((candidato.TamanoArchivo / 1024.0)
-                                .ToString("N1")) KB
-                        </td>
-
-                        <td>
-                            @candidato.FechaRegistro.ToString(
-                                "dd/MM/yyyy hh:mm tt"
-                            )
-                        </td>
-
-                        <td>
-                            @if (candidato.Activo)
-                            {
-                                <span class="badge bg-success">
-                                    Activo
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">
-                                    Inactivo
-                                </span>
-                            }
-                        </td>
-
-                        <td>
-                            <div class="d-flex justify-content-center
-                                flex-wrap gap-2">
-
-                                <a asp-controller="Candidatos"
-                                   asp-action="VerCurriculum"
-                                   asp-route-id="@candidato.IdCandidato"
-                                   target="_blank"
-                                   class="btn btn-outline-success btn-sm">
-                                    Ver CV
-                                </a>
-
-                                <a asp-controller="Candidatos"
-                                   asp-action="Descargar"
-                                   asp-route-id="@candidato.IdCandidato"
-                                   class="btn btn-outline-primary btn-sm">
-                                    Descargar
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-}

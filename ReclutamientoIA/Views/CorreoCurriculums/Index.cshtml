@@ -1,330 +1,370 @@
 ﻿@model IEnumerable<ReclutamientoIA.Models.Candidato>
 
 @{
-    ViewData["Title"] =
-        "Currículums recibidos por correo";
-    var idsCurriculumsCorreo =
-ViewBag.IdsCurriculumsCorreo as List<int>
-?? new List<int>();
+    ViewData["Title"] = "Currículums recibidos por correo";
+    var idsCurriculumsCorreo = ViewBag.IdsCurriculumsCorreo as List<int> ?? new List<int>();
+    var totalCorreos = Model.Count();
 }
 
 @section Styles {
-    <style>
-        .correo-card {
-            border: 0;
-            border-radius: 14px;
-            box-shadow: 0 4px 16px
-                rgba(0, 0, 0, 0.07);
-        }
-
-        .correo-tabla {
-            min-width: 1050px;
-        }
-
-        .correo-tabla th {
-            white-space: nowrap;
-        }
-
-        .correo-tabla td,
-        .correo-tabla th {
-            padding: 14px;
-            vertical-align: middle;
-        }
-
-        .asunto-correo {
-            max-width: 280px;
-            overflow-wrap: anywhere;
-        }
-
-        .archivo-correo {
-            max-width: 220px;
-            overflow-wrap: anywhere;
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/correo-curriculums.css" asp-append-version="true" />
 }
 
-<div class="d-flex justify-content-between
-    align-items-center flex-wrap gap-3 mb-4">
+<div class="correo-page">
 
-    <div>
-        <h1>Currículums recibidos por correo</h1>
-
-        <p class="text-muted mb-0">
-            Extraiga y administre los currículums PDF
-            enviados a Gmail.
-        </p>
-    </div>
-
-    <form asp-action="Importar"
-          method="post"
-          id="formImportar">
-
-        <button type="submit"
-                class="btn btn-primary btn-lg"
-                id="botonImportar">
-            Revisar correo
-        </button>
-    </form>
-</div>
-
-@if (TempData["Mensaje"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["Mensaje"]
-    </div>
-}
-
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-warning">
-        @TempData["Error"]
-    </div>
-}
-<div class="card correo-card mb-4">
-    <div class="card-body p-4">
-        <h2 class="h4 fw-bold mb-3">
-            Analizar currículums por vacante
-        </h2>
-
-        <p class="text-muted">
-            Seleccione una vacante para analizar todos los
-            currículums sincronizados desde el correo.
-        </p>
-
-        @if (idsCurriculumsCorreo.Any())
-        {
-            <form asp-controller="Vacantes"
-                  asp-action="SeleccionarCandidatos"
-                  method="post"
-                  id="formAnalizarCorreo">
-
-                @foreach (var idCandidato
-                    in idsCurriculumsCorreo)
-                {
-                    <input type="hidden"
-                           name="CandidatosSeleccionados"
-                           value="@idCandidato" />
-                }
-
-                <div class="mb-3">
-                    <label for="idVacanteCorreo"
-                           class="form-label fw-semibold">
-                        Seleccione una vacante
-                    </label>
-
-                    <select id="idVacanteCorreo"
-                            name="IdVacante"
-                            asp-items="ViewBag.Vacantes"
-                            class="form-select form-select-lg"
-                            required>
-
-                        <option value="">
-                            Seleccione una vacante
-                        </option>
-                    </select>
-                </div>
-
-                <div class="alert alert-info">
-                    Currículums disponibles:
-                    <strong>
-                        @idsCurriculumsCorreo.Count
-                    </strong>
-                </div>
-
-                <button type="submit"
-                        class="btn btn-success btn-lg"
-                        id="botonAnalizarCorreo">
-                    Analizar todos con IA
-                </button>
-            </form>
-        }
-        else
-        {
-            <div class="alert alert-warning mb-0">
-                Primero debe sincronizar currículums
-                desde el correo.
+    <!-- ============================================
+         HEADER
+         ============================================ -->
+    <div class="correo-header">
+        <div class="correo-header-info">
+            <div class="correo-header-icon">
+                <i class="fas fa-envelope-open-text"></i>
             </div>
-        }
-    </div>
-</div>
-
-<div id="avisoImportando"
-     class="alert alert-info d-none">
-
-    <div class="d-flex align-items-center gap-3">
-        <div class="spinner-border spinner-border-sm"
-             role="status"></div>
-
-        <div>
-            <strong>Revisando el correo…</strong>
-
             <div>
-                No cierre ni actualice esta página.
+                <h1 class="correo-title">
+                    Currículums por correo
+                </h1>
+                <p class="correo-subtitle">
+                    Extrae y administra los currículums PDF enviados a Gmail de forma automática.
+                </p>
             </div>
         </div>
+
+        <form asp-action="Importar" method="post" id="formImportar" class="correo-header-actions">
+            <button type="submit" class="btn-correo-primary" id="botonImportar">
+                <i class="fas fa-sync-alt"></i>
+                <span>Revisar correo</span>
+            </button>
+        </form>
     </div>
-</div>
 
-<div class="card correo-card mb-4">
-    <div class="card-body">
-        <form asp-action="Index"
-              method="get"
-              class="row g-2">
+    <!-- ============================================
+         ALERTAS
+         ============================================ -->
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert-custom alert-custom-success">
+            <i class="fas fa-check-circle"></i>
+            <span>@TempData["Mensaje"]</span>
+        </div>
+    }
 
-            <div class="col-md-9">
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert-custom alert-custom-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>@TempData["Error"]</span>
+        </div>
+    }
+
+    <!-- ============================================
+         AVISO IMPORTANDO
+         ============================================ -->
+    <div id="avisoImportando" class="correo-processing d-none">
+        <div class="correo-processing-content">
+            <div class="correo-spinner"></div>
+            <div>
+                <strong>Revisando el correo...</strong>
+                <p>No cierres ni actualices esta página. Estamos buscando nuevos currículums.</p>
+            </div>
+        </div>
+        <div class="correo-progress-bar">
+            <div class="correo-progress-fill"></div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         TARJETA: ANALIZAR POR VACANTE
+         ============================================ -->
+    <div class="correo-card correo-card-analizar">
+        <div class="correo-card-header">
+            <div class="correo-card-icon correo-card-icon-ia">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div>
+                <h2 class="correo-card-title">
+                    Analizar currículums por vacante
+                </h2>
+                <p class="correo-card-desc">
+                    Selecciona una vacante para analizar todos los currículums sincronizados desde el correo.
+                </p>
+            </div>
+        </div>
+
+        <div class="correo-card-body">
+            @if (idsCurriculumsCorreo.Any())
+            {
+                <form asp-controller="Vacantes"
+                      asp-action="SeleccionarCandidatos"
+                      method="post"
+                      id="formAnalizarCorreo">
+
+                    @foreach (var idCandidato in idsCurriculumsCorreo)
+                    {
+                        <input type="hidden" name="CandidatosSeleccionados" value="@idCandidato" />
+                    }
+
+                    <div class="correo-field">
+                        <label for="idVacanteCorreo" class="correo-label">
+                            <i class="fas fa-briefcase"></i>
+                            Seleccione una vacante
+                        </label>
+
+                        <div class="correo-select-wrapper">
+                            <select id="idVacanteCorreo"
+                                    name="IdVacante"
+                                    asp-items="ViewBag.Vacantes"
+                                    class="correo-select"
+                                    required>
+                                <option value="">— Selecciona una vacante —</option>
+                            </select>
+                            <i class="fas fa-chevron-down correo-select-chevron"></i>
+                        </div>
+                    </div>
+
+                    <div class="correo-info-badge">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>Currículums disponibles: <strong>@idsCurriculumsCorreo.Count</strong></span>
+                    </div>
+
+                    <button type="submit" class="btn-correo-success" id="botonAnalizarCorreo">
+                        <i class="fas fa-magic"></i>
+                        <span>Analizar todos con IA</span>
+                    </button>
+                </form>
+            }
+            else
+            {
+                <div class="correo-empty-inline">
+                    <i class="fas fa-inbox"></i>
+                    <div>
+                        <strong>Sin currículums disponibles</strong>
+                        <p>Primero debe sincronizar currículums desde el correo.</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- ============================================
+         BUSCADOR
+         ============================================ -->
+    <div class="correo-card correo-card-search">
+        <form asp-action="Index" method="get" class="correo-search-form">
+            <div class="correo-search-input-wrapper">
+                <i class="fas fa-search correo-search-icon"></i>
                 <input type="search"
                        name="buscar"
                        value="@ViewBag.Buscar"
-                       class="form-control"
-                       placeholder="Buscar por nombre, correo, asunto o archivo" />
+                       class="correo-search-input"
+                       placeholder="Buscar por nombre, correo, asunto o archivo..." />
             </div>
 
-            <div class="col-md-3 d-flex gap-2">
-                <button type="submit"
-                        class="btn btn-primary">
-                    Buscar
+            <div class="correo-search-actions">
+                <button type="submit" class="btn-correo-primary">
+                    <i class="fas fa-search"></i>
+                    <span>Buscar</span>
                 </button>
-
-                <a asp-action="Index"
-                   class="btn btn-outline-secondary">
-                    Limpiar
+                <a asp-action="Index" class="btn-correo-outline">
+                    <i class="fas fa-times"></i>
+                    <span>Limpiar</span>
                 </a>
             </div>
         </form>
     </div>
+
+    <!-- ============================================
+         TABLA DE RESULTADOS
+         ============================================ -->
+    @if (!Model.Any())
+    {
+        <div class="correo-empty-state">
+            <div class="correo-empty-icon">
+                <i class="fas fa-envelope"></i>
+            </div>
+            <h3 class="correo-empty-title">No hay currículums importados</h3>
+            <p class="correo-empty-text">
+                Pulsa <strong>"Revisar correo"</strong> para buscar archivos PDF en la bandeja de entrada de Gmail.
+            </p>
+        </div>
+    }
+    else
+    {
+        <div class="correo-table-wrapper">
+            <div class="correo-table-header">
+                <div class="correo-table-header-left">
+                    <i class="fas fa-list"></i>
+                    <span>Resultados de la sincronización</span>
+                </div>
+                <span class="correo-count-badge">
+                    <i class="fas fa-database"></i>
+                    @totalCorreos
+                </span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="correo-table">
+                    <thead>
+                        <tr>
+                            <th class="col-nombre">Nombre</th>
+                            <th class="col-correo">Correo remitente</th>
+                            <th class="col-asunto">Asunto</th>
+                            <th class="col-fecha">Fecha del correo</th>
+                            <th class="col-archivo">Archivo</th>
+                            <th class="col-tamano">Tamaño</th>
+                            <th class="col-acciones text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var candidato in Model)
+                        {
+                            var tamanoKb = candidato.TamanoArchivo / 1024.0;
+
+                            <tr>
+                                <td class="col-nombre">
+                                    <div class="candidato-info">
+                                        <div class="candidato-avatar">
+                                            @{
+                                                var nombre = candidato.NombreCompleto ?? "P";
+                                                var inicial = nombre.Substring(0, 1).ToUpper();
+                                            }
+                                            @inicial
+                                        </div>
+                                        <strong class="candidato-nombre">
+                                            @(candidato.NombreCompleto ?? "Pendiente de extracción")
+                                        </strong>
+                                    </div>
+                                </td>
+
+                                <td class="col-correo">
+                                    @if (!string.IsNullOrEmpty(candidato.Correo))
+                                    {
+                                        <a href="mailto:@candidato.Correo" class="correo-contacto">
+                                            <i class="fas fa-envelope"></i>
+                                            <span>@candidato.Correo</span>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="correo-vacio">
+                                            <i class="fas fa-minus"></i>
+                                            No disponible
+                                        </span>
+                                    }
+                                </td>
+
+                                <td class="col-asunto">
+                                    <div class="asunto-texto" title="@(candidato.AsuntoCorreo ?? "Sin asunto")">
+                                        <i class="fas fa-tag"></i>
+                                        <span>@(candidato.AsuntoCorreo ?? "Sin asunto")</span>
+                                    </div>
+                                </td>
+
+                                <td class="col-fecha">
+                                    @if (candidato.FechaCorreo.HasValue)
+                                    {
+                                        <div class="fecha-info">
+                                            <i class="fas fa-clock"></i>
+                                            <div class="fecha-detalle">
+                                                <span class="fecha-dia">
+                                                    @candidato.FechaCorreo.Value.ToLocalTime().ToString("dd/MM/yyyy")
+                                                </span>
+                                                <span class="fecha-hora">
+                                                    @candidato.FechaCorreo.Value.ToLocalTime().ToString("HH:mm")
+                                                </span>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="correo-vacio">
+                                            <i class="fas fa-minus"></i>
+                                            No disponible
+                                        </span>
+                                    }
+                                </td>
+
+                                <td class="col-archivo">
+                                    <div class="archivo-info">
+                                        <div class="archivo-icon">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </div>
+                                        <span class="archivo-nombre" title="@candidato.NombreArchivoOriginal">
+                                            @candidato.NombreArchivoOriginal
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="col-tamano">
+                                    <span class="archivo-tamano">
+                                        <i class="fas fa-weight-hanging"></i>
+                                        @tamanoKb.ToString("N0") KB
+                                    </span>
+                                </td>
+
+                                <td class="col-acciones">
+                                    <div class="acciones-group">
+                                        <a asp-controller="Candidatos"
+                                           asp-action="Descargar"
+                                           asp-route-id="@candidato.IdCandidato"
+                                           class="btn-accion btn-accion-descargar"
+                                           title="Descargar currículum">
+                                            <i class="fas fa-download"></i>
+                                            <span>Descargar CV</span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="correo-table-footer">
+                <div class="correo-footer-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Mostrando <strong>@totalCorreos</strong> currículum(s) recibido(s) por correo</span>
+                </div>
+            </div>
+        </div>
+    }
+
 </div>
-
-@if (!Model.Any())
-{
-    <div class="alert alert-info">
-        No hay currículums importados desde el correo.
-
-        Pulse <strong>Revisar correo</strong> para buscar
-        archivos PDF en la bandeja de entrada.
-    </div>
-}
-else
-{
-    <div class="table-responsive correo-card">
-        <table class="table table-hover
-            align-middle mb-0 correo-tabla">
-
-            <thead class="table-dark">
-                <tr>
-                    <th>Nombre</th>
-                    <th>Correo remitente</th>
-                    <th>Asunto</th>
-                    <th>Fecha del correo</th>
-                    <th>Archivo</th>
-                    <th>Tamaño</th>
-                    <th class="text-center">Acciones</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @foreach (var candidato in Model)
-                {
-                    var tamanoKb =
-                        candidato.TamanoArchivo / 1024.0;
-
-                    <tr>
-                        <td>
-                            @(candidato.NombreCompleto
-                                ?? "Pendiente de extracción")
-                        </td>
-
-                        <td class="text-break">
-                            @(candidato.Correo
-                                ?? "No disponible")
-                        </td>
-
-                        <td class="asunto-correo">
-                            @(candidato.AsuntoCorreo
-                                ?? "Sin asunto")
-                        </td>
-
-                        <td>
-                            @if (candidato.FechaCorreo.HasValue)
-                            {
-                                @(
-                                    candidato.FechaCorreo.Value
-                                        .ToLocalTime()
-                                        .ToString("dd/MM/yyyy HH:mm")
-                                )
-                            }
-                            else
-                            {
-                                <span class="text-muted">
-                                    No disponible
-                                </span>
-                            }
-                        </td>
-
-                        <td class="archivo-correo">
-                            @candidato.NombreArchivoOriginal
-                        </td>
-
-                        <td>
-                            @tamanoKb.ToString("N0") KB
-                        </td>
-
-                        <td class="text-center">
-                            <a asp-controller="Candidatos"
-                               asp-action="Descargar"
-                               asp-route-id="@candidato.IdCandidato"
-                               class="btn btn-outline-primary btn-sm">
-                                Descargar CV
-                            </a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-}
 
 @section Scripts {
     <script>
+        // ============================================
+        // FORMULARIO IMPORTAR
+        // ============================================
         (() => {
-            const formulario =
-                document.getElementById("formImportar");
+            const formulario = document.getElementById("formImportar");
+            const boton = document.getElementById("botonImportar");
+            const aviso = document.getElementById("avisoImportando");
 
-            const boton =
-                document.getElementById("botonImportar");
-
-            const aviso =
-                document.getElementById("avisoImportando");
+            if (!formulario) return;
 
             formulario.addEventListener("submit", () => {
                 boton.disabled = true;
-                boton.textContent = "Revisando…";
+                boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Revisando...</span>';
                 aviso.classList.remove("d-none");
+                aviso.scrollIntoView({ behavior: "smooth", block: "center" });
             });
         })();
-    </script>
 
-    <script>
+        // ============================================
+        // FORMULARIO ANALIZAR CON IA
+        // ============================================
         (() => {
-            const formulario = document.getElementById(
-                "formAnalizarCorreo"
-            );
+            const formulario = document.getElementById("formAnalizarCorreo");
+            if (!formulario) return;
 
-            if (!formulario) {
-                return;
-            }
-
-            const boton = document.getElementById(
-                "botonAnalizarCorreo"
-            );
+            const boton = document.getElementById("botonAnalizarCorreo");
 
             formulario.addEventListener("submit", () => {
-                if (!formulario.checkValidity()) {
-                    return;
-                }
+                if (!formulario.checkValidity()) return;
 
                 boton.disabled = true;
-                boton.textContent =
-                    "Analizando currículums…";
+                boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Analizando currículums...</span>';
             });
         })();
     </script>

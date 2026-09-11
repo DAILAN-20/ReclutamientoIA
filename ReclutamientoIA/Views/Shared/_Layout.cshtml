@@ -3,171 +3,298 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
     <title>@ViewData["Title"] - ReclutamientoIA</title>
 
-    <link rel="stylesheet"
-          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 
-    <link rel="stylesheet"
-          href="~/css/site.css"
-          asp-append-version="true" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-    <link rel="stylesheet"
-          href="~/ReclutamientoIA.styles.css"
-          asp-append-version="true" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet"
-          href="~/css/layout.css"
-          asp-append-version="true" />
+    <!-- Estilos propios -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ReclutamientoIA.styles.css" asp-append-version="true" />
 
     @await RenderSectionAsync("Styles", required: false)
 </head>
 
 <body>
 
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+    <!-- ============================================
+         SIDEBAR LATERAL
+         ============================================ -->
+    <aside class="sidebar-pro" id="sidebarPro">
 
-            <div class="container-fluid">
+        <!-- LOGO / MARCA -->
+        <div class="sidebar-brand">
+            <a asp-area="" asp-controller="Home" asp-action="Index">
+                <span class="brand-icon">
+                    <i class="fas fa-brain"></i>
+                </span>
+                <span class="brand-text">Reclutamiento<span>IA</span></span>
+            </a>
+        </div>
 
-                <a class="navbar-brand"
-                   asp-area=""
-                   asp-controller="Home"
-                   asp-action="Index">
-                    ReclutamientoIA
-                </a>
-
-                <button class="navbar-toggler"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target=".navbar-collapse"
-                        aria-controls="navbarSupportedContent"
-                        aria-expanded="false"
-                        aria-label="Mostrar navegación">
-
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-
-                    <ul class="navbar-nav flex-grow-1">
-
-                        <li class="nav-item">
-                            <a class="nav-link text-dark"
-                               asp-area=""
-                               asp-controller="Home"
-                               asp-action="Index">
-                                Inicio
-                            </a>
-                        </li>
-
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-controller="Vacantes"
-                                   asp-action="Index">
-                                    Vacantes
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-controller="Candidatos"
-                                   asp-action="Index">
-                                    Candidatos
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-controller="Entrevistas"
-                                   asp-action="Index">
-                                    Entrevistas
-                                </a>
-                            </li>
-
-                            @if (User.IsInRole("Administrador"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark"
-                                       asp-controller="Usuarios"
-                                       asp-action="Index">
-                                        Usuarios
-                                    </a>
-                                </li>
-                            }
-                        }
-
-                    </ul>
-
-                    <ul class="navbar-nav">
-
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item d-flex align-items-center me-3">
-                                <span class="navbar-text text-dark">
-                                    @User.Identity.Name
-                                </span>
-                            </li>
-
-                            <li class="nav-item">
-                                <form asp-controller="Cuenta"
-                                      asp-action="CerrarSesion"
-                                      method="post">
-
-                                    <button type="submit"
-                                            class="btn btn-outline-danger">
-                                        Cerrar sesión
-                                    </button>
-                                </form>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-controller="Cuenta"
-                                   asp-action="Login">
-                                    Iniciar sesión
-                                </a>
-                            </li>
-                        }
-
-                    </ul>
-
+        <!-- USUARIO -->
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <div class="sidebar-user">
+                <div class="user-avatar-pro">
+                    @(User.Identity.Name?.Substring(0, 1).ToUpper() ?? "U")
+                </div>
+                <div class="user-details-pro">
+                    <strong>@User.Identity.Name</strong>
+                    <span>@(User.IsInRole("Administrador") ? "Administrador" : "Reclutador")</span>
                 </div>
             </div>
+        }
+
+        <!-- NAVEGACIÓN -->
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="nav-section">Principal</li>
+
+                <li>
+                    <a asp-area="" asp-controller="Home" asp-action="Index">
+                        <i class="fas fa-home"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a asp-controller="Vacantes" asp-action="Index">
+                        <i class="fas fa-briefcase"></i>
+                        <span>Vacantes</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a asp-controller="Vacantes" asp-action="CargaMasiva">
+                        <i class="fas fa-robot"></i>
+                        <span>Análisis IA</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a asp-controller="Candidatos" asp-action="Index">
+                        <i class="fas fa-users"></i>
+                        <span>Candidatos</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a asp-controller="CorreoCurriculums" asp-action="Index">
+                        <i class="fas fa-envelope"></i>
+                        <span>CV por correo</span>
+                    </a>
+                </li>
+
+                @if (User.IsInRole("Administrador") || User.IsInRole("Reclutador"))
+                {
+                    <li class="nav-section">Gestión</li>
+
+                    <li>
+                        <a asp-controller="Vacantes" asp-action="Tablero">
+                            <i class="fas fa-chart-pie"></i>
+                            <span>Tablero</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a asp-controller="Entrevistas" asp-action="Index">
+                            <i class="fas fa-microphone"></i>
+                            <span>Entrevistas</span>
+                        </a>
+                    </li>
+                }
+
+                @if (User.IsInRole("Administrador"))
+                {
+                    <li class="nav-section">Administración</li>
+
+                    <li class="has-submenu">
+                        <a href="#" class="submenu-toggle">
+                            <i class="fas fa-cog"></i>
+                            <span>Configuración</span>
+                            <i class="fas fa-chevron-down chevron"></i>
+                        </a>
+                        <ul class="submenu">
+                            <li>
+                                <a asp-controller="ConfiguracionSistema" asp-action="Prompt">
+                                    <i class="fas fa-pen"></i>
+                                    <span>Editar prompt</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a asp-controller="ConfiguracionSistema" asp-action="InteligenciaArtificial">
+                                    <i class="fas fa-microchip"></i>
+                                    <span>Proveedor de IA</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a asp-controller="ConfiguracionSistema" asp-action="Correo">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>Configuración correo</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <a asp-controller="Usuarios" asp-action="Index">
+                            <i class="fas fa-user-shield"></i>
+                            <span>Usuarios</span>
+                        </a>
+                    </li>
+                }
+            </ul>
         </nav>
-    </header>
 
-    <div class="container">
+        <!-- FOOTER SIDEBAR (CERRAR SESIÓN) -->
+        <div class="sidebar-footer">
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <form asp-controller="Cuenta" asp-action="CerrarSesion" method="post">
+                    <button type="submit" class="btn-logout-pro">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Cerrar sesión</span>
+                    </button>
+                </form>
+            }
+            else
+            {
+                <a asp-controller="Cuenta" asp-action="Login" class="btn-login-pro">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Iniciar sesión</span>
+                </a>
+            }
+        </div>
 
-        <main role="main" class="pb-3">
+    </aside>
+
+    <!-- ============================================
+         OVERLAY PARA MÓVIL
+         ============================================ -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ============================================
+         CONTENIDO PRINCIPAL
+         ============================================ -->
+    <div class="main-wrapper">
+
+        <!-- TOPBAR (barra superior) -->
+        <header class="topbar-pro">
+            <div class="topbar-left">
+                <button class="btn-toggle-sidebar" id="btnToggleSidebar" aria-label="Abrir menú">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="topbar-title">@ViewData["Title"]</h1>
+            </div>
+
+            <div class="topbar-right">
+                <div class="topbar-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Buscar..." />
+                </div>
+
+                <button class="btn-icon-top" title="Notificaciones">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge-dot"></span>
+                </button>
+
+                <div class="topbar-user">
+                    <div class="user-avatar-top">
+                        @(User.Identity?.Name?.Substring(0, 1).ToUpper() ?? "U")
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENIDO -->
+        <main role="main" class="main-content-pro">
             @RenderBody()
         </main>
 
+        <!-- FOOTER -->
+        <footer class="footer-pro">
+            <div class="footer-pro-container">
+                <div class="footer-left">
+                    &copy; @DateTime.Now.Year - <strong>ReclutamientoIA</strong>
+                    <span class="footer-version">v1.0.0</span>
+                </div>
+            </div>
+        </footer>
+
     </div>
 
-    <footer class="border-top footer text-muted">
-
-        <div class="container">
-            &copy; @DateTime.Now.Year - ReclutamientoIA
-            <span class="ms-2">Desarrollado por Dailan Reyes</span>
-        </div>
-
-    </footer>
-
+    <!-- ============================================
+         SCRIPTS
+         ============================================ -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
 
-    <script src="~/js/site.js"
-            asp-append-version="true">
+    <script>
+            // ============================================
+            // TOGGLE SIDEBAR
+            // ============================================
+            const sidebar = document.getElementById('sidebarPro');
+            const overlay = document.getElementById('sidebarOverlay');
+            const btnToggle = document.getElementById('btnToggleSidebar');
+
+            btnToggle?.addEventListener('click', function() {
+                sidebar?.classList.toggle('show');
+                overlay?.classList.toggle('show');
+            });
+
+            overlay?.addEventListener('click', function() {
+                sidebar?.classList.remove('show');
+                overlay?.classList.remove('show');
+            });
+
+            // ============================================
+            // SUBMENÚ
+            // ============================================
+            document.querySelectorAll('.submenu-toggle').forEach(function(toggle) {
+                toggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    this.closest('.has-submenu')?.classList.toggle('open');
+                });
+            });
+
+            // ============================================
+            // MARCAR LINK ACTIVO
+            // ============================================
+            document.addEventListener('DOMContentLoaded', function() {
+                const currentPath = window.location.pathname.toLowerCase();
+                document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                    const href = link.getAttribute('href')?.toLowerCase();
+                    if (href && href !== '/' && currentPath.startsWith(href)) {
+                        link.closest('li')?.classList.add('active');
+                        link.closest('.has-submenu')?.classList.add('active-parent');
+                    } else if (href === '/' && currentPath === '/') {
+                        link.closest('li')?.classList.add('active');
+                    }
+                });
+            });
+
+            // ============================================
+            // CERRAR SIDEBAR AL CAMBIAR TAMAÑO
+            // ============================================
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 992) {
+                    sidebar?.classList.remove('show');
+                    overlay?.classList.remove('show');
+                }
+            });
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)
-
 </body>
 </html>

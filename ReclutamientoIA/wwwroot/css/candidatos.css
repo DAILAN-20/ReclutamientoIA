@@ -1,40 +1,908 @@
-﻿h1 {
-    color: var(--color - primario);
-font - weight: 700;
+﻿/* ============================================================
+   CANDIDATOS - ESTILOS PROFESIONALES
+   ============================================================ */
+
+/* ============================================================
+   CONTENEDOR PRINCIPAL
+   ============================================================ */
+.candidatos-page {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    animation: fadeInUp 0.4s ease;
 }
 
-.card {
-    border: 0;
-border - radius: 12px;
-overflow: hidden;
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.card - header,
-.card - body {
-padding: 20px 24px;
+/* ============================================================
+   HEADER
+   ============================================================ */
+.candidatos-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 24px 28px;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    border-radius: 16px;
+    color: white;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
+    position: relative;
+    overflow: hidden;
 }
 
-.table - responsive {
-    background - color: #ffffff;
-    border - radius: 12px;
-    box - shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
-overflow: hidden;
+    .candidatos-header::before {
+        content: '';
+        position: absolute;
+        top: -60%;
+        right: -5%;
+        width: 320px;
+        height: 320px;
+        background: radial-gradient(circle, rgba(139, 92, 246, 0.25), transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+.candidatos-header-info {
+    position: relative;
+    z-index: 1;
 }
 
-.table {
-    margin-bottom: 0;
+.candidatos-title {
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: white;
 }
 
-.table th,
-.table td {
-    padding: 14px;
+    .candidatos-title i {
+        font-size: 24px;
+        color: #a78bfa;
+    }
+
+.candidatos-subtitle {
+    margin: 0;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: 400;
 }
 
-.form - control {
-    border - radius: 7px;
-padding: 10px 12px;
+.candidatos-header-actions {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
-.badge {
-    padding: 7px 10px;
+/* Botón principal del header */
+.btn-candidato-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 22px;
+    background: white;
+    color: #1e293b;
+    border: none;
+    border-radius: 11px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-family: inherit;
+    white-space: nowrap;
 }
+
+    .btn-candidato-primary i {
+        font-size: 14px;
+    }
+
+    .btn-candidato-primary:hover {
+        color: #1e293b;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        background: #f8fafc;
+    }
+
+/* ============================================================
+   MÉTRICAS
+   ============================================================ */
+.candidatos-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.metric-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 22px;
+    background: white;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.25s ease;
+}
+
+    .metric-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+    }
+
+.metric-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.metric-icon-total {
+    background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+    color: #7c3aed;
+}
+
+.metric-icon-active {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    color: #16a34a;
+}
+
+.metric-icon-inactive {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    color: #dc2626;
+}
+
+.metric-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.metric-label {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.metric-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.1;
+}
+
+/* ============================================================
+   ALERTAS
+   ============================================================ */
+.alert-custom {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    border-left: 4px solid;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alert-custom i {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.alert-custom-success {
+    background: #ecfdf5;
+    color: #065f46;
+    border-left-color: #10b981;
+}
+
+    .alert-custom-success i {
+        color: #10b981;
+    }
+
+.alert-custom-warning {
+    background: #fffbeb;
+    color: #92400e;
+    border-left-color: #f59e0b;
+}
+
+    .alert-custom-warning i {
+        color: #f59e0b;
+    }
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+.empty-state {
+    text-align: center;
+    padding: 60px 30px;
+    background: white;
+    border-radius: 16px;
+    border: 1px dashed #cbd5e1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.empty-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34px;
+    color: #a855f7;
+    margin-bottom: 6px;
+}
+
+.empty-title {
+    font-size: 19px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+
+.empty-text {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0 0 10px;
+    max-width: 400px;
+}
+
+.empty-state .btn-candidato-primary {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+    box-shadow: 0 6px 16px rgba(139, 92, 246, 0.35);
+}
+
+    .empty-state .btn-candidato-primary:hover {
+        background: linear-gradient(135deg, #7c3aed, #6d28d9);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(139, 92, 246, 0.45);
+    }
+
+/* ============================================================
+   TABLA
+   ============================================================ */
+.candidatos-table-wrapper {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+    .candidatos-table-wrapper .table-responsive {
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+
+.candidatos-table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+    font-size: 14px;
+    min-width: 1100px;
+}
+
+    /* Encabezado */
+    .candidatos-table thead th {
+        background: #f8fafc;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        padding: 16px 20px;
+        text-align: left;
+        border-bottom: 2px solid #e2e8f0;
+        white-space: nowrap;
+    }
+
+        .candidatos-table thead th.text-center {
+            text-align: center;
+        }
+
+    /* Filas */
+    .candidatos-table tbody tr {
+        border-bottom: 1px solid #f1f5f9;
+        transition: background-color 0.2s ease;
+    }
+
+        .candidatos-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .candidatos-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+    .candidatos-table tbody td {
+        padding: 16px 20px;
+        vertical-align: middle;
+        color: #334155;
+    }
+
+/* Columnas */
+.col-candidato {
+    width: 260px;
+    min-width: 220px;
+}
+
+.col-correo {
+    width: 220px;
+    max-width: 220px;
+}
+
+.col-telefono {
+    width: 150px;
+}
+
+.col-archivo {
+    width: 220px;
+    max-width: 220px;
+}
+
+.col-tamano {
+    width: 110px;
+    min-width: 100px;
+}
+
+.col-registro {
+    width: 160px;
+    min-width: 150px;
+}
+
+.col-estado {
+    width: 120px;
+    min-width: 110px;
+}
+
+.col-acciones {
+    width: 220px;
+    min-width: 220px;
+}
+
+/* ============================================================
+   INFO DEL CANDIDATO
+   ============================================================ */
+.candidato-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.candidato-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 15px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+}
+
+.candidato-detalle {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.candidato-nombre {
+    color: #0f172a;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+.candidato-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #fef3c7;
+    color: #d97706;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    width: fit-content;
+}
+
+/* ============================================================
+   CONTACTO
+   ============================================================ */
+.candidato-contacto {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #475569;
+    text-decoration: none;
+    font-size: 13.5px;
+    transition: color 0.2s ease;
+    max-width: 100%;
+}
+
+    .candidato-contacto i {
+        color: #94a3b8;
+        font-size: 12px;
+        flex-shrink: 0;
+        width: 14px;
+        text-align: center;
+    }
+
+    .candidato-contacto span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .candidato-contacto:hover {
+        color: #8b5cf6;
+    }
+
+        .candidato-contacto:hover i {
+            color: #8b5cf6;
+        }
+
+.candidato-vacio {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #cbd5e1;
+    font-size: 13px;
+    font-style: italic;
+}
+
+    .candidato-vacio i {
+        font-size: 11px;
+    }
+
+/* ============================================================
+   ARCHIVO
+   ============================================================ */
+.archivo-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 100%;
+}
+
+.archivo-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: #fee2e2;
+    color: #dc2626;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.archivo-nombre {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #334155;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+}
+
+.archivo-tamano {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+    .archivo-tamano i {
+        color: #94a3b8;
+        font-size: 11px;
+    }
+
+/* ============================================================
+   FECHA
+   ============================================================ */
+.fecha-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+    .fecha-info > i {
+        color: #94a3b8;
+        font-size: 14px;
+    }
+
+.fecha-detalle {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.fecha-dia {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.fecha-hora {
+    font-size: 11.5px;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+/* ============================================================
+   BADGES DE ESTADO
+   ============================================================ */
+.badge-estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.badge-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.badge-estado-activo {
+    background: #ecfdf5;
+    color: #065f46;
+}
+
+    .badge-estado-activo .badge-dot {
+        background: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        animation: pulseActive 2s infinite;
+    }
+
+@keyframes pulseActive {
+    0%, 100% {
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    }
+
+    50% {
+        box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.05);
+    }
+}
+
+.badge-estado-inactivo {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+    .badge-estado-inactivo .badge-dot {
+        background: #94a3b8;
+    }
+
+/* ============================================================
+   ACCIONES
+   ============================================================ */
+.acciones-group {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.btn-accion {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    font-family: inherit;
+}
+
+    .btn-accion i {
+        font-size: 12px;
+    }
+
+    .btn-accion:hover {
+        transform: translateY(-2px);
+    }
+
+/* Botón Ver CV */
+.btn-accion-ver {
+    background: #ecfdf5;
+    color: #059669;
+}
+
+    .btn-accion-ver:hover {
+        background: #059669;
+        color: white;
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+    }
+
+/* Botón Descargar */
+.btn-accion-descargar {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+    .btn-accion-descargar:hover {
+        background: #2563eb;
+        color: white;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+/* ============================================================
+   FOOTER DE LA TABLA
+   ============================================================ */
+.candidatos-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    background: white;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.footer-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    color: #64748b;
+}
+
+    .footer-info i {
+        color: #94a3b8;
+        font-size: 13px;
+    }
+
+    .footer-info strong {
+        color: #0f172a;
+    }
+
+.footer-legend {
+    display: flex;
+    gap: 18px;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.legend-dot-activo {
+    background: #10b981;
+}
+
+.legend-dot-inactivo {
+    background: #94a3b8;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+/* Tablet grande */
+@media (max-width: 1200px) {
+    .candidato-nombre {
+        max-width: 160px;
+    }
+
+    .archivo-nombre {
+        max-width: 120px;
+    }
+}
+
+/* Tablet */
+@media (max-width: 992px) {
+    .candidatos-header {
+        padding: 20px 22px;
+    }
+
+    .candidatos-title {
+        font-size: 22px;
+    }
+
+        .candidatos-title i {
+            font-size: 20px;
+        }
+
+    .metric-card {
+        padding: 16px 18px;
+    }
+
+    .metric-icon {
+        width: 46px;
+        height: 46px;
+        font-size: 20px;
+    }
+
+    .metric-value {
+        font-size: 22px;
+    }
+
+    .candidatos-table thead th {
+        padding: 13px 16px;
+        font-size: 11px;
+    }
+
+    .candidatos-table tbody td {
+        padding: 13px 16px;
+    }
+
+    .btn-accion span {
+        display: none;
+    }
+
+    .btn-accion {
+        padding: 8px 10px;
+    }
+
+    .col-acciones {
+        width: 130px;
+        min-width: 130px;
+    }
+
+    .candidato-avatar {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+
+    .archivo-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
+    }
+}
+
+/* Móvil */
+@media (max-width: 576px) {
+    .candidatos-header {
+        padding: 18px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .candidatos-title {
+        font-size: 20px;
+    }
+
+    .candidatos-header-actions {
+        width: 100%;
+    }
+
+    .btn-candidato-primary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .candidatos-metrics {
+        grid-template-columns: 1fr;
+    }
+
+    .metric-card {
+        padding: 14px 16px;
+    }
+
+    .metric-value {
+        font-size: 20px;
+    }
+
+    .candidatos-footer {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-legend {
+        justify-content: center;
+    }
+
+    .empty-state {
+        padding: 40px 20px;
+    }
+
+    .empty-icon {
+        width: 64px;
+        height: 64px;
+        font-size: 26px;
+    }
+}
+
+/* ============================================================
+   SCROLL HORIZONTAL PERSONALIZADO
+   ============================================================ */
+.candidatos-table-wrapper .table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.candidatos-table-wrapper .table-responsive::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.candidatos-table-wrapper .table-responsive::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+    .candidatos-table-wrapper .table-responsive::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }

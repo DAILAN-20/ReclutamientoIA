@@ -1,0 +1,1261 @@
+﻿/* ============================================================
+   CORREO CURRÍCULUMS - ESTILOS PROFESIONALES
+   ============================================================ */
+
+/* ============================================================
+   VARIABLES
+   ============================================================ */
+:root {
+    --cyan-500: #06b6d4;
+    --cyan-600: #0891b2;
+    --cyan-700: #0e7490;
+    --cyan-50: #ecfeff;
+    --cyan-100: #cffafe;
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-300: #cbd5e1;
+    --slate-400: #94a3b8;
+    --slate-500: #64748b;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-800: #1e293b;
+    --slate-900: #0f172a;
+    --green-500: #10b981;
+    --green-600: #059669;
+    --green-700: #047857;
+    --green-50: #ecfdf5;
+    --green-100: #d1fae5;
+    --red-500: #ef4444;
+    --red-600: #dc2626;
+    --red-50: #fef2f2;
+    --red-100: #fee2e2;
+    --blue-500: #3b82f6;
+    --blue-600: #2563eb;
+    --blue-50: #eff6ff;
+    --amber-500: #f59e0b;
+    --amber-50: #fffbeb;
+    --amber-100: #fef3c7;
+}
+
+/* ============================================================
+   CONTENEDOR PRINCIPAL
+   ============================================================ */
+.correo-page {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    animation: fadeInUp 0.4s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.correo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 24px 28px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0e7490 100%);
+    border-radius: 16px;
+    color: white;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+    .correo-header::before {
+        content: '';
+        position: absolute;
+        top: -60%;
+        right: -5%;
+        width: 320px;
+        height: 320px;
+        background: radial-gradient(circle, rgba(6, 182, 212, 0.35), transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+.correo-header-info {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    min-width: 0;
+}
+
+.correo-header-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 6px 16px rgba(6, 182, 212, 0.4);
+}
+
+.correo-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: white;
+    letter-spacing: -0.5px;
+}
+
+.correo-subtitle {
+    margin: 0;
+    font-size: 13.5px;
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: 400;
+    line-height: 1.5;
+    max-width: 550px;
+}
+
+.correo-header-actions {
+    position: relative;
+    z-index: 1;
+}
+
+.btn-correo-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 22px;
+    background: white;
+    color: var(--slate-900);
+    border: none;
+    border-radius: 11px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+    .btn-correo-primary i {
+        font-size: 14px;
+    }
+
+    .btn-correo-primary:hover:not(:disabled) {
+        color: var(--slate-900);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        background: var(--slate-50);
+    }
+
+    .btn-correo-primary:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+/* ============================================================
+   ALERTAS
+   ============================================================ */
+.alert-custom {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    border-left: 4px solid;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alert-custom i {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.alert-custom-success {
+    background: var(--green-50);
+    color: #065f46;
+    border-left-color: var(--green-500);
+}
+
+    .alert-custom-success i {
+        color: var(--green-500);
+    }
+
+.alert-custom-warning {
+    background: var(--amber-50);
+    color: #92400e;
+    border-left-color: var(--amber-500);
+}
+
+    .alert-custom-warning i {
+        color: var(--amber-500);
+    }
+
+/* ============================================================
+   PROCESO DE IMPORTACIÓN
+   ============================================================ */
+.correo-processing {
+    background: linear-gradient(135deg, var(--blue-50), #dbeafe);
+    border: 1px solid #bfdbfe;
+    border-radius: 14px;
+    padding: 20px;
+    animation: pulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.15);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
+    }
+}
+
+.correo-processing-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.correo-spinner {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 4px solid rgba(59, 130, 246, 0.2);
+    border-top-color: var(--blue-500);
+    animation: spin 1s linear infinite;
+    flex-shrink: 0;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.correo-processing-content strong {
+    display: block;
+    color: #1e40af;
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+.correo-processing-content p {
+    margin: 0;
+    color: var(--blue-600);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.correo-progress-bar {
+    margin-top: 16px;
+    height: 6px;
+    background: rgba(59, 130, 246, 0.15);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.correo-progress-fill {
+    height: 100%;
+    width: 30%;
+    background: linear-gradient(90deg, var(--blue-500), #60a5fa, var(--blue-500));
+    background-size: 200% 100%;
+    border-radius: 10px;
+    animation: progressMove 1.8s ease-in-out infinite;
+}
+
+@keyframes progressMove {
+    0% {
+        width: 15%;
+        background-position: 0% 0%;
+    }
+
+    50% {
+        width: 85%;
+        background-position: 100% 0%;
+    }
+
+    100% {
+        width: 15%;
+        background-position: 0% 0%;
+    }
+}
+
+/* ============================================================
+   TARJETAS
+   ============================================================ */
+.correo-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid var(--slate-200);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.correo-card-analizar {
+    border-left: 4px solid var(--green-500);
+}
+
+.correo-card-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 22px 26px;
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-bottom: 1px solid #bbf7d0;
+}
+
+.correo-card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.correo-card-icon-ia {
+    background: linear-gradient(135deg, var(--green-500), var(--green-600));
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+
+.correo-card-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: var(--slate-900);
+}
+
+.correo-card-desc {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--slate-500);
+    line-height: 1.5;
+}
+
+.correo-card-body {
+    padding: 24px 26px;
+}
+
+.correo-card-search {
+    padding: 18px 22px;
+}
+
+/* ============================================================
+   CAMPOS
+   ============================================================ */
+.correo-field {
+    margin-bottom: 18px;
+}
+
+.correo-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--slate-700);
+    margin-bottom: 10px;
+}
+
+    .correo-label i {
+        color: var(--green-500);
+        font-size: 13px;
+    }
+
+.correo-select-wrapper {
+    position: relative;
+}
+
+.correo-select {
+    width: 100%;
+    padding: 14px 44px 14px 18px;
+    border: 2px solid var(--slate-200);
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--slate-900);
+    background: var(--slate-50);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    font-family: inherit;
+}
+
+    .correo-select:hover {
+        border-color: var(--slate-300);
+        background: white;
+    }
+
+    .correo-select:focus {
+        outline: none;
+        border-color: var(--green-500);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
+    }
+
+.correo-select-chevron {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--slate-400);
+    font-size: 12px;
+    pointer-events: none;
+}
+
+.correo-info-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: var(--green-50);
+    border: 1px solid #bbf7d0;
+    border-radius: 10px;
+    color: #065f46;
+    font-size: 13.5px;
+    font-weight: 500;
+    margin-bottom: 18px;
+}
+
+    .correo-info-badge i {
+        color: var(--green-500);
+        font-size: 14px;
+    }
+
+    .correo-info-badge strong {
+        color: var(--green-700);
+        font-weight: 700;
+    }
+
+.btn-correo-success {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 13px 26px;
+    background: linear-gradient(135deg, var(--green-500), var(--green-600));
+    color: white;
+    border: none;
+    border-radius: 11px;
+    font-size: 14.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+    .btn-correo-success:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(16, 185, 129, 0.45);
+        background: linear-gradient(135deg, var(--green-600), var(--green-700));
+    }
+
+.correo-empty-inline {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 22px;
+    background: var(--amber-50);
+    border: 1px solid #fde68a;
+    border-radius: 12px;
+    color: #92400e;
+}
+
+    .correo-empty-inline > i {
+        font-size: 28px;
+        color: var(--amber-500);
+        flex-shrink: 0;
+    }
+
+    .correo-empty-inline strong {
+        display: block;
+        font-size: 15px;
+        margin-bottom: 4px;
+    }
+
+    .correo-empty-inline p {
+        margin: 0;
+        font-size: 13.5px;
+        color: #a16207;
+    }
+
+/* ============================================================
+   BUSCADOR
+   ============================================================ */
+.correo-search-form {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.correo-search-input-wrapper {
+    position: relative;
+    flex: 1;
+    min-width: 250px;
+}
+
+.correo-search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--slate-400);
+    font-size: 14px;
+    pointer-events: none;
+}
+
+.correo-search-input {
+    width: 100%;
+    padding: 11px 16px 11px 44px;
+    border: 2px solid var(--slate-200);
+    border-radius: 10px;
+    font-size: 14px;
+    background: var(--slate-50);
+    transition: all 0.25s ease;
+    font-family: inherit;
+    color: var(--slate-900);
+}
+
+    .correo-search-input::placeholder {
+        color: var(--slate-400);
+    }
+
+    .correo-search-input:focus {
+        outline: none;
+        border-color: var(--cyan-500);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.12);
+    }
+
+.correo-search-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+    .correo-search-actions .btn-correo-primary {
+        background: linear-gradient(135deg, var(--cyan-500), var(--cyan-600));
+        color: white;
+        box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+    }
+
+        .correo-search-actions .btn-correo-primary:hover {
+            background: linear-gradient(135deg, var(--cyan-600), var(--cyan-700));
+            color: white;
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+        }
+
+.btn-correo-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 20px;
+    background: white;
+    color: var(--slate-500);
+    border: 2px solid var(--slate-200);
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+    .btn-correo-outline:hover {
+        color: var(--slate-900);
+        border-color: var(--slate-300);
+        background: var(--slate-50);
+        transform: translateY(-2px);
+    }
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+.correo-empty-state {
+    text-align: center;
+    padding: 60px 30px;
+    background: white;
+    border-radius: 16px;
+    border: 1px dashed var(--slate-300);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.correo-empty-icon {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--cyan-100), #a5f3fc);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    color: var(--cyan-600);
+    margin-bottom: 8px;
+}
+
+.correo-empty-title {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--slate-900);
+    margin: 0;
+}
+
+.correo-empty-text {
+    font-size: 14px;
+    color: var(--slate-500);
+    margin: 0;
+    max-width: 450px;
+    line-height: 1.6;
+}
+
+    .correo-empty-text strong {
+        color: var(--cyan-600);
+        font-weight: 700;
+    }
+
+/* ============================================================
+   TABLA - ESTRUCTURA PRINCIPAL
+   ============================================================ */
+.correo-table-wrapper {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid var(--slate-200);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.correo-table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 22px;
+    background: linear-gradient(135deg, var(--slate-50), var(--slate-100));
+    border-bottom: 1px solid var(--slate-200);
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.correo-table-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--slate-700);
+}
+
+    .correo-table-header-left i {
+        color: var(--cyan-500);
+        font-size: 15px;
+    }
+
+.correo-count-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    background: linear-gradient(135deg, var(--cyan-500), var(--cyan-600));
+    color: white;
+    border-radius: 20px;
+    font-size: 12.5px;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(6, 182, 212, 0.3);
+}
+
+    .correo-count-badge i {
+        font-size: 11px;
+    }
+
+.correo-table-wrapper .table-responsive {
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.correo-table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+    font-size: 14px;
+    table-layout: fixed;
+    min-width: 1200px;
+}
+
+    /* ============================================================
+   ENCABEZADO DE LA TABLA
+   ============================================================ */
+    .correo-table thead th {
+        background: var(--slate-50);
+        color: var(--slate-600);
+        font-size: 11.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        padding: 14px 16px;
+        text-align: left;
+        border-bottom: 2px solid var(--slate-200);
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+        .correo-table thead th.text-center {
+            text-align: center;
+        }
+
+    /* ============================================================
+   FILAS DE LA TABLA
+   ============================================================ */
+    .correo-table tbody tr {
+        border-bottom: 1px solid var(--slate-100);
+        transition: background-color 0.2s ease;
+    }
+
+        .correo-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .correo-table tbody tr:hover {
+            background: var(--slate-50);
+        }
+
+    .correo-table tbody td {
+        padding: 14px 16px;
+        vertical-align: middle;
+        color: var(--slate-700);
+        overflow: hidden;
+    }
+
+    /* ============================================================
+   COLUMNA: NOMBRE
+   ============================================================ */
+    .correo-table .col-nombre {
+        width: 240px;
+    }
+
+.candidato-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.candidato-avatar {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--cyan-500), var(--cyan-600));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 15px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(6, 182, 212, 0.3);
+}
+
+.candidato-nombre {
+    color: var(--slate-900);
+    font-weight: 600;
+    font-size: 13.5px;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+    min-width: 0;
+}
+
+/* ============================================================
+   COLUMNA: CORREO
+   ============================================================ */
+.correo-table .col-correo {
+    width: 220px;
+}
+
+.correo-contacto {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--slate-600);
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.2s ease;
+    min-width: 0;
+    max-width: 100%;
+}
+
+    .correo-contacto i {
+        color: var(--cyan-500);
+        font-size: 12px;
+        flex-shrink: 0;
+        width: 14px;
+        text-align: center;
+    }
+
+    .correo-contacto span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+        flex: 1;
+    }
+
+    .correo-contacto:hover {
+        color: var(--cyan-600);
+    }
+
+.correo-vacio {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--slate-400);
+    font-size: 12.5px;
+    font-style: italic;
+}
+
+/* ============================================================
+   COLUMNA: ASUNTO
+   ============================================================ */
+.correo-table .col-asunto {
+    width: 240px;
+}
+
+.asunto-texto {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--slate-700);
+    line-height: 1.4;
+    max-width: 100%;
+}
+
+    .asunto-texto i {
+        color: var(--slate-400);
+        font-size: 11px;
+        flex-shrink: 0;
+        margin-top: 3px;
+    }
+
+    .asunto-texto span {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: break-word;
+        min-width: 0;
+    }
+
+/* ============================================================
+   COLUMNA: FECHA
+   ============================================================ */
+.correo-table .col-fecha {
+    width: 140px;
+}
+
+.fecha-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .fecha-info > i {
+        color: var(--slate-400);
+        font-size: 13px;
+        flex-shrink: 0;
+    }
+
+.fecha-detalle {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.fecha-dia {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--slate-700);
+    white-space: nowrap;
+}
+
+.fecha-hora {
+    font-size: 11px;
+    color: var(--slate-400);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* ============================================================
+   COLUMNA: ARCHIVO
+   ============================================================ */
+.correo-table .col-archivo {
+    width: 240px;
+}
+
+.archivo-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.archivo-icon {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    border-radius: 8px;
+    background: var(--red-100);
+    color: var(--red-600);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.archivo-nombre {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--slate-700);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    min-width: 0;
+    flex: 1;
+}
+
+/* ============================================================
+   COLUMNA: TAMAÑO
+   ============================================================ */
+.correo-table .col-tamano {
+    width: 100px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.archivo-tamano {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--slate-500);
+    white-space: nowrap;
+}
+
+    .archivo-tamano i {
+        color: var(--slate-400);
+        font-size: 10px;
+        flex-shrink: 0;
+    }
+
+/* ============================================================
+   COLUMNA: ACCIONES
+   ============================================================ */
+.correo-table .col-acciones {
+    width: 140px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.acciones-group {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+.btn-accion {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    font-family: inherit;
+    flex-shrink: 0;
+    line-height: 1.2;
+}
+
+    .btn-accion i {
+        font-size: 12px;
+        flex-shrink: 0;
+    }
+
+    .btn-accion span {
+        white-space: nowrap;
+        display: inline-block;
+        line-height: 1.2;
+    }
+
+    .btn-accion:hover {
+        transform: translateY(-2px);
+    }
+
+.btn-accion-descargar {
+    background: var(--blue-50);
+    color: var(--blue-600);
+}
+
+    .btn-accion-descargar:hover {
+        background: var(--blue-600);
+        color: white;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+/* ============================================================
+   FOOTER DE LA TABLA
+   ============================================================ */
+.correo-table-footer {
+    display: flex;
+    align-items: center;
+    padding: 14px 22px;
+    background: var(--slate-50);
+    border-top: 1px solid var(--slate-200);
+}
+
+.correo-footer-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--slate-500);
+}
+
+    .correo-footer-info i {
+        color: var(--cyan-500);
+        font-size: 13px;
+    }
+
+    .correo-footer-info strong {
+        color: var(--slate-900);
+        font-weight: 700;
+    }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 1400px) {
+    .correo-table {
+        min-width: 1150px;
+    }
+
+        .correo-table .col-nombre {
+            width: 220px;
+        }
+
+        .correo-table .col-correo {
+            width: 210px;
+        }
+
+        .correo-table .col-asunto {
+            width: 220px;
+        }
+
+        .correo-table .col-archivo {
+            width: 220px;
+        }
+
+        .correo-table .col-acciones {
+            width: 130px;
+        }
+}
+
+@media (max-width: 1200px) {
+    .correo-table {
+        min-width: 1100px;
+    }
+
+    .candidato-avatar {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        font-size: 14px;
+    }
+
+    .candidato-nombre {
+        font-size: 13px;
+    }
+
+    .correo-table .col-nombre {
+        width: 200px;
+    }
+
+    .correo-table .col-correo {
+        width: 200px;
+    }
+
+    .correo-table .col-asunto {
+        width: 210px;
+    }
+
+    .correo-table .col-archivo {
+        width: 210px;
+    }
+}
+
+@media (max-width: 992px) {
+    .correo-header {
+        padding: 20px;
+    }
+
+    .correo-title {
+        font-size: 20px;
+    }
+
+    .correo-header-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 20px;
+    }
+
+    .correo-card-header,
+    .correo-card-body {
+        padding: 18px 20px;
+    }
+
+    .btn-accion span {
+        display: none;
+    }
+
+    .btn-accion {
+        padding: 8px 10px;
+        width: 36px;
+        height: 36px;
+    }
+
+    .correo-table .col-acciones {
+        width: 70px;
+    }
+}
+
+@media (max-width: 576px) {
+    .correo-header {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 18px;
+    }
+
+    .correo-header-actions {
+        width: 100%;
+    }
+
+    .btn-correo-primary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .correo-search-form {
+        flex-direction: column;
+    }
+
+    .correo-search-actions {
+        width: 100%;
+    }
+
+        .correo-search-actions > * {
+            flex: 1;
+            justify-content: center;
+        }
+
+    .correo-empty-state {
+        padding: 40px 20px;
+    }
+
+    .correo-empty-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 30px;
+    }
+}
+
+/* ============================================================
+   SCROLL PERSONALIZADO
+   ============================================================ */
+.correo-table-wrapper .table-responsive::-webkit-scrollbar {
+    height: 10px;
+}
+
+.correo-table-wrapper .table-responsive::-webkit-scrollbar-track {
+    background: var(--slate-100);
+    border-radius: 10px;
+}
+
+.correo-table-wrapper .table-responsive::-webkit-scrollbar-thumb {
+    background: var(--slate-300);
+    border-radius: 10px;
+}
+
+    .correo-table-wrapper .table-responsive::-webkit-scrollbar-thumb:hover {
+        background: var(--slate-400);
+    }

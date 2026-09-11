@@ -2,357 +2,463 @@
 
 @{
     ViewData["Title"] = "Entrevistas";
+    var totalEntrevistas = Model.Count();
+    var pendientes = Model.Count(e => e.EstadoEntrevista == "Pendiente");
+    var realizadas = Model.Count(e => e.EstadoEntrevista == "Realizada");
+    var canceladas = Model.Count(e => e.EstadoEntrevista == "Cancelada");
 }
 
 @section Styles {
-    <link rel="stylesheet"
-          href="~/css/entrevistas.css"
-          asp-append-version="true" />
-
-    <style>
-        .listado-entrevistas {
-            overflow-x: auto;
-        }
-
-        .tabla-entrevistas th,
-        .tabla-entrevistas td {
-            padding: 10px;
-            font-size: 14px;
-        }
-
-        .tabla-entrevistas .acciones-entrevista {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            min-width: 110px;
-        }
-
-        .tabla-entrevistas td:last-child .btn {
-            width: 100%;
-            min-width: 110px;
-            white-space: nowrap;
-        }
-
-        .tabla-entrevistas td:last-child form {
-            width: 100%;
-            margin: 0;
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/entrevistas.css" asp-append-version="true" />
 }
 
-<div class="mb-4">
-    <h1>Entrevistas</h1>
+<div class="entrevistas-page">
 
-    <p class="text-muted">
-        Entrevistas programadas para los candidatos
-    </p>
-</div>
-
-@if (TempData["Mensaje"] != null)
-{
-    <div class="alert alert-success" role="alert">
-        @TempData["Mensaje"]
-    </div>
-}
-
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-warning" role="alert">
-        @TempData["Error"]
-    </div>
-}
-
-@if (ViewBag.IdAnalisis != null)
-{
-    <div class="alert alert-info">
-        Está viendo la entrevista del candidato
-        para la vacante seleccionada.
+    <!-- ============================================
+         HEADER
+         ============================================ -->
+    <div class="entrevistas-header">
+        <div class="entrevistas-header-info">
+            <div class="entrevistas-header-icon">
+                <i class="fas fa-microphone-alt"></i>
+            </div>
+            <div>
+                <h1 class="entrevistas-title">Entrevistas</h1>
+                <p class="entrevistas-subtitle">
+                    Gestión de entrevistas programadas para los candidatos
+                </p>
+            </div>
+        </div>
     </div>
 
-    <div class="d-flex flex-wrap gap-2 mb-3">
-        <a asp-controller="Entrevistas"
-           asp-action="Index"
-           class="btn btn-outline-primary">
-            Ver todas las entrevistas
-        </a>
+    <!-- ============================================
+         MÉTRICAS
+         ============================================ -->
+    <div class="entrevistas-metrics">
+        <div class="metric-card">
+            <div class="metric-icon metric-icon-total">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="metric-info">
+                <span class="metric-label">Total</span>
+                <span class="metric-value">@totalEntrevistas</span>
+            </div>
+        </div>
 
-        <a asp-controller="Vacantes"
-           asp-action="Tablero"
-           class="btn btn-secondary">
-            Volver al tablero
-        </a>
+        <div class="metric-card">
+            <div class="metric-icon metric-icon-pendiente">
+                <i class="fas fa-hourglass-half"></i>
+            </div>
+            <div class="metric-info">
+                <span class="metric-label">Pendientes</span>
+                <span class="metric-value">@pendientes</span>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon metric-icon-realizada">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="metric-info">
+                <span class="metric-label">Realizadas</span>
+                <span class="metric-value">@realizadas</span>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon metric-icon-cancelada">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <div class="metric-info">
+                <span class="metric-label">Canceladas</span>
+                <span class="metric-value">@canceladas</span>
+            </div>
+        </div>
     </div>
-}
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
+
+    <!-- ============================================
+         ALERTAS
+         ============================================ -->
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert-custom alert-custom-success">
+            <i class="fas fa-check-circle"></i>
+            <span>@TempData["Mensaje"]</span>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert-custom alert-custom-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>@TempData["Error"]</span>
+        </div>
+    }
+
+    <!-- ============================================
+         AVISO MODO FILTRADO POR CANDIDATO
+         ============================================ -->
+    @if (ViewBag.IdAnalisis != null)
+    {
+        <div class="entrevistas-aviso">
+            <div class="entrevistas-aviso-content">
+                <i class="fas fa-info-circle"></i>
+                <span>Está viendo la entrevista del candidato para la vacante seleccionada.</span>
+            </div>
+            <div class="entrevistas-aviso-actions">
+                <a asp-controller="Entrevistas" asp-action="Index" class="btn-entrevista-outline">
+                    <i class="fas fa-list"></i>
+                    <span>Ver todas</span>
+                </a>
+                <a asp-controller="Vacantes" asp-action="Tablero" class="btn-entrevista-secondary">
+                    <i class="fas fa-columns"></i>
+                    <span>Volver al tablero</span>
+                </a>
+            </div>
+        </div>
+    }
+
+    <!-- ============================================
+         FILTROS
+         ============================================ -->
+    <div class="entrevistas-filtros">
         <form asp-controller="Entrevistas"
               asp-action="Index"
               method="get"
-              class="row g-3 align-items-end">
+              class="entrevistas-filtros-form">
 
             @if (ViewBag.IdAnalisis != null)
             {
-                <input type="hidden"
-                       name="idAnalisis"
-                       value="@ViewBag.IdAnalisis" />
+                <input type="hidden" name="idAnalisis" value="@ViewBag.IdAnalisis" />
             }
 
-            <div class="col-md-4">
-                <label for="estado" class="form-label">
+            <div class="entrevistas-field">
+                <label for="estado" class="entrevistas-label">
+                    <i class="fas fa-filter"></i>
                     Estado
                 </label>
-
-                <select id="estado"
-                        name="estado"
-                        class="form-select">
-
-                    <option value="">Todos los estados</option>
-
-                    @foreach (var opcion in new[]
-                    {
-                        "Pendiente",
-                        "Realizada",
-                        "Cancelada"
-                    })
-                    {
-                        if ((string?)ViewBag.Estado == opcion)
+                <div class="entrevistas-select-wrapper">
+                    <select id="estado" name="estado" class="entrevistas-select">
+                        <option value="">Todos los estados</option>
+                        @foreach (var opcion in new[] { "Pendiente", "Realizada", "Cancelada" })
                         {
-                            <option value="@opcion" selected>
-                                @opcion
-                            </option>
+                            if ((string?)ViewBag.Estado == opcion)
+                            {
+                                <option value="@opcion" selected>@opcion</option>
+                            }
+                            else
+                            {
+                                <option value="@opcion">@opcion</option>
+                            }
                         }
-                        else
-                        {
-                            <option value="@opcion">
-                                @opcion
-                            </option>
-                        }
-                    }
-                </select>
+                    </select>
+                    <i class="fas fa-chevron-down entrevistas-select-chevron"></i>
+                </div>
             </div>
 
-            <div class="col-md-4">
-                <label for="fecha" class="form-label">
+            <div class="entrevistas-field">
+                <label for="fecha" class="entrevistas-label">
+                    <i class="fas fa-calendar-day"></i>
                     Fecha programada
                 </label>
-
                 <input type="date"
                        id="fecha"
                        name="fecha"
                        value="@ViewBag.Fecha"
-                       class="form-control" />
+                       class="entrevistas-input" />
             </div>
 
-            <div class="col-md-4">
-                <div class="d-flex flex-wrap gap-2">
-                    <button type="submit"
-                            class="btn btn-primary">
-                        Filtrar
-                    </button>
-
-                    <a asp-controller="Entrevistas"
-                       asp-action="Index"
-                       asp-route-idAnalisis="@ViewBag.IdAnalisis"
-                       class="btn btn-outline-secondary">
-                        Limpiar filtros
-                    </a>
-                </div>
+            <div class="entrevistas-filtros-actions">
+                <button type="submit" class="btn-entrevista-primary">
+                    <i class="fas fa-search"></i>
+                    <span>Filtrar</span>
+                </button>
+                <a asp-controller="Entrevistas"
+                   asp-action="Index"
+                   asp-route-idAnalisis="@ViewBag.IdAnalisis"
+                   class="btn-entrevista-outline">
+                    <i class="fas fa-times"></i>
+                    <span>Limpiar</span>
+                </a>
             </div>
         </form>
     </div>
-</div>
 
-@if (!Model.Any())
-{
-    <div class="alert alert-info">
-        No hay entrevistas para mostrar.
-    </div>
-}
-else
-{
-    <div class="table-responsive listado-entrevistas">
-        <table class="table table-hover align-middle tabla-entrevistas">
-            <thead class="table-dark">
-                <tr>
-                    <th>Fecha</th>
-                    <th>Hora</th>
-                    <th>Candidato</th>
-                    <th>Vacante</th>
-                    <th>Entrevistador</th>
-                    <th>Enlace</th>
-                    <th>Estado</th>
-                    <th>Resultado</th>
-                    <th>Calificación</th>
-                    <th class="text-center">Acciones</th>
-                </tr>
-            </thead>
+    <!-- ============================================
+         TABLA
+         ============================================ -->
+    @if (!Model.Any())
+    {
+        <div class="entrevistas-empty">
+            <div class="entrevistas-empty-icon">
+                <i class="fas fa-microphone-slash"></i>
+            </div>
+            <h3 class="entrevistas-empty-title">No hay entrevistas para mostrar</h3>
+            <p class="entrevistas-empty-text">
+                Cuando programes entrevistas desde el tablero de candidatos, aparecerán aquí.
+            </p>
+        </div>
+    }
+    else
+    {
+        <div class="entrevistas-table-wrapper">
+            <div class="entrevistas-table-header">
+                <div class="entrevistas-table-header-left">
+                    <i class="fas fa-list"></i>
+                    <span>Listado de entrevistas</span>
+                </div>
+                <span class="entrevistas-count-badge">
+                    <i class="fas fa-database"></i>
+                    @totalEntrevistas
+                </span>
+            </div>
 
-            <tbody>
-                @foreach (var entrevista in Model)
-                {
-                    var claseEstado =
-                        entrevista.EstadoEntrevista == "Pendiente"
-                            ? "bg-warning text-dark"
-                            : entrevista.EstadoEntrevista == "Realizada"
-                                ? "bg-success"
-                                : entrevista.EstadoEntrevista == "Cancelada"
-                                    ? "bg-danger"
-                                    : "bg-secondary";
-
-                    <tr>
-                        <td class="text-nowrap">
-                            @entrevista.FechaEntrevista.ToString("dd/MM/yyyy")
-                        </td>
-
-                        <td class="text-nowrap">
-                            @(DateTime.Today
-                                .Add(entrevista.HoraEntrevista)
-                                .ToString("hh:mm tt"))
-                        </td>
-
-                        <td>
-                            @(entrevista.AnalisisIA.Candidato.NombreCompleto
-                                ?? "No disponible")
-                        </td>
-
-                        <td>
-                            @entrevista.AnalisisIA.Vacante.Titulo
-                        </td>
-
-                        <td>
-                            @entrevista.Entrevistador
-                        </td>
-
-                        <td>
-                            @if (!string.IsNullOrWhiteSpace(
-                                entrevista.EnlaceEntrevista))
+            <div class="table-responsive">
+                <table class="entrevistas-table">
+                    <thead>
+                        <tr>
+                            <th class="col-fecha">Fecha</th>
+                            <th class="col-hora">Hora</th>
+                            <th class="col-candidato">Candidato</th>
+                            <th class="col-vacante">Vacante</th>
+                            <th class="col-entrevistador">Entrevistador</th>
+                            <th class="col-enlace">Enlace</th>
+                            <th class="col-estado">Estado</th>
+                            <th class="col-resultado">Resultado</th>
+                            <th class="col-calificacion">Calificación</th>
+                            <th class="col-acciones text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var entrevista in Model)
+                        {
+                            var claseEstado = entrevista.EstadoEntrevista switch
                             {
-                                <a href="@entrevista.EnlaceEntrevista"
-                                   target="_blank"
-                                   rel="noopener noreferrer"
-                                   class="btn btn-outline-primary btn-sm text-nowrap">
-                                    Abrir enlace
-                                </a>
-                            }
-                            else
-                            {
-                                <span class="text-muted">
-                                    No disponible
-                                </span>
-                            }
-                        </td>
+                                "Pendiente" => "estado-pendiente",
+                                "Realizada" => "estado-realizada",
+                                "Cancelada" => "estado-cancelada",
+                                _ => "estado-default"
+                            };
 
-                        <td>
-                            <span class="badge @claseEstado">
-                                @entrevista.EstadoEntrevista
-                            </span>
-                        </td>
+                            var nombreInicial = (entrevista.AnalisisIA?.Candidato?.NombreCompleto ?? "?")
+                                .Substring(0, 1).ToUpper();
 
-                        <td>
-                            @if (entrevista.EstadoEntrevista == "Cancelada")
-                            {
-                                <span class="text-muted">
-                                    No aplica
-                                </span>
-                            }
-                            else if (!string.IsNullOrWhiteSpace(
-                                entrevista.Resultado))
-                            {
-                                <span>@entrevista.Resultado</span>
-                            }
-                            else
-                            {
-                                <span class="text-muted">
-                                    Pendiente
-                                </span>
-                            }
-                        </td>
+                            <tr>
+                                <!-- FECHA -->
+                                <td class="col-fecha">
+                                    <div class="fecha-info">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <span>@entrevista.FechaEntrevista.ToString("dd/MM/yyyy")</span>
+                                    </div>
+                                </td>
 
-                        <td>
-                            @if (entrevista.CalificacionManual.HasValue)
-                            {
-                                <span class="badge bg-primary">
-                                    @(entrevista.CalificacionManual.Value) / 100
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="text-muted">
-                                    Sin calificar
-                                </span>
-                            }
-                        </td>
+                                <!-- HORA -->
+                                <td class="col-hora">
+                                    <div class="hora-info">
+                                        <i class="fas fa-clock"></i>
+                                        <span>@(DateTime.Today.Add(entrevista.HoraEntrevista).ToString("hh:mm tt"))</span>
+                                    </div>
+                                </td>
 
-                        <td class="text-center">
-                            @if (entrevista.EstadoEntrevista == "Pendiente")
-                            {
-                                <div class="acciones-entrevista">
-                                    <a asp-controller="Entrevistas"
-                                       asp-action="Editar"
-                                       asp-route-idEntrevista="@entrevista.IdEntrevista"
-                                       class="btn btn-warning btn-sm">
-                                        Editar
-                                    </a>
+                                <!-- CANDIDATO -->
+                                <td class="col-candidato">
+                                    <div class="candidato-info">
+                                        <div class="candidato-avatar">
+                                            @nombreInicial
+                                        </div>
+                                        <strong class="candidato-nombre" title="@(entrevista.AnalisisIA?.Candidato?.NombreCompleto ?? "No disponible")">
+                                            @(entrevista.AnalisisIA?.Candidato?.NombreCompleto ?? "No disponible")
+                                        </strong>
+                                    </div>
+                                </td>
 
-                                    @if (
-                                        entrevista.AnalisisIA.EstadoProceso == "Entrevista Programada" &&
-                                        entrevista.FechaEntrevista.Date.Add(entrevista.HoraEntrevista) <= DateTime.Now)
+                                <!-- VACANTE -->
+                                <td class="col-vacante">
+                                    <div class="vacante-info">
+                                        <i class="fas fa-briefcase"></i>
+                                        <span title="@entrevista.AnalisisIA?.Vacante?.Titulo">
+                                            @entrevista.AnalisisIA?.Vacante?.Titulo
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <!-- ENTREVISTADOR -->
+                                <td class="col-entrevistador">
+                                    <div class="entrevistador-info">
+                                        <i class="fas fa-user-tie"></i>
+                                        <span>@entrevista.Entrevistador</span>
+                                    </div>
+                                </td>
+
+                                <!-- ENLACE -->
+                                <td class="col-enlace">
+                                    @if (!string.IsNullOrWhiteSpace(entrevista.EnlaceEntrevista))
                                     {
-                                        <a asp-controller="Entrevistas"
-                                           asp-action="Calificar"
-                                           asp-route-idEntrevista="@entrevista.IdEntrevista"
-                                           class="btn btn-success btn-sm">
-                                            Calificar
+                                        <a href="@entrevista.EnlaceEntrevista"
+                                           target="_blank"
+                                           rel="noopener noreferrer"
+                                           class="enlace-entrevista"
+                                           title="@entrevista.EnlaceEntrevista">
+                                            <i class="fas fa-external-link-alt"></i>
+                                            <span>Abrir enlace</span>
                                         </a>
                                     }
+                                    else
+                                    {
+                                        <span class="text-vacio">
+                                            <i class="fas fa-minus"></i>
+                                            No disponible
+                                        </span>
+                                    }
+                                </td>
 
-                                    <form asp-controller="Entrevistas"
-                                          asp-action="Cancelar"
-                                          method="post"
-                                          asp-antiforgery="true"
-                                          onsubmit="return confirm('¿Desea cancelar esta entrevista? El candidato volverá a Preseleccionado.');">
+                                <!-- ESTADO -->
+                                <td class="col-estado">
+                                    <span class="badge-estado @claseEstado">
+                                        <span class="badge-dot"></span>
+                                        @entrevista.EstadoEntrevista
+                                    </span>
+                                </td>
 
-                                        <input type="hidden"
-                                               name="idEntrevista"
-                                               value="@entrevista.IdEntrevista" />
+                                <!-- RESULTADO -->
+                                <td class="col-resultado">
+                                    @if (entrevista.EstadoEntrevista == "Cancelada")
+                                    {
+                                        <span class="text-vacio">
+                                            <i class="fas fa-minus"></i>
+                                            No aplica
+                                        </span>
+                                    }
+                                    else if (!string.IsNullOrWhiteSpace(entrevista.Resultado))
+                                    {
+                                        <span class="resultado-texto">@entrevista.Resultado</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-pendiente">
+                                            <i class="fas fa-hourglass-half"></i>
+                                            Pendiente
+                                        </span>
+                                    }
+                                </td>
 
-                                        <button type="submit"
-                                                class="btn btn-danger btn-sm">
-                                            Cancelar
-                                        </button>
-                                    </form>
-                                </div>
-                            }
-                            else if (
-                                entrevista.EstadoEntrevista == "Cancelada" &&
-                                entrevista.AnalisisIA.EstadoProceso == "Preseleccionado")
-                            {
-                                <a asp-controller="Entrevistas"
-                                   asp-action="Agendar"
-                                   asp-route-idAnalisis="@entrevista.IdAnalisis"
-                                   class="btn btn-primary btn-sm">
-                                    Volver a programar
-                                </a>
-                            }
-                            else if (entrevista.EstadoEntrevista == "Realizada")
-                            {
-                                <a asp-controller="Entrevistas"
-                                   asp-action="Detalle"
-                                   asp-route-idEntrevista="@entrevista.IdEntrevista"
-                                   class="btn btn-outline-primary btn-sm">
-                                    Ver evaluación
-                                </a>
-                            }
-                            else
-                            {
-                                <span class="text-muted">
-                                    Sin acciones
-                                </span>
-                            }
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-}
+                                <!-- CALIFICACIÓN -->
+                                <td class="col-calificacion">
+                                    @if (entrevista.CalificacionManual.HasValue)
+                                    {
+                                        <span class="badge-calificacion @(entrevista.CalificacionManual.Value >= 80 ? "calificacion-alta" : entrevista.CalificacionManual.Value >= 60 ? "calificacion-media" : "calificacion-baja")">
+                                            @entrevista.CalificacionManual.Value<span>/100</span>
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-vacio">
+                                            <i class="fas fa-minus"></i>
+                                            Sin calificar
+                                        </span>
+                                    }
+                                </td>
+
+                                <!-- ACCIONES -->
+                                <td class="col-acciones">
+                                    @if (entrevista.EstadoEntrevista == "Pendiente")
+                                    {
+                                        <div class="acciones-group">
+                                            <a asp-controller="Entrevistas"
+                                               asp-action="Editar"
+                                               asp-route-idEntrevista="@entrevista.IdEntrevista"
+                                               class="btn-accion btn-accion-editar"
+                                               title="Editar entrevista">
+                                                <i class="fas fa-edit"></i>
+                                                <span>Editar</span>
+                                            </a>
+
+                                            @if (entrevista.AnalisisIA.EstadoProceso == "Entrevista Programada" &&
+                                                 entrevista.FechaEntrevista.Date.Add(entrevista.HoraEntrevista) <= DateTime.Now)
+                                            {
+                                                <a asp-controller="Entrevistas"
+                                                   asp-action="Calificar"
+                                                   asp-route-idEntrevista="@entrevista.IdEntrevista"
+                                                   class="btn-accion btn-accion-calificar"
+                                                   title="Calificar entrevista">
+                                                    <i class="fas fa-star"></i>
+                                                    <span>Calificar</span>
+                                                </a>
+                                            }
+
+                                            <form asp-controller="Entrevistas"
+                                                  asp-action="Cancelar"
+                                                  method="post"
+                                                  asp-antiforgery="true"
+                                                  onsubmit="return confirm('¿Desea cancelar esta entrevista? El candidato volverá a Preseleccionado.');"
+                                                  class="form-cancelar">
+                                                <input type="hidden" name="idEntrevista" value="@entrevista.IdEntrevista" />
+                                                <button type="submit" class="btn-accion btn-accion-cancelar" title="Cancelar entrevista">
+                                                    <i class="fas fa-ban"></i>
+                                                    <span>Cancelar</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    }
+                                    else if (entrevista.EstadoEntrevista == "Cancelada" &&
+                                             entrevista.AnalisisIA.EstadoProceso == "Preseleccionado")
+                                    {
+                                        <div class="acciones-group">
+                                            <a asp-controller="Entrevistas"
+                                               asp-action="Agendar"
+                                               asp-route-idAnalisis="@entrevista.IdAnalisis"
+                                               class="btn-accion btn-accion-reprogramar"
+                                               title="Volver a programar">
+                                                <i class="fas fa-redo"></i>
+                                                <span>Reprogramar</span>
+                                            </a>
+                                        </div>
+                                    }
+                                    else if (entrevista.EstadoEntrevista == "Realizada")
+                                    {
+                                        <div class="acciones-group">
+                                            <a asp-controller="Entrevistas"
+                                               asp-action="Detalle"
+                                               asp-route-idEntrevista="@entrevista.IdEntrevista"
+                                               class="btn-accion btn-accion-ver"
+                                               title="Ver evaluación">
+                                                <i class="fas fa-eye"></i>
+                                                <span>Ver evaluación</span>
+                                            </a>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-vacio">
+                                            <i class="fas fa-minus"></i>
+                                            Sin acciones
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="entrevistas-table-footer">
+                <div class="entrevistas-footer-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Mostrando <strong>@totalEntrevistas</strong> entrevista(s)</span>
+                </div>
+                <div class="entrevistas-footer-legend">
+                    <span class="legend-item">
+                        <span class="legend-dot legend-dot-pendiente"></span> Pendiente
+                    </span>
+                    <span class="legend-item">
+                        <span class="legend-dot legend-dot-realizada"></span> Realizada
+                    </span>
+                    <span class="legend-item">
+                        <span class="legend-dot legend-dot-cancelada"></span> Cancelada
+                    </span>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>

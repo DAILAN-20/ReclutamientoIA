@@ -10,9 +10,10 @@
         ?? Enumerable.Empty<ReclutamientoIA.Models.Vacante>();
 
     int? idVacanteSeleccionada = ViewBag.IdVacante;
+
     var entrevistasPendientes = ViewBag.EntrevistasPendientes
-    as Dictionary<int, ReclutamientoIA.Models.Entrevista>
-    ?? new Dictionary<int, ReclutamientoIA.Models.Entrevista>();
+        as Dictionary<int, ReclutamientoIA.Models.Entrevista>
+        ?? new Dictionary<int, ReclutamientoIA.Models.Entrevista>();
 
     var estados = new[]
     {
@@ -23,227 +24,288 @@
     };
 }
 
-<div class="d-flex justify-content-between align-items-center
-    flex-wrap gap-2 mb-4">
-    <div>
-        <h1 class="mb-1">Tablero de candidatos</h1>
-        <p class="text-muted mb-0">
-            Seguimiento del proceso de selección
-        </p>
-    </div>
-
-    <a asp-controller="Vacantes"
-       asp-action="Index"
-       class="btn btn-secondary">
-        Volver a vacantes
-    </a>
-</div>
-
-@if (TempData["Mensaje"] != null)
-{
-    <div class="alert alert-success" role="alert">
-        @TempData["Mensaje"]
-    </div>
+@section Styles {
+    <link rel="stylesheet" href="~/css/tablero.css" asp-append-version="true" />
 }
 
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-warning" role="alert">
-        @TempData["Error"]
-    </div>
-}
+<div class="tablero-page">
 
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
+    <!-- ============================================
+         HEADER
+         ============================================ -->
+    <div class="tablero-header">
+        <div class="tablero-header-info">
+            <div class="tablero-header-icon">
+                <i class="fas fa-columns"></i>
+            </div>
+            <div>
+                <h1 class="tablero-title">Tablero de candidatos</h1>
+                <p class="tablero-subtitle">
+                    Seguimiento visual del proceso de selección por etapa
+                </p>
+            </div>
+        </div>
+
+        <div class="tablero-header-actions">
+            <a asp-controller="Vacantes" asp-action="Index" class="btn-tablero-outline">
+                <i class="fas fa-arrow-left"></i>
+                <span>Volver a vacantes</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- ============================================
+         ALERTAS
+         ============================================ -->
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert-custom alert-custom-success">
+            <i class="fas fa-check-circle"></i>
+            <span>@TempData["Mensaje"]</span>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert-custom alert-custom-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>@TempData["Error"]</span>
+        </div>
+    }
+
+    <!-- ============================================
+         FILTROS
+         ============================================ -->
+    <div class="tablero-filtros">
         <form asp-controller="Vacantes"
               asp-action="Tablero"
               method="get"
-              class="row g-3 align-items-end">
+              class="tablero-filtros-form">
 
-            <div class="col-md-6">
-                <label for="idVacante" class="form-label">
+            <div class="tablero-field">
+                <label for="idVacante" class="tablero-label">
+                    <i class="fas fa-filter"></i>
                     Filtrar por vacante
                 </label>
 
-                <select id="idVacante"
-                        name="idVacante"
-                        class="form-select">
+                <div class="tablero-select-wrapper">
+                    <select id="idVacante" name="idVacante" class="tablero-select">
+                        <option value="">Todas las vacantes</option>
 
-                    <option value="">Todas las vacantes</option>
-
-                    @foreach (var vacante in vacantes)
-                    {
-                        if (idVacanteSeleccionada == vacante.IdVacante)
+                        @foreach (var vacante in vacantes)
                         {
-                            <option value="@vacante.IdVacante"
-                                    selected>
-                                @vacante.Titulo
-                            </option>
+                            if (idVacanteSeleccionada == vacante.IdVacante)
+                            {
+                                <option value="@vacante.IdVacante" selected>
+                                    @vacante.Titulo
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="@vacante.IdVacante">
+                                    @vacante.Titulo
+                                </option>
+                            }
                         }
-                        else
-                        {
-                            <option value="@vacante.IdVacante">
-                                @vacante.Titulo
-                            </option>
-                        }
-                    }
-                </select>
+                    </select>
+                    <i class="fas fa-chevron-down tablero-select-chevron"></i>
+                </div>
             </div>
 
-            <div class="col-md-6 d-flex gap-2">
-                <button type="submit"
-                        class="btn btn-primary">
-                    Filtrar
+            <div class="tablero-filtros-actions">
+                <button type="submit" class="btn-tablero-primary">
+                    <i class="fas fa-search"></i>
+                    <span>Filtrar</span>
                 </button>
 
-                <a asp-controller="Vacantes"
-                   asp-action="Tablero"
-                   class="btn btn-outline-secondary">
-                    Limpiar
+                <a asp-controller="Vacantes" asp-action="Tablero" class="btn-tablero-outline">
+                    <i class="fas fa-times"></i>
+                    <span>Limpiar</span>
                 </a>
             </div>
         </form>
     </div>
-</div>
 
-<div class="d-flex justify-content-between flex-wrap gap-2 mb-3">
-    <span class="text-muted">
-        Los estados cambian al programar, cancelar o calificar
-        una entrevista.
-    </span>
+    <!-- ============================================
+         INFO BAR
+         ============================================ -->
+    <div class="tablero-infobar">
+        <div class="tablero-infobar-text">
+            <i class="fas fa-info-circle"></i>
+            <span>Los estados cambian al programar, cancelar o calificar una entrevista.</span>
+        </div>
 
-    <strong>Total: @candidatos.Count</strong>
-</div>
+        <div class="tablero-infobar-total">
+            <i class="fas fa-users"></i>
+            <span>Total:</span>
+            <strong>@candidatos.Count</strong>
+        </div>
+    </div>
 
-<div class="row g-3">
-    @foreach (var estado in estados)
-    {
-        var candidatosEstado = candidatos
-            .Where(a => a.EstadoProceso == estado)
-            .ToList();
-
-        var color = estado switch
+    <!-- ============================================
+         TABLERO KANBAN
+         ============================================ -->
+    <div class="tablero-kanban">
+        @foreach (var estado in estados)
         {
-            "Preseleccionado" => "bg-primary text-white",
-            "Entrevista Programada" => "bg-warning text-dark",
-            "Aprobado" => "bg-success text-white",
-            "Rechazado" => "bg-danger text-white",
-            _ => "bg-secondary text-white"
-        };
+            var candidatosEstado = candidatos
+                .Where(a => a.EstadoProceso == estado)
+                .ToList();
 
-        <div class="col-12 col-md-6 col-xl-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header @color border-0 py-3">
-                    <div class="d-flex justify-content-between
-                        align-items-center gap-2">
-                        <h2 class="h6 mb-0">@estado</h2>
+            var claseEstado = estado switch
+            {
+                "Preseleccionado" => "columna-preseleccionado",
+                "Entrevista Programada" => "columna-entrevista",
+                "Aprobado" => "columna-aprobado",
+                "Rechazado" => "columna-rechazado",
+                _ => "columna-default"
+            };
 
-                        <span class="badge bg-light text-dark">
-                            @candidatosEstado.Count
-                        </span>
+            var iconoEstado = estado switch
+            {
+                "Preseleccionado" => "fa-star",
+                "Entrevista Programada" => "fa-calendar-check",
+                "Aprobado" => "fa-check-circle",
+                "Rechazado" => "fa-times-circle",
+                _ => "fa-circle"
+            };
+
+            <div class="tablero-columna @claseEstado">
+                <!-- HEADER COLUMNA -->
+                <div class="columna-header">
+                    <div class="columna-header-left">
+                        <i class="fas @iconoEstado"></i>
+                        <h2 class="columna-title">@estado</h2>
                     </div>
+                    <span class="columna-count">@candidatosEstado.Count</span>
                 </div>
 
-                <div class="card-body bg-light">
+                <!-- BODY COLUMNA -->
+                <div class="columna-body">
                     @if (!candidatosEstado.Any())
                     {
-                        <p class="text-muted text-center small my-4">
-                            No hay candidatos en esta etapa.
-                        </p>
+                        <div class="columna-empty">
+                            <i class="fas fa-inbox"></i>
+                            <p>No hay candidatos en esta etapa.</p>
+                        </div>
                     }
                     else
                     {
                         @foreach (var analisis in candidatosEstado)
                         {
-                            <div class="card border-0 shadow-sm mb-3">
-                                <div class="card-body">
-                                    <h3 class="h6 mb-2 text-break">
-                                        @(analisis.Candidato.NombreCompleto
-                                            ?? "Nombre no disponible")
-                                    </h3>
+                            var nombreInicial = (analisis.Candidato?.NombreCompleto ?? "?")
+                                .Substring(0, 1).ToUpper();
 
-                                    <p class="small text-muted mb-3 text-break">
-                                        @analisis.Vacante.Titulo
-                                    </p>
-
-                                    <div class="mb-3">
-                                        <span class="badge bg-secondary">
-                                            Puntaje IA:
-                                            @analisis.Puntuacion / 100
-                                        </span>
+                            <div class="candidato-card">
+                                <!-- CABECERA: AVATAR + NOMBRE -->
+                                <div class="candidato-card-header">
+                                    <div class="candidato-card-avatar">
+                                        @nombreInicial
                                     </div>
+                                    <div class="candidato-card-info">
+                                        <h3 class="candidato-card-nombre" title="@(analisis.Candidato?.NombreCompleto ?? "Nombre no disponible")">
+                                            @(analisis.Candidato?.NombreCompleto ?? "Nombre no disponible")
+                                        </h3>
+                                        <p class="candidato-card-vacante" title="@analisis.Vacante?.Titulo">
+                                            <i class="fas fa-briefcase"></i>
+                                            @analisis.Vacante?.Titulo
+                                        </p>
+                                    </div>
+                                </div>
 
-                                    <div class="d-grid gap-2">
-                                        <a asp-controller="Vacantes"
-                                           asp-action="DetalleAnalisis"
+                                <!-- PUNTAJE IA -->
+                                <div class="candidato-card-puntaje">
+                                    <div class="puntaje-label">
+                                        <i class="fas fa-robot"></i>
+                                        <span>Puntaje IA</span>
+                                    </div>
+                                    <div class="puntaje-badge @(analisis.Puntuacion >= 80 ? "puntaje-alto" : analisis.Puntuacion >= 60 ? "puntaje-medio" : "puntaje-bajo")">
+                                        @analisis.Puntuacion<span>/100</span>
+                                    </div>
+                                </div>
+
+                                <!-- INFO ENTREVISTA (solo si aplica) -->
+                                @if (estado == "Entrevista Programada" &&
+                                     entrevistasPendientes.TryGetValue(analisis.IdAnalisis, out var entrevista))
+                                {
+                                    <div class="entrevista-info">
+                                        <div class="entrevista-info-item">
+                                            <i class="fas fa-calendar"></i>
+                                            <span>
+                                                <strong>Fecha:</strong>
+                                                @entrevista.FechaEntrevista.ToString("dd/MM/yyyy")
+                                            </span>
+                                        </div>
+                                        <div class="entrevista-info-item">
+                                            <i class="fas fa-clock"></i>
+                                            <span>
+                                                <strong>Hora:</strong>
+                                                @(DateTime.Today.Add(entrevista.HoraEntrevista).ToString("hh:mm tt"))
+                                            </span>
+                                        </div>
+                                        <div class="entrevista-info-item">
+                                            <i class="fas fa-user-tie"></i>
+                                            <span>
+                                                <strong>Entrevistador:</strong>
+                                                @entrevista.Entrevistador
+                                            </span>
+                                        </div>
+                                    </div>
+                                }
+
+                                <!-- ACCIONES -->
+                                <div class="candidato-card-actions">
+                                    <a asp-controller="Vacantes"
+                                       asp-action="DetalleAnalisis"
+                                       asp-route-idAnalisis="@analisis.IdAnalisis"
+                                       class="btn-card btn-card-outline">
+                                        <i class="fas fa-eye"></i>
+                                        <span>Ver detalle</span>
+                                    </a>
+
+                                    @if (estado == "Preseleccionado")
+                                    {
+                                        <a asp-controller="Entrevistas"
+                                           asp-action="Agendar"
                                            asp-route-idAnalisis="@analisis.IdAnalisis"
-                                           class="btn btn-outline-primary btn-sm">
-                                            Ver detalle
+                                           class="btn-card btn-card-primary">
+                                            <i class="fas fa-calendar-plus"></i>
+                                            <span>Programar entrevista</span>
                                         </a>
-
-                                        @if (estado == "Preseleccionado")
+                                    }
+                                    else if (estado == "Entrevista Programada")
+                                    {
+                                        if (entrevistasPendientes.TryGetValue(analisis.IdAnalisis, out var ent))
                                         {
-                                            <a asp-controller="Entrevistas"
-                                               asp-action="Agendar"
-                                               asp-route-idAnalisis="@analisis.IdAnalisis"
-                                               class="btn btn-primary btn-sm">
-                                                Programar entrevista
-                                            </a>
-                                        }
-                                        else if (estado == "Entrevista Programada")
-                                        {
-                                            if (entrevistasPendientes.TryGetValue(
-                                                analisis.IdAnalisis, out var entrevista))
+                                            if (!string.IsNullOrWhiteSpace(ent.EnlaceEntrevista) &&
+                                                Uri.TryCreate(ent.EnlaceEntrevista, UriKind.Absolute, out var enlace) &&
+                                                (enlace.Scheme == Uri.UriSchemeHttps || enlace.Scheme == Uri.UriSchemeHttp))
                                             {
-                                                <div class="small text-muted mb-2">
-                                                    <div>
-                                                        <strong>Fecha:</strong>
-                                                        @entrevista.FechaEntrevista.ToString("dd/MM/yyyy")
-                                                    </div>
-
-                                                    <div>
-                                                        <strong>Hora:</strong>
-                                                        @(DateTime.Today
-                                                            .Add(entrevista.HoraEntrevista)
-                                                            .ToString("hh:mm tt"))
-                                                    </div>
-
-                                                    <div class="text-break">
-                                                        <strong>Entrevistador:</strong>
-                                                        @entrevista.Entrevistador
-                                                    </div>
-                                                </div>
-                                                if (!string.IsNullOrWhiteSpace(entrevista.EnlaceEntrevista) &&
-                                                    Uri.TryCreate(
-                                                        entrevista.EnlaceEntrevista,
-                                                        UriKind.Absolute,
-                                                        out var enlace) &&
-                                                    (enlace.Scheme == Uri.UriSchemeHttps ||
-                                                     enlace.Scheme == Uri.UriSchemeHttp))
-                                                {
-                                                    <a href="@enlace.AbsoluteUri"
-                                                       target="_blank"
-                                                       rel="noopener noreferrer"
-                                                       class="btn btn-success btn-sm">
-                                                        Abrir entrevista virtual
-                                                    </a>
-                                                }
+                                                <a href="@enlace.AbsoluteUri"
+                                                   target="_blank"
+                                                   rel="noopener noreferrer"
+                                                   class="btn-card btn-card-success">
+                                                    <i class="fas fa-video"></i>
+                                                    <span>Abrir entrevista virtual</span>
+                                                </a>
                                             }
-
-                                            <a asp-controller="Entrevistas"
-                                               asp-action="Index"
-                                               asp-route-idAnalisis="@analisis.IdAnalisis"
-                                               class="btn btn-outline-secondary btn-sm">
-                                                Ver entrevista
-                                            </a>
                                         }
-                                    </div>
+
+                                        <a asp-controller="Entrevistas"
+                                           asp-action="Index"
+                                           asp-route-idAnalisis="@analisis.IdAnalisis"
+                                           class="btn-card btn-card-outline">
+                                            <i class="fas fa-clipboard-list"></i>
+                                            <span>Ver entrevista</span>
+                                        </a>
+                                    }
                                 </div>
                             </div>
                         }
                     }
                 </div>
             </div>
-        </div>
-    }
+        }
+    </div>
+
 </div>

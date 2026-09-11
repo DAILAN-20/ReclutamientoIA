@@ -4,106 +4,212 @@
     ViewData["Title"] = "Editar prompt";
 }
 
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-xl-10">
+@section Styles {
+    <link rel="stylesheet" href="~/css/prompt.css" asp-append-version="true" />
+}
 
-            <div class="card border-0 shadow-sm">
+<div class="prompt-page">
 
-                <div class="card-header bg-primary text-white py-3">
-                    <h4 class="mb-1">
-                        Prompt de análisis
-                    </h4>
-
-                    <p class="mb-0 small">
-                        Edite las instrucciones utilizadas para analizar los currículums.
-                    </p>
-                </div>
-
-                <div class="card-body p-4">
-
-                    @if (TempData["Exito"] != null)
-                    {
-                        <div class="alert alert-success alert-dismissible fade show">
-                            @TempData["Exito"]
-
-                            <button type="button"
-                                    class="btn-close"
-                                    data-bs-dismiss="alert"
-                                    aria-label="Cerrar">
-                            </button>
-                        </div>
-                    }
-
-                    <form asp-controller="ConfiguracionSistema"
-                          asp-action="Prompt"
-                          method="post">
-
-                        @Html.AntiForgeryToken()
-
-                        <input type="hidden"
-                               name="idPrompt"
-                               value="@Model.IdPrompt" />
-
-                        <div asp-validation-summary="ModelOnly"
-                             class="alert alert-danger">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="contenido"
-                                   class="form-label fw-semibold">
-                                Contenido completo del prompt
-                            </label>
-
-                            <textarea id="contenido"
-                                      name="contenido"
-                                      class="form-control font-monospace"
-                                      rows="22"
-                                      required
-                                      spellcheck="true"
-                                      placeholder="Escriba las instrucciones para analizar los currículums...">@Model.Contenido</textarea>
-
-                            @if (ViewData.ModelState["contenido"]?.Errors.Count > 0)
-                            {
-                                <span class="text-danger">
-                                    @ViewData.ModelState["contenido"]!
-                                    .Errors[0].ErrorMessage
-                                </span>
-                            }
-
-                            <div class="form-text">
-                                Los cambios se aplicarán a los próximos currículums analizados.
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-between align-items-center">
-
-                            <small class="text-muted">
-                                Última actualización:
-                                @Model.FechaActualizacion.ToString(
-                                    "dd/MM/yyyy hh:mm tt"
-                                )
-                            </small>
-
-                            <div class="d-flex gap-2">
-                                <a asp-controller="Home"
-                                   asp-action="Index"
-                                   class="btn btn-outline-secondary">
-                                    Cancelar
-                                </a>
-
-                                <button type="submit"
-                                        class="btn btn-primary">
-                                    Guardar prompt
-                                </button>
-                            </div>
-
-                        </div>
-                    </form>
-
-                </div>
+    <!-- ============================================
+         HEADER
+         ============================================ -->
+    <div class="prompt-header">
+        <div class="prompt-header-info">
+            <div class="prompt-header-icon">
+                <i class="fas fa-robot"></i>
             </div>
-
+            <div>
+                <h1 class="prompt-title">Prompt de análisis IA</h1>
+                <p class="prompt-subtitle">
+                    Edita las instrucciones que la IA utiliza para analizar los currículums
+                </p>
+            </div>
         </div>
     </div>
+
+    <!-- ============================================
+         ALERTA ÉXITO
+         ============================================ -->
+    @if (TempData["Exito"] != null)
+    {
+        <div class="alert-custom alert-custom-success alert-dismissible">
+            <i class="fas fa-check-circle"></i>
+            <span>@TempData["Exito"]</span>
+            <button type="button" class="alert-close" onclick="this.parentElement.remove()" aria-label="Cerrar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    }
+
+    <!-- ============================================
+         TARJETA PRINCIPAL
+         ============================================ -->
+    <div class="prompt-card">
+
+        <!-- Encabezado tarjeta -->
+        <div class="prompt-card-header">
+            <div class="prompt-card-header-info">
+                <i class="fas fa-file-code"></i>
+                <div>
+                    <h2 class="prompt-card-title">Contenido del prompt</h2>
+                    <p class="prompt-card-desc">
+                        Personaliza las instrucciones para obtener los mejores resultados.
+                    </p>
+                </div>
+            </div>
+            <span class="prompt-card-badge">
+                <i class="fas fa-info-circle"></i>
+                Los cambios aplican a nuevos análisis
+            </span>
+        </div>
+
+        <!-- Cuerpo tarjeta -->
+        <div class="prompt-card-body">
+            <form asp-controller="ConfiguracionSistema"
+                  asp-action="Prompt"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" name="idPrompt" value="@Model.IdPrompt" />
+
+                <div asp-validation-summary="ModelOnly" class="prompt-alert prompt-alert-danger"></div>
+
+                <!-- Editor de texto -->
+                <div class="prompt-editor">
+                    <div class="prompt-editor-header">
+                        <div class="prompt-editor-header-left">
+                            <i class="fas fa-terminal"></i>
+                            <span>Instrucciones del prompt</span>
+                        </div>
+                        <div class="prompt-editor-header-right">
+                            <span class="prompt-counter" id="contadorCaracteres">0 caracteres</span>
+                        </div>
+                    </div>
+
+                    <div class="prompt-editor-body">
+                        <textarea id="contenido"
+                                  name="contenido"
+                                  class="prompt-textarea"
+                                  rows="22"
+                                  required
+                                  spellcheck="true"
+                                  placeholder="Escribe aquí las instrucciones para analizar los currículums...&#10;&#10;Ejemplo:&#10;Eres un experto en reclutamiento. Analiza el siguiente currículum y evalúa si el candidato es apto para la vacante...">@Model.Contenido</textarea>
+                    </div>
+
+                    @if (ViewData.ModelState["contenido"]?.Errors.Count > 0)
+                    {
+                        <span class="prompt-error">
+                            <i class="fas fa-exclamation-circle"></i>
+                            @ViewData.ModelState["contenido"]!.Errors[0].ErrorMessage
+                        </span>
+                    }
+
+                    <div class="prompt-editor-footer">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Los cambios se aplicarán a los próximos currículums analizados.</span>
+                    </div>
+                </div>
+
+                <!-- Footer con acciones -->
+                <div class="prompt-actions">
+                    <div class="prompt-actions-info">
+                        <i class="fas fa-clock"></i>
+                        <span>Última actualización: <strong>@Model.FechaActualizacion.ToString("dd/MM/yyyy hh:mm tt")</strong></span>
+                    </div>
+
+                    <div class="prompt-actions-buttons">
+                        <a asp-controller="Home"
+                           asp-action="Index"
+                           class="btn-prompt-secondary">
+                            <i class="fas fa-times"></i>
+                            <span>Cancelar</span>
+                        </a>
+
+                        <button type="submit" class="btn-prompt-primary">
+                            <i class="fas fa-save"></i>
+                            <span>Guardar prompt</span>
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================
+         TIPS / AYUDA
+         ============================================ -->
+    <div class="prompt-tips">
+        <div class="prompt-tip">
+            <div class="prompt-tip-icon prompt-tip-icon-blue">
+                <i class="fas fa-lightbulb"></i>
+            </div>
+            <div>
+                <h4 class="prompt-tip-title">Sé específico</h4>
+                <p class="prompt-tip-desc">Define claramente qué aspectos evaluar en cada currículum.</p>
+            </div>
+        </div>
+
+        <div class="prompt-tip">
+            <div class="prompt-tip-icon prompt-tip-icon-green">
+                <i class="fas fa-list-check"></i>
+            </div>
+            <div>
+                <h4 class="prompt-tip-title">Usa criterios</h4>
+                <p class="prompt-tip-desc">Establece qué habilidades o requisitos priorizar.</p>
+            </div>
+        </div>
+
+        <div class="prompt-tip">
+            <div class="prompt-tip-icon prompt-tip-icon-purple">
+                <i class="fas fa-bullseye"></i>
+            </div>
+            <div>
+                <h4 class="prompt-tip-title">Formato de salida</h4>
+                <p class="prompt-tip-desc">Indica cómo quieres que la IA devuelva el resultado.</p>
+            </div>
+        </div>
+    </div>
+
 </div>
+
+@section Scripts {
+    <script>
+        // ============================================
+        // CONTADOR DE CARACTERES EN TIEMPO REAL
+        // ============================================
+        (() => {
+            const textarea = document.getElementById("contenido");
+            const contador = document.getElementById("contadorCaracteres");
+
+            if (!textarea || !contador) return;
+
+            function actualizarContador() {
+                const caracteres = textarea.value.length;
+                contador.textContent = caracteres.toLocaleString() + " caracteres";
+            }
+
+            textarea.addEventListener("input", actualizarContador);
+            actualizarContador();
+        })();
+
+        // ============================================
+        // TAB EN TEXTAREA (mejor UX)
+        // ============================================
+        (() => {
+            const textarea = document.getElementById("contenido");
+            if (!textarea) return;
+
+            textarea.addEventListener("keydown", (e) => {
+                if (e.key === "Tab") {
+                    e.preventDefault();
+                    const start = textarea.selectionStart;
+                    const end = textarea.selectionEnd;
+                    textarea.value = textarea.value.substring(0, start) + "    " + textarea.value.substring(end);
+                    textarea.selectionStart = textarea.selectionEnd = start + 4;
+                }
+            });
+        })();
+    </script>
+}

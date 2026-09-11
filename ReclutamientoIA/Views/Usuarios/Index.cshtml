@@ -2,94 +2,258 @@
 
 @{
     ViewData["Title"] = "Usuarios";
+    var totalUsuarios = Model.Count();
+    var usuariosActivos = Model.Count(u => u.Activo);
+    var usuariosInactivos = totalUsuarios - usuariosActivos;
 }
 
 @section Styles {
-    <link rel="stylesheet"
-          href="~/css/usuarios.css"
-          asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/usuarios.css" asp-append-version="true" />
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h1>Usuarios</h1>
-        <p class="text-muted">
-            Administración de accesos y roles del sistema
-        </p>
+<div class="usuarios-page">
+
+    <!-- ============================================
+         HEADER
+         ============================================ -->
+    <div class="usuarios-header">
+        <div class="usuarios-header-info">
+            <h1 class="usuarios-title">
+                <i class="fas fa-user-shield"></i>
+                Usuarios
+            </h1>
+            <p class="usuarios-subtitle">
+                Administración de accesos y roles del sistema
+            </p>
+        </div>
+
+        <div class="usuarios-header-actions">
+            <a asp-action="Create" class="btn-usuario-primary">
+                <i class="fas fa-user-plus"></i>
+                <span>Crear usuario</span>
+            </a>
+        </div>
     </div>
 
-    <a asp-action="Create" class="btn btn-primary">
-        Crear usuario
-    </a>
+    <!-- ============================================
+         MÉTRICAS
+         ============================================ -->
+    <div class="usuarios-metrics">
+        <div class="metric-card">
+            <div class="metric-icon metric-icon-total">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="metric-info">
+                <span class="metric-label">Total Usuarios</span>
+                <span class="metric-value">@totalUsuarios</span>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon metric-icon-active">
+                <i class="fas fa-user-check"></i>
+            </div>
+            <div class="metric-info">
+                <span class="metric-label">Activos</span>
+                <span class="metric-value">@usuariosActivos</span>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon metric-icon-inactive">
+                <i class="fas fa-user-slash"></i>
+            </div>
+            <div class="metric-info">
+                <span class="metric-label">Inactivos</span>
+                <span class="metric-value">@usuariosInactivos</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         ALERTAS
+         ============================================ -->
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert-custom alert-custom-success">
+            <i class="fas fa-check-circle"></i>
+            <span>@TempData["Mensaje"]</span>
+        </div>
+    }
+
+    <!-- ============================================
+         TABLA / EMPTY STATE
+         ============================================ -->
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h3 class="empty-title">No hay usuarios registrados</h3>
+            <p class="empty-text">
+                Comienza creando el primer usuario para gestionar los accesos al sistema.
+            </p>
+            <a asp-action="Create" class="btn-usuario-primary">
+                <i class="fas fa-user-plus"></i>
+                <span>Crear primer usuario</span>
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="usuarios-table-wrapper">
+            <div class="table-responsive">
+                <table class="usuarios-table">
+                    <thead>
+                        <tr>
+                            <th class="col-nombre">Nombre</th>
+                            <th class="col-correo">Correo</th>
+                            <th class="col-telefono">Teléfono</th>
+                            <th class="col-rol">Rol</th>
+                            <th class="col-estado">Estado</th>
+                            <th class="col-acciones text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var usuario in Model)
+                        {
+                            var inicial = (usuario.NombreCompleto ?? "U").Substring(0, 1).ToUpper();
+                            var claseRol = usuario.Rol switch
+                            {
+                                "Administrador" => "rol-admin",
+                                "Reclutador" => "rol-reclutador",
+                                _ => "rol-default"
+                            };
+
+                            <tr>
+                                <!-- NOMBRE -->
+                                <td class="col-nombre">
+                                    <div class="usuario-info">
+                                        <div class="usuario-avatar">
+                                            @inicial
+                                        </div>
+                                        <strong class="usuario-nombre">
+                                            @usuario.NombreCompleto
+                                        </strong>
+                                    </div>
+                                </td>
+
+                                <!-- CORREO -->
+                                <td class="col-correo">
+                                    @if (!string.IsNullOrEmpty(usuario.Correo))
+                                    {
+                                        <a href="mailto:@usuario.Correo" class="usuario-contacto">
+                                            <i class="fas fa-envelope"></i>
+                                            <span>@usuario.Correo</span>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-vacio">
+                                            <i class="fas fa-minus"></i>
+                                            No disponible
+                                        </span>
+                                    }
+                                </td>
+
+                                <!-- TELÉFONO -->
+                                <td class="col-telefono">
+                                    @if (!string.IsNullOrEmpty(usuario.Telefono))
+                                    {
+                                        <a href="tel:@usuario.Telefono" class="usuario-contacto">
+                                            <i class="fas fa-phone"></i>
+                                            <span>@usuario.Telefono</span>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-vacio">
+                                            <i class="fas fa-minus"></i>
+                                            No registrado
+                                        </span>
+                                    }
+                                </td>
+
+                                <!-- ROL -->
+                                <td class="col-rol">
+                                    <span class="badge-rol @claseRol">
+                                        @if (usuario.Rol == "Administrador")
+                                        {
+                                            <i class="fas fa-crown"></i>
+                                        }
+                                        else if (usuario.Rol == "Reclutador")
+                                        {
+                                            <i class="fas fa-user-tie"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-user"></i>
+                                        }
+                                        <span>@usuario.Rol</span>
+                                    </span>
+                                </td>
+
+                                <!-- ESTADO -->
+                                <td class="col-estado">
+                                    @if (usuario.Activo)
+                                    {
+                                        <span class="badge-estado badge-estado-activo">
+                                            <span class="badge-dot"></span>
+                                            Activo
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-estado badge-estado-inactivo">
+                                            <span class="badge-dot"></span>
+                                            Inactivo
+                                        </span>
+                                    }
+                                </td>
+
+                                <!-- ACCIONES -->
+                                <td class="col-acciones">
+                                    <div class="acciones-group">
+                                        <a asp-action="Edit"
+                                           asp-route-id="@usuario.Id"
+                                           class="btn-accion btn-accion-editar"
+                                           title="Editar usuario">
+                                            <i class="fas fa-edit"></i>
+                                            <span>Editar</span>
+                                        </a>
+
+                                        <a asp-action="RestablecerContrasena"
+                                           asp-route-id="@usuario.Id"
+                                           class="btn-accion btn-accion-password"
+                                           title="Restablecer contraseña">
+                                            <i class="fas fa-key"></i>
+                                            <span>Contraseña</span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Footer -->
+            <div class="usuarios-footer">
+                <div class="footer-info">
+                    <i class="fas fa-database"></i>
+                    <span>Mostrando <strong>@totalUsuarios</strong> usuario(s)</span>
+                </div>
+                <div class="footer-legend">
+                    <span class="legend-item">
+                        <span class="legend-dot legend-dot-admin"></span> Administrador
+                    </span>
+                    <span class="legend-item">
+                        <span class="legend-dot legend-dot-reclutador"></span> Reclutador
+                    </span>
+                </div>
+            </div>
+        </div>
+    }
+
 </div>
-@if (TempData["Mensaje"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["Mensaje"]
-    </div>
-}
-
-@if (!Model.Any())
-{
-    <div class="alert alert-info">
-        No hay usuarios registrados.
-    </div>
-}
-else
-{
-    <div class="table-responsive">
-        <table class="table table-hover align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Nombre</th>
-                    <th>Correo</th>
-                    <th>Teléfono</th>
-                    <th>Rol</th>
-                    <th>Estado</th>
-                    <th class="text-center">Acciones</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @foreach (var usuario in Model)
-                {
-                    <tr>
-                        <td>@usuario.NombreCompleto</td>
-                        <td>@usuario.Correo</td>
-                        <td>@(usuario.Telefono ?? "No registrado")</td>
-                        <td>
-                            <span class="badge bg-primary">
-                                @usuario.Rol
-                            </span>
-                        </td>
-                        <td>
-                            @if (usuario.Activo)
-                            {
-                                <span class="badge bg-success">Activo</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">
-                                    Inactivo
-                                </span>
-                            }
-
-                        </td>
-                        <td class="text-center">
-                            <a asp-action="Edit"
-                               asp-route-id="@usuario.Id"
-                               class="btn btn-warning btn-sm">
-                                Editar
-                            </a>
-                            <a asp-action="RestablecerContrasena"
-                               asp-route-id="@usuario.Id"
-                               class="btn btn-danger btn-sm">
-                                Contraseña
-                            </a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-}
