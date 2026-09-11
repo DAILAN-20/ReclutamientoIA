@@ -1,8 +1,393 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model ReclutamientoIA.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Inicio";
+
+    var saludo = DateTime.Now.Hour < 12
+        ? "Buenos días"
+        : DateTime.Now.Hour < 18
+            ? "Buenas tardes"
+            : "Buenas noches";
+
+    var inicialUsuario = (Model.NombreUsuario ?? "U").Substring(0, 1).ToUpper();
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<div class="dashboard-page">
+
+    <!-- ============================================
+         HEADER DE BIENVENIDA
+         ============================================ -->
+    <div class="dashboard-hero">
+        <div class="dashboard-hero-content">
+            <div class="dashboard-hero-avatar">
+                @inicialUsuario
+            </div>
+            <div>
+                <h1 class="dashboard-hero-title">
+                    @saludo, <span>@Model.NombreUsuario</span>
+                </h1>
+                <p class="dashboard-hero-subtitle">
+                    Resumen general del sistema de reclutamiento inteligente
+                </p>
+            </div>
+        </div>
+
+        <div class="dashboard-hero-actions">
+            <a asp-controller="Candidatos" asp-action="Create" class="btn-hero-outline">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Subir currículum</span>
+            </a>
+            <a asp-controller="Vacantes" asp-action="Create" class="btn-hero-primary">
+                <i class="fas fa-plus-circle"></i>
+                <span>Crear vacante</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- ============================================
+         MÉTRICAS (6 TARJETAS)
+         ============================================ -->
+    <div class="dashboard-metricas">
+
+        <div class="metrica-card metrica-azul">
+            <div class="metrica-icono">
+                <i class="fas fa-briefcase"></i>
+            </div>
+            <div class="metrica-info">
+                <span class="metrica-label">Vacantes activas</span>
+                <strong class="metrica-valor">@Model.VacantesActivas</strong>
+            </div>
+        </div>
+
+        <div class="metrica-card metrica-celeste">
+            <div class="metrica-icono">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="metrica-info">
+                <span class="metrica-label">Currículums registrados</span>
+                <strong class="metrica-valor">@Model.CurriculumsRegistrados</strong>
+            </div>
+        </div>
+
+        <div class="metrica-card metrica-morado">
+            <div class="metrica-icono">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="metrica-info">
+                <span class="metrica-label">Analizados con IA</span>
+                <strong class="metrica-valor">@Model.AnalizadosIA</strong>
+            </div>
+        </div>
+
+        <div class="metrica-card metrica-naranja">
+            <div class="metrica-icono">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="metrica-info">
+                <span class="metrica-label">Preseleccionados</span>
+                <strong class="metrica-valor">@Model.Preseleccionados</strong>
+            </div>
+        </div>
+
+        <div class="metrica-card metrica-verde">
+            <div class="metrica-icono">
+                <i class="fas fa-microphone"></i>
+            </div>
+            <div class="metrica-info">
+                <span class="metrica-label">Entrevistas pendientes</span>
+                <strong class="metrica-valor">@Model.EntrevistasPendientes</strong>
+            </div>
+        </div>
+
+        <div class="metrica-card metrica-rojo">
+            <div class="metrica-icono">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="metrica-info">
+                <span class="metrica-label">Candidatos aprobados</span>
+                <strong class="metrica-valor">@Model.CandidatosAprobados</strong>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ============================================
+         GRID: VACANTES + ACCESOS RÁPIDOS
+         ============================================ -->
+    <div class="dashboard-grid">
+
+        <!-- VACANTES ACTIVAS -->
+        <section class="dashboard-card dashboard-card-grande">
+            <div class="dashboard-card-header">
+                <div class="dashboard-card-header-info">
+                    <div class="dashboard-card-header-icon dashboard-card-header-icon-azul">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div>
+                        <h2>Vacantes activas</h2>
+                        <p>Actividad actual de reclutamiento</p>
+                    </div>
+                </div>
+
+                <a asp-controller="Vacantes" asp-action="Index" class="btn-card-outline">
+                    <i class="fas fa-arrow-right"></i>
+                    <span>Ver todas</span>
+                </a>
+            </div>
+
+            @if (!Model.Vacantes.Any())
+            {
+                <div class="dashboard-vacio">
+                    <i class="fas fa-inbox"></i>
+                    <p>No hay vacantes activas actualmente.</p>
+                </div>
+            }
+            else
+            {
+                <div class="dashboard-table-wrapper">
+                    <table class="dashboard-table">
+                        <thead>
+                            <tr>
+                                <th>Vacante</th>
+                                <th class="text-center">Candidatos</th>
+                                <th class="text-center">Mayor puntuación</th>
+                                <th class="text-center">Preseleccionados</th>
+                                <th class="text-center">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var vacante in Model.Vacantes)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="vacante-info">
+                                            <strong class="vacante-titulo">@vacante.Titulo</strong>
+                                            <span class="badge-vacante badge-vacante-activa">
+                                                <span class="badge-dot"></span>
+                                                @vacante.Estado
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="stat-numero">
+                                            <i class="fas fa-users"></i>
+                                            @vacante.CantidadCandidatos
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="puntaje @(vacante.MayorPuntuacion >= 80 ? "puntaje-alto" : vacante.MayorPuntuacion >= 60 ? "puntaje-medio" : "puntaje-bajo")">
+                                            @vacante.MayorPuntuacion<span>/100</span>
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="stat-numero">
+                                            <i class="fas fa-star"></i>
+                                            @vacante.Preseleccionados
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <a asp-controller="Vacantes"
+                                           asp-action="Resultados"
+                                           asp-route-idVacante="@vacante.IdVacante"
+                                           class="btn-tabla-primary">
+                                            <i class="fas fa-trophy"></i>
+                                            <span>Ver ranking</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+
+        <!-- ACCESOS RÁPIDOS -->
+        <section class="dashboard-card">
+            <div class="dashboard-card-header">
+                <div class="dashboard-card-header-info">
+                    <div class="dashboard-card-header-icon dashboard-card-header-icon-morado">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div>
+                        <h2>Accesos rápidos</h2>
+                        <p>Funciones principales</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accesos-rapidos">
+
+                <a asp-controller="Vacantes" asp-action="Create" class="acceso-rapido">
+                    <span class="acceso-icono acceso-icono-azul">
+                        <i class="fas fa-plus"></i>
+                    </span>
+                    <div class="acceso-info">
+                        <strong>Crear vacante</strong>
+                        <small>Registrar una nueva vacante</small>
+                    </div>
+                    <i class="fas fa-chevron-right acceso-chevron"></i>
+                </a>
+
+                <a asp-controller="Vacantes" asp-action="CargaMasiva" class="acceso-rapido">
+                    <span class="acceso-icono acceso-icono-morado">
+                        <i class="fas fa-robot"></i>
+                    </span>
+                    <div class="acceso-info">
+                        <strong>Analizar currículums</strong>
+                        <small>Procesar varios archivos PDF</small>
+                    </div>
+                    <i class="fas fa-chevron-right acceso-chevron"></i>
+                </a>
+
+                <a asp-controller="Candidatos" asp-action="Index" class="acceso-rapido">
+                    <span class="acceso-icono acceso-icono-celeste">
+                        <i class="fas fa-file-alt"></i>
+                    </span>
+                    <div class="acceso-info">
+                        <strong>Banco de currículums</strong>
+                        <small>Consultar candidatos registrados</small>
+                    </div>
+                    <i class="fas fa-chevron-right acceso-chevron"></i>
+                </a>
+
+                <a asp-controller="Vacantes" asp-action="Tablero" class="acceso-rapido">
+                    <span class="acceso-icono acceso-icono-verde">
+                        <i class="fas fa-columns"></i>
+                    </span>
+                    <div class="acceso-info">
+                        <strong>Ver tablero</strong>
+                        <small>Consultar el proceso de selección</small>
+                    </div>
+                    <i class="fas fa-chevron-right acceso-chevron"></i>
+                </a>
+
+                <a asp-controller="Entrevistas" asp-action="Index" class="acceso-rapido">
+                    <span class="acceso-icono acceso-icono-naranja">
+                        <i class="fas fa-microphone"></i>
+                    </span>
+                    <div class="acceso-info">
+                        <strong>Entrevistas</strong>
+                        <small>Administrar entrevistas programadas</small>
+                    </div>
+                    <i class="fas fa-chevron-right acceso-chevron"></i>
+                </a>
+
+                <a asp-controller="CorreoCurriculums" asp-action="Index" class="acceso-rapido">
+                    <span class="acceso-icono acceso-icono-cyan">
+                        <i class="fas fa-envelope"></i>
+                    </span>
+                    <div class="acceso-info">
+                        <strong>CV por correo</strong>
+                        <small>Sincronizar currículums recibidos</small>
+                    </div>
+                    <i class="fas fa-chevron-right acceso-chevron"></i>
+                </a>
+
+            </div>
+        </section>
+
+    </div>
+
+    <!-- ============================================
+         CANDIDATOS DESTACADOS
+         ============================================ -->
+    <section class="dashboard-card">
+        <div class="dashboard-card-header">
+            <div class="dashboard-card-header-info">
+                <div class="dashboard-card-header-icon dashboard-card-header-icon-ambar">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div>
+                    <h2>Candidatos destacados</h2>
+                    <p>Los cinco candidatos con mayor puntuación</p>
+                </div>
+            </div>
+
+            <a asp-controller="Candidatos" asp-action="Index" class="btn-card-outline">
+                <i class="fas fa-users"></i>
+                <span>Ver candidatos</span>
+            </a>
+        </div>
+
+        @if (!Model.CandidatosDestacados.Any())
+        {
+            <div class="dashboard-vacio">
+                <i class="fas fa-user-slash"></i>
+                <p>Todavía no existen candidatos analizados.</p>
+            </div>
+        }
+        else
+        {
+            <div class="candidatos-destacados">
+
+                @{
+                    var posicion = 1;
+                }
+
+                @foreach (var candidato in Model.CandidatosDestacados)
+                {
+                    var inicial = string.IsNullOrWhiteSpace(candidato.NombreCompleto)
+                        ? "C"
+                        : candidato.NombreCompleto.Substring(0, 1).ToUpper();
+
+                    var clasePuntaje = candidato.Puntuacion >= 80 ? "alta" :
+                                       candidato.Puntuacion >= 60 ? "media" : "baja";
+
+                    var medalla = posicion == 1 ? "🥇" :
+                                  posicion == 2 ? "🥈" :
+                                  posicion == 3 ? "🥉" : "";
+
+                    <article class="candidato-destacado">
+                        <div class="candidato-posicion">
+                            <span class="posicion-numero posicion-@posicion">
+                                @if (posicion <= 3)
+                                {
+                                    <span>@medalla</span>
+                                }
+                                else
+                                {
+                                    <span>#@posicion</span>
+                                }
+                            </span>
+                        </div>
+
+                        <div class="candidato-avatar">
+                            @inicial
+                        </div>
+
+                        <div class="candidato-informacion">
+                            <strong>@candidato.NombreCompleto</strong>
+                            <span>
+                                <i class="fas fa-briefcase"></i>
+                                @candidato.Vacante
+                            </span>
+                            <small>@candidato.Estado</small>
+                        </div>
+
+                        <div class="candidato-puntuacion puntuacion-@clasePuntaje">
+                            <strong>@candidato.Puntuacion</strong>
+                            <span>/100</span>
+                        </div>
+
+                        <a asp-controller="Vacantes"
+                           asp-action="DetalleAnalisis"
+                           asp-route-idAnalisis="@candidato.IdAnalisis"
+                           class="btn-ver-candidato">
+                            <i class="fas fa-eye"></i>
+                            <span>Ver</span>
+                        </a>
+                    </article>
+
+                    posicion++;
+                }
+
+            </div>
+        }
+    </section>
+
 </div>

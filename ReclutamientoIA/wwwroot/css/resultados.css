@@ -1,0 +1,811 @@
+﻿/* ============================================================
+   RANKING DE CANDIDATOS - ESTILOS SIMPLES
+   ============================================================ */
+
+/* ============================================================
+   VARIABLES
+   ============================================================ */
+:root {
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-300: #cbd5e1;
+    --slate-400: #94a3b8;
+    --slate-500: #64748b;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-900: #0f172a;
+    --azul: #3b82f6;
+    --azul-600: #2563eb;
+    --azul-50: #eff6ff;
+    --verde: #22c55e;
+    --verde-600: #16a34a;
+    --verde-50: #f0fdf4;
+    --rojo: #ef4444;
+    --rojo-600: #dc2626;
+    --rojo-50: #fef2f2;
+    --naranja: #f59e0b;
+    --naranja-600: #d97706;
+    --naranja-50: #fffbeb;
+    --morado: #8b5cf6;
+    --morado-600: #7c3aed;
+    --morado-50: #f5f3ff;
+    --cyan: #06b6d4;
+    --cyan-600: #0891b2;
+    --cyan-50: #ecfeff;
+    --ambar: #fbbf24;
+}
+
+/* ============================================================
+   CONTENEDOR
+   ============================================================ */
+.resultados-page {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.resultados-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 24px 28px;
+    background: white;
+    border: 1px solid var(--slate-200);
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+    .resultados-header h1 {
+        margin: 0 0 6px;
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--slate-900);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .resultados-header h1 i {
+            color: var(--ambar);
+            font-size: 20px;
+        }
+
+    .resultados-header p {
+        margin: 0;
+        font-size: 13.5px;
+        color: var(--slate-500);
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+        .resultados-header p i {
+            color: var(--slate-400);
+            font-size: 12px;
+        }
+
+        .resultados-header p strong {
+            color: var(--slate-700);
+            font-weight: 600;
+        }
+
+        .resultados-header p .sep {
+            color: var(--slate-300);
+            margin: 0 4px;
+        }
+
+.resultados-header-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* ============================================================
+   BOTONES HEADER
+   ============================================================ */
+.btn-accion-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 16px;
+    background: white;
+    color: var(--slate-600);
+    border: 1.5px solid var(--slate-200);
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+    .btn-accion-header:hover {
+        color: var(--slate-900);
+        border-color: var(--slate-300);
+        background: var(--slate-50);
+    }
+
+    .btn-accion-header i {
+        font-size: 12px;
+    }
+
+    .btn-accion-header.btn-primary {
+        background: var(--azul);
+        color: white;
+        border-color: var(--azul);
+    }
+
+        .btn-accion-header.btn-primary:hover {
+            background: var(--azul-600);
+            border-color: var(--azul-600);
+            color: white;
+        }
+
+    .btn-accion-header.btn-success {
+        background: var(--verde);
+        color: white;
+        border-color: var(--verde);
+    }
+
+        .btn-accion-header.btn-success:hover {
+            background: var(--verde-600);
+            border-color: var(--verde-600);
+            color: white;
+        }
+
+/* ============================================================
+   ALERTAS
+   ============================================================ */
+.alert-custom {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-weight: 500;
+    border-left: 3px solid;
+}
+
+    .alert-custom i {
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+.alert-success {
+    background: var(--verde-50);
+    color: #065f46;
+    border-left-color: var(--verde);
+}
+
+    .alert-success i {
+        color: var(--verde);
+    }
+
+.alert-warning {
+    background: var(--naranja-50);
+    color: #92400e;
+    border-left-color: var(--naranja);
+}
+
+    .alert-warning i {
+        color: var(--naranja);
+    }
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+.empty-state {
+    text-align: center;
+    padding: 60px 30px;
+    background: white;
+    border-radius: 14px;
+    border: 1px dashed var(--slate-300);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.empty-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--slate-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34px;
+    color: var(--slate-400);
+    margin-bottom: 6px;
+}
+
+.empty-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--slate-900);
+    margin: 0;
+}
+
+.empty-text {
+    font-size: 14px;
+    color: var(--slate-500);
+    margin: 0 0 10px;
+    max-width: 400px;
+    line-height: 1.6;
+}
+
+/* ============================================================
+   MÉTRICAS
+   ============================================================ */
+.metricas {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 14px;
+}
+
+.metrica-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 20px;
+    background: white;
+    border: 1px solid var(--slate-200);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease;
+    min-width: 0;
+}
+
+    .metrica-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    }
+
+.metrica-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.metrica-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--slate-500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.metrica-value {
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.metrica-icono {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+/* Colores de métricas */
+.metrica-promedio .metrica-value {
+    color: var(--azul-600);
+}
+
+.metrica-promedio .metrica-icono {
+    background: var(--azul-50);
+    color: var(--azul-600);
+}
+
+.metrica-mejor .metrica-value {
+    color: var(--verde-600);
+}
+
+.metrica-mejor .metrica-icono {
+    background: var(--verde-50);
+    color: var(--verde-600);
+}
+
+.metrica-peor .metrica-value {
+    color: var(--rojo-600);
+}
+
+.metrica-peor .metrica-icono {
+    background: var(--rojo-50);
+    color: var(--rojo-600);
+}
+
+.metrica-preseleccionados .metrica-value {
+    color: var(--morado-600);
+}
+
+.metrica-preseleccionados .metrica-icono {
+    background: var(--morado-50);
+    color: var(--morado-600);
+}
+
+.metrica-aprobados .metrica-value {
+    color: var(--verde-600);
+}
+
+.metrica-aprobados .metrica-icono {
+    background: var(--verde-50);
+    color: var(--verde-600);
+}
+
+.metrica-rechazados .metrica-value {
+    color: var(--rojo-600);
+}
+
+.metrica-rechazados .metrica-icono {
+    background: var(--rojo-50);
+    color: var(--rojo-600);
+}
+
+/* ============================================================
+   TABLA
+   ============================================================ */
+.resultados-table-wrapper {
+    background: white;
+    border: 1px solid var(--slate-200);
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 22px;
+    background: var(--slate-50);
+    border-bottom: 1px solid var(--slate-200);
+    flex-wrap: wrap;
+}
+
+.table-header-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--slate-700);
+}
+
+    .table-header-info i {
+        color: var(--azul);
+        font-size: 14px;
+    }
+
+.table-header-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    max-width: 280px;
+    width: 100%;
+}
+
+    .table-header-search i {
+        position: absolute;
+        left: 12px;
+        color: var(--slate-400);
+        font-size: 13px;
+        pointer-events: none;
+    }
+
+    .table-header-search input {
+        width: 100%;
+        padding: 8px 14px 8px 36px;
+        border: 1.5px solid var(--slate-200);
+        border-radius: 8px;
+        font-size: 13.5px;
+        font-family: inherit;
+        color: var(--slate-900);
+        background: white;
+        transition: all 0.2s ease;
+    }
+
+        .table-header-search input:focus {
+            outline: none;
+            border-color: var(--azul);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+
+        .table-header-search input::placeholder {
+            color: var(--slate-400);
+        }
+
+.resultados-table-wrapper .table-responsive {
+    overflow-x: auto;
+}
+
+.resultados-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    min-width: 1200px;
+}
+
+    .resultados-table thead th {
+        background: white;
+        color: var(--slate-500);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 14px 16px;
+        text-align: left;
+        border-bottom: 1px solid var(--slate-200);
+        white-space: nowrap;
+    }
+
+        .resultados-table thead th.text-center {
+            text-align: center;
+        }
+
+    .resultados-table tbody tr {
+        border-bottom: 1px solid var(--slate-100);
+        transition: background 0.15s ease;
+    }
+
+        .resultados-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .resultados-table tbody tr:hover {
+            background: var(--slate-50);
+        }
+
+        .resultados-table tbody tr.fila-top {
+            background: linear-gradient(to right, #fffbeb, transparent 40%);
+        }
+
+            .resultados-table tbody tr.fila-top:hover {
+                background: linear-gradient(to right, #fef3c7, var(--slate-50) 40%);
+            }
+
+    .resultados-table tbody td {
+        padding: 14px 16px;
+        vertical-align: middle;
+        color: var(--slate-700);
+    }
+
+/* Anchos */
+.col-pos {
+    width: 50px;
+}
+
+.col-candidato {
+    width: 220px;
+}
+
+.col-correo {
+    width: 220px;
+}
+
+.col-telefono {
+    width: 140px;
+}
+
+.col-puntaje {
+    width: 120px;
+}
+
+.col-recomendacion {
+    width: 220px;
+}
+
+.col-estado {
+    width: 140px;
+}
+
+.col-fecha {
+    width: 130px;
+}
+
+.col-acciones {
+    width: 200px;
+}
+
+/* ============================================================
+   POSICIÓN
+   ============================================================ */
+.posicion-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--slate-100);
+    color: var(--slate-600);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+    .posicion-badge.top1 {
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        color: white;
+        box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4);
+    }
+
+    .posicion-badge.top2 {
+        background: linear-gradient(135deg, #e2e8f0, #94a3b8);
+        color: white;
+    }
+
+    .posicion-badge.top3 {
+        background: linear-gradient(135deg, #fca5a5, #f97316);
+        color: white;
+    }
+
+/* ============================================================
+   CANDIDATO
+   ============================================================ */
+.candidato-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.candidato-avatar {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: 50%;
+    background: var(--azul);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.25);
+}
+
+.candidato-nombre {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--slate-900);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+/* ============================================================
+   CONTACTO
+   ============================================================ */
+.link-contacto {
+    color: var(--azul-600);
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.15s ease;
+    word-break: break-all;
+}
+
+    .link-contacto:hover {
+        color: var(--azul);
+        text-decoration: underline;
+    }
+
+.text-vacio {
+    color: var(--slate-400);
+    font-size: 12.5px;
+    font-style: italic;
+}
+
+/* ============================================================
+   PUNTUACIÓN
+   ============================================================ */
+.badge-puntuacion {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 1px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+    .badge-puntuacion span {
+        font-size: 10px;
+        font-weight: 600;
+        opacity: 0.7;
+    }
+
+    .badge-puntuacion.alta {
+        background: var(--verde-50);
+        color: var(--verde-600);
+    }
+
+    .badge-puntuacion.media {
+        background: var(--naranja-50);
+        color: var(--naranja-600);
+    }
+
+    .badge-puntuacion.baja {
+        background: #fef2f2;
+        color: #ea580c;
+    }
+
+    .badge-puntuacion.muy-baja {
+        background: var(--rojo-50);
+        color: var(--rojo-600);
+    }
+
+/* ============================================================
+   RECOMENDACIÓN
+   ============================================================ */
+.recomendacion-texto {
+    max-width: 220px;
+    font-size: 12.5px;
+    color: var(--slate-600);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ============================================================
+   ESTADOS
+   ============================================================ */
+.badge-estado {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.estado-analizado {
+    background: var(--slate-100);
+    color: var(--slate-600);
+}
+
+.estado-preseleccionado {
+    background: var(--azul-50);
+    color: var(--azul-600);
+}
+
+.estado-entrevista {
+    background: var(--naranja-50);
+    color: var(--naranja-600);
+}
+
+.estado-aprobado {
+    background: var(--verde-50);
+    color: var(--verde-600);
+}
+
+.estado-rechazado {
+    background: var(--rojo-50);
+    color: var(--rojo-600);
+}
+
+/* ============================================================
+   FECHA
+   ============================================================ */
+.fecha-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+    .fecha-cell span {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--slate-700);
+    }
+
+    .fecha-cell small {
+        font-size: 11.5px;
+        color: var(--slate-400);
+    }
+
+/* ============================================================
+   ACCIONES
+   ============================================================ */
+.acciones-cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+}
+
+    .acciones-cell form {
+        display: inline-flex;
+        margin: 0;
+    }
+
+.btn-tabla {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: 7px;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    font-family: inherit;
+}
+
+    .btn-tabla i {
+        font-size: 11px;
+    }
+
+.btn-tabla-ver {
+    background: var(--azul-50);
+    color: var(--azul-600);
+}
+
+    .btn-tabla-ver:hover {
+        background: var(--azul);
+        color: white;
+    }
+
+.btn-tabla-preseleccionar {
+    background: var(--morado-50);
+    color: var(--morado-600);
+}
+
+    .btn-tabla-preseleccionar:hover {
+        background: var(--morado);
+        color: white;
+    }
+
+/* ============================================================
+   FOOTER DE TABLA
+   ============================================================ */
+.table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 22px;
+    background: var(--slate-50);
+    border-top: 1px solid var(--slate-200);
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 13px;
+}
+
+.footer-info {
+    display: flex;
+    align-items
