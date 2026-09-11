@@ -5,248 +5,428 @@
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/carga-masiva.css" asp-append-version="true" />
+    <link rel="stylesheet"
+          href="~/css/carga-masiva.css"
+          asp-append-version="true" />
 }
 
 <div class="carga-masiva-page">
 
-    <!-- ============================================
-         HEADER
-         ============================================ -->
+    <!-- ENCABEZADO -->
     <div class="carga-header">
+
         <div class="carga-header-info">
+
             <div class="carga-header-icon">
                 <i class="fas fa-robot"></i>
             </div>
+
             <div>
                 <h1 class="carga-title">
                     Análisis de Currículums con IA
                 </h1>
+
                 <p class="carga-subtitle">
-                    Selecciona una vacante y carga hasta 20 currículums en formato PDF
-                    para su análisis automático con inteligencia artificial.
+                    Selecciona una vacante y carga hasta 50
+                    currículums en formato PDF para su análisis
+                    automático con inteligencia artificial.
                 </p>
             </div>
+
         </div>
 
         <div class="carga-header-steps">
+
             <div class="step-item">
                 <span class="step-number">1</span>
-                <span class="step-text">Seleccionar vacante</span>
+                <span class="step-text">
+                    Seleccionar vacante
+                </span>
             </div>
+
             <i class="fas fa-arrow-right step-arrow"></i>
+
             <div class="step-item">
                 <span class="step-number">2</span>
-                <span class="step-text">Cargar CVs</span>
+                <span class="step-text">
+                    Cargar CV
+                </span>
             </div>
+
             <i class="fas fa-arrow-right step-arrow"></i>
+
             <div class="step-item">
                 <span class="step-number">3</span>
-                <span class="step-text">Analizar</span>
+                <span class="step-text">
+                    Analizar
+                </span>
             </div>
+
         </div>
+
     </div>
 
-    <!-- ============================================
-         FORMULARIO
-         ============================================ -->
+    <!-- FORMULARIO -->
     <div class="carga-form-container">
-        <form asp-action="CargaMasiva"
+
+        <form asp-controller="Vacantes"
+              asp-action="CargaMasiva"
               method="post"
               enctype="multipart/form-data"
               id="formCargaMasiva">
 
-            <!-- VALIDACIÓN -->
+            @Html.AntiForgeryToken()
+
+            <!-- ERRORES GENERALES -->
             <div asp-validation-summary="ModelOnly"
                  class="carga-alert carga-alert-danger">
             </div>
 
-            <!-- PASO 1: VACANTE -->
+            <!-- PASO 1: SELECCIONAR VACANTE -->
             <div class="carga-section">
+
                 <div class="carga-section-header">
-                    <div class="carga-section-badge">Paso 1</div>
+
+                    <div class="carga-section-badge">
+                        Paso 1
+                    </div>
+
                     <div>
                         <h3 class="carga-section-title">
                             <i class="fas fa-briefcase"></i>
-                            Seleccionar Vacante
+                            Seleccionar vacante
                         </h3>
+
                         <p class="carga-section-desc">
-                            Elige la vacante para la cual deseas analizar los currículums.
+                            Elige la vacante para la cual deseas
+                            analizar los currículums.
                         </p>
                     </div>
+
                 </div>
 
                 <div class="carga-field">
-                    <label asp-for="IdVacante" class="carga-label">
+
+                    <label asp-for="IdVacante"
+                           class="carga-label">
                         Vacante disponible
                     </label>
 
                     <div class="carga-select-wrapper">
+
                         <i class="fas fa-briefcase carga-select-icon"></i>
+
                         <select asp-for="IdVacante"
                                 asp-items="ViewBag.Vacantes"
                                 class="carga-select"
-                                id="selectVacante">
-                            <option value="">— Selecciona una vacante —</option>
+                                id="selectVacante"
+                                required>
+
+                            <option value="">
+                                — Selecciona una vacante —
+                            </option>
+
                         </select>
+
                         <i class="fas fa-chevron-down carga-select-chevron"></i>
+
                     </div>
 
-                    <span asp-validation-for="IdVacante" class="carga-error"></span>
+                    <span asp-validation-for="IdVacante"
+                          class="carga-error">
+                    </span>
+
                 </div>
+
             </div>
 
-            <!-- PASO 2: ARCHIVOS -->
+            <!-- PASO 2: SELECCIONAR ARCHIVOS -->
             <div class="carga-section">
+
                 <div class="carga-section-header">
-                    <div class="carga-section-badge">Paso 2</div>
+
+                    <div class="carga-section-badge">
+                        Paso 2
+                    </div>
+
                     <div>
                         <h3 class="carga-section-title">
                             <i class="fas fa-file-upload"></i>
-                            Cargar Currículums
+                            Cargar currículums
                         </h3>
+
                         <p class="carga-section-desc">
-                            Sube hasta 20 archivos PDF. Cada uno puede pesar máximo 10 MB.
+                            Sube hasta 50 archivos PDF.
+                            Cada archivo puede pesar máximo 10 MB.
                         </p>
                     </div>
+
                 </div>
 
                 <div class="carga-field">
-                    <label asp-for="Archivos" class="carga-label">
-                        Currículums (PDF)
+
+                    <label asp-for="Archivos"
+                           class="carga-label">
+                        Currículums en PDF
                     </label>
 
-                    <!-- DROPZONE -->
-                    <div class="upload-dropzone" id="dropzone">
+                    <!-- ÁREA PARA SELECCIONAR ARCHIVOS -->
+                    <div class="upload-dropzone"
+                         id="dropzone">
+
                         <input asp-for="Archivos"
                                type="file"
                                accept=".pdf,application/pdf"
                                multiple
+                               required
                                class="upload-input"
                                id="archivosCv" />
 
-                        <div class="upload-dropzone-content" id="dropzoneContent">
+                        <div class="upload-dropzone-content"
+                             id="dropzoneContent">
+
                             <div class="upload-icon">
                                 <i class="fas fa-cloud-upload-alt"></i>
                             </div>
+
                             <h4 class="upload-title">
                                 Arrastra tus archivos aquí
                             </h4>
+
                             <p class="upload-subtitle">
                                 o
-                                <label for="archivosCv" class="upload-browse">
-                                    selecciona archivos
+
+                                <label for="archivosCv"
+                                       class="upload-browse">
+                                    selecciona los archivos
                                 </label>
-                                desde tu dispositivo
+
+                                desde tu computadora
                             </p>
+
                             <div class="upload-info">
+
                                 <span>
                                     <i class="fas fa-file-pdf"></i>
-                                    PDF
+                                    Solo PDF
                                 </span>
+
                                 <span>
                                     <i class="fas fa-weight-hanging"></i>
-                                    Máx. 10 MB por archivo
+                                    Máximo 10 MB por archivo
                                 </span>
+
                                 <span>
                                     <i class="fas fa-layer-group"></i>
-                                    Hasta 20 archivos
+                                    Hasta 50 archivos
                                 </span>
+
                             </div>
+
                         </div>
+
                     </div>
 
-                    <span asp-validation-for="Archivos" class="carga-error"></span>
+                    <span asp-validation-for="Archivos"
+                          class="carga-error">
+                    </span>
+
                 </div>
+
             </div>
 
             <!-- RESUMEN DE ARCHIVOS -->
-            <div id="resumenArchivos" class="carga-summary d-none">
+            <div id="resumenArchivos"
+                 class="carga-summary d-none">
+
                 <div class="carga-summary-header">
+
                     <div class="carga-summary-title">
+
                         <i class="fas fa-check-circle"></i>
-                        <strong id="cantidadArchivos">0 archivos seleccionados</strong>
+
+                        <strong id="cantidadArchivos">
+                            0 archivos seleccionados
+                        </strong>
+
                     </div>
+
                     <button type="button"
                             class="btn-limpiar-archivos"
                             id="btnLimpiarArchivos">
+
                         <i class="fas fa-times"></i>
                         Limpiar
+
                     </button>
+
                 </div>
 
-                <ul id="listaArchivos" class="carga-summary-list"></ul>
+                <ul id="listaArchivos"
+                    class="carga-summary-list">
+                </ul>
+
             </div>
 
-            <!-- AVISO PROCESANDO -->
-            <div id="avisoProcesando" class="carga-processing d-none">
+            <!-- MENSAJE DE PROCESAMIENTO -->
+            <div id="avisoProcesando"
+                 class="carga-processing d-none">
+
                 <div class="carga-processing-content">
+
                     <div class="carga-spinner"></div>
+
                     <div>
-                        <strong>Analizando currículums con IA...</strong>
-                        <p>No cierres ni actualices esta página. El proceso puede tomar varios minutos.</p>
+                        <strong>
+                            Analizando currículums con IA...
+                        </strong>
+
+                        <p>
+                            No cierres ni actualices esta página.
+                            El proceso puede tomar varios minutos.
+                        </p>
                     </div>
+
                 </div>
+
                 <div class="carga-progress-bar">
                     <div class="carga-progress-fill"></div>
                 </div>
+
             </div>
 
-            <!-- PASO 3: ACCIONES -->
+            <!-- BOTONES -->
             <div class="carga-actions">
+
                 <button type="submit"
                         class="btn-carga-primary"
                         id="botonAnalizar">
+
                     <i class="fas fa-magic"></i>
-                    <span>Analizar currículums</span>
+
+                    <span>
+                        Analizar currículums
+                    </span>
+
                 </button>
 
-                <a asp-action="Index" class="btn-carga-secondary">
+                <a asp-controller="Vacantes"
+                   asp-action="Index"
+                   class="btn-carga-secondary">
+
                     <i class="fas fa-arrow-left"></i>
-                    <span>Volver a vacantes</span>
+
+                    <span>
+                        Volver a vacantes
+                    </span>
+
                 </a>
+
             </div>
+
         </form>
+
     </div>
 
 </div>
 
 @section Scripts {
+
     @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        await Html.RenderPartialAsync(
+            "_ValidationScriptsPartial"
+        );
     }
 
     <script>
         (() => {
-            const input = document.getElementById("archivosCv");
-            const resumen = document.getElementById("resumenArchivos");
-            const cantidad = document.getElementById("cantidadArchivos");
-            const lista = document.getElementById("listaArchivos");
-            const formulario = document.getElementById("formCargaMasiva");
-            const boton = document.getElementById("botonAnalizar");
-            const aviso = document.getElementById("avisoProcesando");
-            const dropzone = document.getElementById("dropzone");
-            const dropzoneContent = document.getElementById("dropzoneContent");
-            const btnLimpiar = document.getElementById("btnLimpiarArchivos");
-            const selectVacante = document.getElementById("selectVacante");
 
-            const MAX_ARCHIVOS = 20;
+            const input =
+                document.getElementById("archivosCv");
+
+            const resumen =
+                document.getElementById("resumenArchivos");
+
+            const cantidad =
+                document.getElementById("cantidadArchivos");
+
+            const lista =
+                document.getElementById("listaArchivos");
+
+            const formulario =
+                document.getElementById("formCargaMasiva");
+
+            const boton =
+                document.getElementById("botonAnalizar");
+
+            const aviso =
+                document.getElementById("avisoProcesando");
+
+            const dropzone =
+                document.getElementById("dropzone");
+
+            const btnLimpiar =
+                document.getElementById(
+                    "btnLimpiarArchivos"
+                );
+
+            const selectVacante =
+                document.getElementById(
+                    "selectVacante"
+                );
+
+            const MAX_ARCHIVOS = 50;
             const MAX_TAMANO_MB = 10;
-            const MAX_TAMANO_BYTES = MAX_TAMANO_MB * 1024 * 1024;
+
+            const MAX_TAMANO_BYTES =
+                MAX_TAMANO_MB * 1024 * 1024;
 
             // ============================================
-            // FORMATEAR TAMAÑO DE ARCHIVO
+            // FORMATEAR TAMAÑO
             // ============================================
+
             function formatearTamano(bytes) {
-                if (bytes < 1024) return bytes + " B";
-                if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-                return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+
+                if (bytes < 1024) {
+                    return bytes + " B";
+                }
+
+                if (bytes < 1024 * 1024) {
+                    return (
+                        bytes / 1024
+                    ).toFixed(1) + " KB";
+                }
+
+                return (
+                    bytes / (1024 * 1024)
+                ).toFixed(2) + " MB";
             }
 
             // ============================================
-            // RENDERIZAR LISTA DE ARCHIVOS
+            // VALIDAR UN ARCHIVO
             // ============================================
+
+            function esArchivoValido(archivo) {
+
+                const nombre =
+                    archivo.name.toLowerCase();
+
+                const esPdf =
+                    nombre.endsWith(".pdf") ||
+                    archivo.type === "application/pdf";
+
+                const tamanoValido =
+                    archivo.size <= MAX_TAMANO_BYTES;
+
+                return esPdf && tamanoValido;
+            }
+
+            // ============================================
+            // MOSTRAR ARCHIVOS SELECCIONADOS
+            // ============================================
+
             function renderizarArchivos(archivos) {
+
                 lista.innerHTML = "";
 
                 if (archivos.length === 0) {
@@ -256,107 +436,287 @@
 
                 resumen.classList.remove("d-none");
 
-                cantidad.textContent = archivos.length === 1
-                    ? "1 currículum seleccionado"
-                    : archivos.length + " currículums seleccionados";
+                cantidad.textContent =
+                    archivos.length === 1
+                        ? "1 currículum seleccionado"
+                        : archivos.length +
+                        " currículums seleccionados";
 
-                archivos.forEach((archivo, index) => {
-                    const li = document.createElement("li");
-                    li.className = "carga-summary-item";
+                archivos.forEach((archivo) => {
 
-                    const esValido = archivo.name.toLowerCase().endsWith(".pdf")
-                                     && archivo.size <= MAX_TAMANO_BYTES;
+                    const li =
+                        document.createElement("li");
+
+                    li.className =
+                        "carga-summary-item";
+
+                    const archivoValido =
+                        esArchivoValido(archivo);
 
                     li.innerHTML = `
-                        <div class="item-icon ${esValido ? '' : 'item-icon-error'}">
-                            <i class="fas ${esValido ? 'fa-file-pdf' : 'fa-exclamation-triangle'}"></i>
-                        </div>
-                        <div class="item-info">
-                            <span class="item-name">${archivo.name}</span>
-                            <span class="item-size">${formatearTamano(archivo.size)}</span>
-                        </div>
-                        ${!esValido ? '<span class="item-badge">Inválido</span>' : '<span class="item-badge item-badge-ok"><i class="fas fa-check"></i></span>'}
-                    `;
+                                <div class="item-icon ${archivoValido
+                            ? ""
+                            : "item-icon-error"
+                        }">
+                                    <i class="fas ${archivoValido
+                            ? "fa-file-pdf"
+                            : "fa-exclamation-triangle"
+                        }"></i>
+                                </div>
+
+                                <div class="item-info">
+                                    <span class="item-name">
+                                        ${archivo.name}
+                                    </span>
+
+                                    <span class="item-size">
+                                        ${formatearTamano(
+                            archivo.size
+                        )}
+                                    </span>
+                                </div>
+
+                                ${archivoValido
+                            ? `
+                                            <span class="item-badge item-badge-ok">
+                                                <i class="fas fa-check"></i>
+                                            </span>
+                                          `
+                            : `
+                                            <span class="item-badge">
+                                                Inválido
+                                            </span>
+                                          `
+                        }
+                            `;
 
                     lista.appendChild(li);
                 });
             }
 
             // ============================================
-            // EVENTO CHANGE EN INPUT
+            // CAMBIO EN EL INPUT
             // ============================================
-            input.addEventListener("change", () => {
-                let archivos = Array.from(input.files);
 
-                // Validar máximo de archivos
+            input.addEventListener("change", () => {
+
+                const archivos =
+                    Array.from(input.files);
+
                 if (archivos.length > MAX_ARCHIVOS) {
-                    alert(`Solo puedes seleccionar hasta ${MAX_ARCHIVOS} archivos.`);
-                    archivos = archivos.slice(0, MAX_ARCHIVOS);
+
+                    alert(
+                        `Solo puedes seleccionar hasta ${MAX_ARCHIVOS} archivos.`
+                    );
+
+                    input.value = "";
+                    lista.innerHTML = "";
+                    resumen.classList.add("d-none");
+
+                    return;
                 }
 
                 renderizarArchivos(archivos);
             });
 
             // ============================================
-            // DRAG & DROP
+            // ARRASTRAR ARCHIVOS
             // ============================================
-            ["dragenter", "dragover"].forEach(evento => {
-                dropzone.addEventListener(evento, (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    dropzone.classList.add("dropzone-hover");
-                });
-            });
 
-            ["dragleave", "drop"].forEach(evento => {
-                dropzone.addEventListener(evento, (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    dropzone.classList.remove("dropzone-hover");
-                });
-            });
+            ["dragenter", "dragover"].forEach(
+                evento => {
 
-            dropzone.addEventListener("drop", (e) => {
-                const archivos = e.dataTransfer.files;
-                if (archivos.length > 0) {
-                    input.files = archivos;
-                    input.dispatchEvent(new Event("change"));
+                    dropzone.addEventListener(
+                        evento,
+                        (e) => {
+
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            dropzone.classList.add(
+                                "dropzone-hover"
+                            );
+                        }
+                    );
                 }
-            });
+            );
+
+            ["dragleave", "drop"].forEach(
+                evento => {
+
+                    dropzone.addEventListener(
+                        evento,
+                        (e) => {
+
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            dropzone.classList.remove(
+                                "dropzone-hover"
+                            );
+                        }
+                    );
+                }
+            );
+
+            dropzone.addEventListener(
+                "drop",
+                (e) => {
+
+                    const archivos =
+                        Array.from(
+                            e.dataTransfer.files
+                        );
+
+                    if (
+                        archivos.length >
+                        MAX_ARCHIVOS
+                    ) {
+                        alert(
+                            `Solo puedes seleccionar hasta ${MAX_ARCHIVOS} archivos.`
+                        );
+
+                        return;
+                    }
+
+                    const transferencia =
+                        new DataTransfer();
+
+                    archivos.forEach(archivo => {
+                        transferencia.items.add(
+                            archivo
+                        );
+                    });
+
+                    input.files =
+                        transferencia.files;
+
+                    input.dispatchEvent(
+                        new Event("change")
+                    );
+                }
+            );
 
             // ============================================
             // LIMPIAR ARCHIVOS
             // ============================================
-            btnLimpiar.addEventListener("click", () => {
-                input.value = "";
-                lista.innerHTML = "";
-                resumen.classList.add("d-none");
-            });
+
+            btnLimpiar.addEventListener(
+                "click",
+                () => {
+
+                    input.value = "";
+                    lista.innerHTML = "";
+
+                    resumen.classList.add(
+                        "d-none"
+                    );
+                }
+            );
 
             // ============================================
-            // SUBMIT DEL FORMULARIO
+            // ENVIAR FORMULARIO
             // ============================================
-            formulario.addEventListener("submit", (e) => {
-                if (!formulario.checkValidity()) {
-                    return;
+
+            formulario.addEventListener(
+                "submit",
+                (e) => {
+
+                    if (!selectVacante.value) {
+
+                        e.preventDefault();
+
+                        alert(
+                            "Debes seleccionar una vacante."
+                        );
+
+                        selectVacante.focus();
+
+                        return;
+                    }
+
+                    if (
+                        !input.files ||
+                        input.files.length === 0
+                    ) {
+                        e.preventDefault();
+
+                        alert(
+                            "Debes seleccionar al menos un currículum."
+                        );
+
+                        return;
+                    }
+
+                    if (
+                        input.files.length >
+                        MAX_ARCHIVOS
+                    ) {
+                        e.preventDefault();
+
+                        alert(
+                            `Solo puedes analizar hasta ${MAX_ARCHIVOS} currículums por lote.`
+                        );
+
+                        return;
+                    }
+
+                    const archivos =
+                        Array.from(input.files);
+
+                    const archivoInvalido =
+                        archivos.find(
+                            archivo =>
+                                !esArchivoValido(
+                                    archivo
+                                )
+                        );
+
+                    if (archivoInvalido) {
+
+                        e.preventDefault();
+
+                        alert(
+                            `El archivo "${archivoInvalido.name}" no es válido. Todos deben ser PDF y pesar máximo ${MAX_TAMANO_MB} MB.`
+                        );
+
+                        return;
+                    }
+
+                    /*
+                     * Se deshabilita únicamente el botón.
+                     * La vacante y los archivos deben permanecer
+                     * habilitados para que se envíen al controlador.
+                     */
+
+                    boton.disabled = true;
+
+                    boton.innerHTML = `
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <span>Analizando...</span>
+                            `;
+
+                    btnLimpiar.disabled = true;
+
+                    aviso.classList.remove(
+                        "d-none"
+                    );
+
+                    aviso.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+
+                    /*
+                     * NO agregar:
+                     *
+                     * selectVacante.disabled = true;
+                     * input.disabled = true;
+                     *
+                     * Los campos deshabilitados no se envían.
+                     */
                 }
-
-                if (!input.files || input.files.length === 0) {
-                    e.preventDefault();
-                    alert("Debes seleccionar al menos un currículum.");
-                    return;
-                }
-
-                boton.disabled = true;
-                boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Analizando...</span>';
-                aviso.classList.remove("d-none");
-                aviso.scrollIntoView({ behavior: "smooth", block: "center" });
-
-                // Deshabilitar interacciones
-                selectVacante.disabled = true;
-                input.disabled = true;
-                btnLimpiar.disabled = true;
-            });
+            );
 
         })();
     </script>

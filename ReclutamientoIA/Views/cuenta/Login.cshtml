@@ -2,72 +2,186 @@
 
 @{
     ViewData["Title"] = "Iniciar sesión";
-}
-@section Styles {
-    <link rel="stylesheet"
-          href="~/css/login.css"
-          asp-append-version="true" />
+    Layout = null; // Login sin sidebar ni topbar
 }
 
-<div class="row justify-content-center login-contenedor">
-    <div class="col-md-5 col-lg-4">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white text-center">
-                <h3 class="mb-0">Reclutamiento IA</h3>
-                <small>Inicio de sesión</small>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ReclutamientoIA</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- CSS de Login -->
+    <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
+</head>
+<body>
+
+    <div class="login-page">
+
+        <!-- ============================================
+         LADO IZQUIERDO: BRANDING
+         ============================================ -->
+        <aside class="login-branding">
+            <div class="login-branding-content">
+                <div class="login-logo">
+                    <i class="fas fa-brain"></i>
+                </div>
+
+                <h1 class="login-branding-title">
+                    Reclutamiento<span>IA</span>
+                </h1>
+
+                <p class="login-branding-desc">
+                    Sistema inteligente de reclutamiento con análisis de currículums mediante inteligencia artificial.
+                </p>
+
+                <ul class="login-features">
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span>Análisis automático de CVs con IA</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span>Ranking inteligente de candidatos</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span>Gestión completa del proceso de selección</span>
+                    </li>
+                </ul>
             </div>
 
-            <div class="card-body p-4">
+            <div class="login-branding-footer">
+                &copy; @DateTime.Now.Year ReclutamientoIA · v1.0.0
+            </div>
+        </aside>
+
+        <!-- ============================================
+         LADO DERECHO: FORMULARIO
+         ============================================ -->
+        <main class="login-form-container">
+            <div class="login-form-box">
+
+                <!-- Logo móvil -->
+                <div class="login-mobile-logo">
+                    <i class="fas fa-brain"></i>
+                    <span>Reclutamiento<span>IA</span></span>
+                </div>
+
+                <!-- Header -->
+                <div class="login-header">
+                    <h2>Bienvenido de nuevo</h2>
+                    <p>Inicia sesión para continuar</p>
+                </div>
+
+                <!-- Formulario -->
                 <form asp-action="Login"
                       asp-route-returnUrl="@ViewData["ReturnUrl"]"
-                      method="post">
+                      method="post"
+                      class="login-form">
 
-                    <div asp-validation-summary="ModelOnly"
-                         class="alert alert-danger"></div>
+                    <div asp-validation-summary="ModelOnly" class="login-alert"></div>
 
-                    <div class="mb-3">
-                        <label asp-for="Correo" class="form-label">
+                    <!-- Correo -->
+                    <div class="login-field">
+                        <label asp-for="Correo" class="login-label">
                             Correo electrónico
                         </label>
-                        <input asp-for="Correo"
-                               class="form-control"
-                               autocomplete="username"
-                               placeholder="correo@ejemplo.com" />
-                        <span asp-validation-for="Correo"
-                              class="text-danger"></span>
+                        <div class="login-input-wrapper">
+                            <i class="fas fa-envelope login-input-icon"></i>
+                            <input asp-for="Correo"
+                                   class="login-input"
+                                   autocomplete="username"
+                                   placeholder="correo@ejemplo.com"
+                                   autofocus />
+                        </div>
+                        <span asp-validation-for="Correo" class="login-error"></span>
                     </div>
 
-                    <div class="mb-3">
-                        <label asp-for="Contrasena" class="form-label">
+                    <!-- Contraseña -->
+                    <div class="login-field">
+                        <label asp-for="Contrasena" class="login-label">
                             Contraseña
                         </label>
-                        <input asp-for="Contrasena"
-                               class="form-control"
-                               autocomplete="current-password"
-                               placeholder="Ingrese su contraseña" />
-                        <span asp-validation-for="Contrasena"
-                              class="text-danger"></span>
+                        <div class="login-input-wrapper">
+                            <i class="fas fa-lock login-input-icon"></i>
+                            <input asp-for="Contrasena"
+                                   id="loginPassword"
+                                   class="login-input login-input-password"
+                                   autocomplete="current-password"
+                                   placeholder="Ingresa tu contraseña" />
+                            <button type="button"
+                                    class="login-toggle-password"
+                                    id="togglePassword"
+                                    title="Mostrar/ocultar contraseña">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Contrasena" class="login-error"></span>
                     </div>
 
-                    <div class="form-check mb-3">
-                        <input asp-for="Recordarme"
-                               class="form-check-input" />
-                        <label asp-for="Recordarme"
-                               class="form-check-label"></label>
+                    <!-- Recordarme -->
+                    <div class="login-checkbox-row">
+                        <label class="login-checkbox">
+                            <input asp-for="Recordarme" type="checkbox" />
+                            <span class="login-checkbox-box">
+                                <i class="fas fa-check"></i>
+                            </span>
+                            <span class="login-checkbox-text">Recordarme</span>
+                        </label>
                     </div>
 
-                    <button type="submit"
-                            class="btn btn-primary w-100">
-                        Iniciar sesión
+                    <!-- Botón -->
+                    <button type="submit" class="login-button">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Iniciar sesión</span>
                     </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 
-@section Scripts {
+                </form>
+
+            </div>
+        </main>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-}
+
+    <script>
+            // ============================================
+            // MOSTRAR/OCULTAR CONTRASEÑA
+            // ============================================
+            document.addEventListener('DOMContentLoaded', function() {
+                const toggleBtn = document.getElementById('togglePassword');
+                const passwordInput = document.getElementById('loginPassword');
+
+                if (!toggleBtn || !passwordInput) return;
+
+                toggleBtn.addEventListener('click', function() {
+                    const estaOculta = passwordInput.type === 'password';
+                    passwordInput.type = estaOculta ? 'text' : 'password';
+
+                    const icono = this.querySelector('i');
+                    icono.className = estaOculta ? 'fas fa-eye-slash' : 'fas fa-eye';
+                });
+            });
+    </script>
+
+</body>
+</html>

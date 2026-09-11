@@ -41,20 +41,6 @@
             </a>
         </div>
 
-        <!-- USUARIO -->
-        @if (User.Identity?.IsAuthenticated == true)
-        {
-            <div class="sidebar-user">
-                <div class="user-avatar-pro">
-                    @(User.Identity.Name?.Substring(0, 1).ToUpper() ?? "U")
-                </div>
-                <div class="user-details-pro">
-                    <strong>@User.Identity.Name</strong>
-                    <span>@(User.IsInRole("Administrador") ? "Administrador" : "Reclutador")</span>
-                </div>
-            </div>
-        }
-
         <!-- NAVEGACIÓN -->
         <nav class="sidebar-nav">
             <ul>
@@ -208,11 +194,56 @@
                     <span class="badge-dot"></span>
                 </button>
 
-                <div class="topbar-user">
-                    <div class="user-avatar-top">
+                <!-- ==============================
+                     USUARIO CON DROPDOWN
+                     ============================== -->
+                <div class="topbar-user" id="userDropdown">
+                    <button type="button" class="user-avatar-top" id="userAvatarBtn" aria-label="Menú de usuario">
                         @(User.Identity?.Name?.Substring(0, 1).ToUpper() ?? "U")
+                    </button>
+
+                    <!-- DROPDOWN USUARIO -->
+                    <div class="user-dropdown" id="userDropdownMenu">
+
+                        <!-- Header con avatar grande -->
+                        <div class="user-dropdown-header">
+                            <div class="user-dropdown-avatar">
+                                @(User.Identity?.Name?.Substring(0, 1).ToUpper() ?? "U")
+                            </div>
+                            <div class="user-dropdown-info">
+                                <strong class="user-dropdown-name">
+                                    @(User.Identity?.Name ?? "Usuario")
+                                </strong>
+                                <span class="user-dropdown-email">
+                                    @User.Identity?.Name
+                                </span>
+                                <span class="user-dropdown-role">
+                                    @(User.IsInRole("Administrador") ? "Administrador" :
+                                      User.IsInRole("Reclutador") ? "Reclutador" : "Usuario")
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="user-dropdown-divider"></div>
+
+                        <!-- Opciones -->
+                       
+                        <div class="user-dropdown-divider"></div>
+
+                        <!-- Cerrar sesión -->
+                        <div class="user-dropdown-footer">
+                            <form asp-controller="Cuenta" asp-action="CerrarSesion" method="post">
+                                <button type="submit" class="user-dropdown-logout">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>Cerrar sesión</span>
+                                </button>
+                            </form>
+                        </div>
+
                     </div>
                 </div>
+                <!-- FIN USUARIO CON DROPDOWN -->
+
             </div>
         </header>
 
@@ -292,6 +323,45 @@
                     sidebar?.classList.remove('show');
                     overlay?.classList.remove('show');
                 }
+            });
+
+            // ============================================
+            // DROPDOWN DE USUARIO
+            // ============================================
+            document.addEventListener('DOMContentLoaded', function() {
+                const userDropdown = document.getElementById('userDropdown');
+                const avatarBtn = document.getElementById('userAvatarBtn');
+                const dropdownMenu = document.getElementById('userDropdownMenu');
+
+                if (!userDropdown || !avatarBtn || !dropdownMenu) return;
+
+                // Toggle al hacer clic en el avatar
+                avatarBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('dropdown-open');
+                });
+
+                // Cerrar al hacer clic fuera
+                document.addEventListener('click', function(e) {
+                    if (!userDropdown.contains(e.target)) {
+                        userDropdown.classList.remove('dropdown-open');
+                    }
+                });
+
+                // Cerrar con ESC
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        userDropdown.classList.remove('dropdown-open');
+                    }
+                });
+
+                // Cerrar al hacer clic en una opción del menú
+                dropdownMenu.querySelectorAll('a, button').forEach(item => {
+                    item.addEventListener('click', function() {
+                        userDropdown.classList.remove('dropdown-open');
+                    });
+                });
             });
     </script>
 
